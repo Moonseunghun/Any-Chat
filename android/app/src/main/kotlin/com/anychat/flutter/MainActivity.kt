@@ -1,4 +1,4 @@
-package com.anychat.anychat
+package com.anychat.flutter
 
 import io.flutter.embedding.android.FlutterActivity
 

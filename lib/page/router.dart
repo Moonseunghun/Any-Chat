@@ -3,7 +3,7 @@ import 'package:go_router/go_router.dart';
 
 import 'main_layout.dart';
 
-final router = GoRouter(initialLocation: '/', routes: [
+final router = GoRouter(initialLocation: '/login', routes: [
   GoRoute(path: '/login', builder: (context, state) => const LoginPage()),
   GoRoute(path: '/', builder: (context, state) => MainLayout())
 ]);
