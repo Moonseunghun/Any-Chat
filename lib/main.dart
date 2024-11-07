@@ -16,7 +16,7 @@ class MyApp extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return ScreenUtilInit(
-        designSize: const Size(390, 844),
+        designSize: const Size(393, 852),
         splitScreenMode: false,
         builder: (_, child) => ToastificationWrapper(
             child: MaterialApp.router(
