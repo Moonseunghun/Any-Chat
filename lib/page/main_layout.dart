@@ -1,3 +1,4 @@
+import 'package:anychat/page/home/home_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -10,7 +11,7 @@ class MainLayout extends HookConsumerWidget {
 
   MainLayout({super.key});
 
-  final List<Widget> pages = [Container(), Container(), Container()];
+  final List<Widget> pages = [const HomePage(), Container(), Container()];
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
