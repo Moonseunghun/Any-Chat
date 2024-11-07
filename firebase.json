@@ -1,0 +1,30 @@
+{
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "anychat-78034",
+          "appId": "1:763579885192:android:00ab84ea0e2013a568e13d",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "ios": {
+        "default": {
+          "projectId": "anychat-78034",
+          "appId": "1:763579885192:ios:91888cacf5aa412568e13d",
+          "uploadDebugSymbols": false,
+          "fileOutput": "ios/Runner/GoogleService-Info.plist"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "anychat-78034",
+          "configurations": {
+            "android": "1:763579885192:android:00ab84ea0e2013a568e13d",
+            "ios": "1:763579885192:ios:91888cacf5aa412568e13d"
+          }
+        }
+      }
+    }
+  }
+}

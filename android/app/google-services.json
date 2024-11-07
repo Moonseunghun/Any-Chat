@@ -1,0 +1,106 @@
+{
+  "project_info": {
+    "project_number": "763579885192",
+    "project_id": "anychat-78034",
+    "storage_bucket": "anychat-78034.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:763579885192:android:7efc2e0f104c4dbd68e13d",
+        "android_client_info": {
+          "package_name": "com.anychat.dev.flutter"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "763579885192-7qcql6foamh98vmglvp980h2a6re55sj.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.anychat.dev.flutter",
+            "certificate_hash": "37d87cbc216ce8696782dbdc1751ca7693ed0c7c"
+          }
+        },
+        {
+          "client_id": "763579885192-qur4oigcj59qq7qvt0ts6or0v9ga664c.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.anychat.dev.flutter",
+            "certificate_hash": "e1bf48853893119d4c217d8a5ed7326884978612"
+          }
+        },
+        {
+          "client_id": "763579885192-epakl69dn21vroig9bplttg03rdbnmul.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDrDjKuUzVs8HVjvYNLBRD1vEEW2XkZS1w"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "763579885192-epakl69dn21vroig9bplttg03rdbnmul.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "763579885192-61l68e2hhio5268ecnlsmcp2ubmjtn97.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.anychat.flutter"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:763579885192:android:00ab84ea0e2013a568e13d",
+        "android_client_info": {
+          "package_name": "com.anychat.flutter"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "763579885192-8hm9panpn2u1003d7eq2envilcspjvob.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.anychat.flutter",
+            "certificate_hash": "0a9d73578d5c7c266251d918ad87c08c5bf2ba9c"
+          }
+        },
+        {
+          "client_id": "763579885192-epakl69dn21vroig9bplttg03rdbnmul.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDrDjKuUzVs8HVjvYNLBRD1vEEW2XkZS1w"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "763579885192-epakl69dn21vroig9bplttg03rdbnmul.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "763579885192-61l68e2hhio5268ecnlsmcp2ubmjtn97.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.anychat.flutter"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

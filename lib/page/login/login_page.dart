@@ -1,3 +1,6 @@
+import 'package:anychat/page/login/language_select_page.dart';
+import 'package:anychat/page/router.dart';
+import 'package:anychat/service/login_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -18,7 +21,13 @@ class LoginPage extends HookConsumerWidget {
         Image.asset('assets/images/logo.png', width: 230.w),
         SizedBox(height: 81.h),
         InkWell(
-            onTap: () {},
+            onTap: () {
+              LoginService().signInWithGoogle(ref).then((value) {
+                if (value) {
+                  router.go(LanguageSelectPage.routeName);
+                }
+              });
+            },
             child: Container(
                 width: 358.w,
                 height: 50.h,

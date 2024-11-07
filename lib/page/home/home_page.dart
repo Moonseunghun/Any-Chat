@@ -33,7 +33,7 @@ class HomePage extends HookConsumerWidget {
           child: Text('프로필', style: TextStyle(fontSize: 12.r, color: const Color(0xFF3B3B3B))),
         ),
         SizedBox(height: 10.h),
-        Padding(padding: EdgeInsets.symmetric(horizontal: 20.w), child: profileWidget()),
+        Padding(padding: EdgeInsets.symmetric(horizontal: 20.w), child: _profileWidget()),
         SizedBox(height: 10.h),
         Container(
           width: double.infinity,
@@ -51,7 +51,7 @@ class HomePage extends HookConsumerWidget {
     );
   }
 
-  Widget profileWidget() {
+  Widget _profileWidget() {
     return Container(
         padding: EdgeInsets.symmetric(vertical: 10.h),
         child: Row(
