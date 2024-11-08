@@ -7,6 +7,9 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
+import '../../service/friend_service.dart';
+import '../../service/user_service.dart';
+
 class ConsentPage extends HookConsumerWidget {
   static const String routeName = '/consent';
 
@@ -38,8 +41,9 @@ class ConsentPage extends HookConsumerWidget {
             return;
           }
 
-          LoginService().register(ref).then((_) {
-            router.go(MainLayout.routeName);
+          LoginService().register(ref).then((_) async {
+            await FriendService().getFriends(ref);
+            await UserService().getMe(ref).then((_) => router.go(MainLayout.routeName));
           });
         },
         child: Container(
