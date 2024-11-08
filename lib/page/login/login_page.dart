@@ -6,6 +6,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
+import '../main_layout.dart';
+
 class LoginPage extends HookConsumerWidget {
   static const String routeName = '/login';
 
@@ -22,9 +24,19 @@ class LoginPage extends HookConsumerWidget {
         SizedBox(height: 81.h),
         InkWell(
             onTap: () {
-              LoginService().signInWithGoogle(ref).then((value) {
+              final LoginService loginService = LoginService();
+
+              loginService.signInWithGoogle(ref).then((value) {
                 if (value) {
-                  router.go(LanguageSelectPage.routeName);
+                  loginService.registerCheck(ref).then((result) {
+                    if (result) {
+                      loginService.login(ref).then((_) {
+                        router.go(MainLayout.routeName);
+                      });
+                    } else {
+                      router.go(LanguageSelectPage.routeName);
+                    }
+                  });
                 }
               });
             },
