@@ -6,6 +6,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import '../user/profile_page.dart';
+import 'add_freind.dart';
 
 class HomePage extends HookConsumerWidget {
   const HomePage({super.key});
@@ -22,7 +23,10 @@ class HomePage extends HookConsumerWidget {
                     fontSize: 20.r, fontWeight: FontWeight.bold, color: const Color(0xFF3B3B3B))),
             const Spacer(),
             InkWell(
-                onTap: () {}, child: SvgPicture.asset('assets/images/friend_add.svg', width: 24.r)),
+                onTap: () {
+                  addFriendPopup(context, ref);
+                },
+                child: SvgPicture.asset('assets/images/friend_add.svg', width: 24.r)),
             SizedBox(width: 7.w),
             InkWell(
                 onTap: () {}, child: SvgPicture.asset('assets/images/settings.svg', width: 24.r)),

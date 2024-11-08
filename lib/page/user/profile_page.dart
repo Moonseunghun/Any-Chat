@@ -1,11 +1,11 @@
 import 'package:anychat/page/router.dart';
 import 'package:anychat/state/user_state.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 
-class ProfilePage extends ConsumerWidget {
+class ProfilePage extends HookConsumerWidget {
   static const String routeName = '/profile';
 
   const ProfilePage({super.key});
