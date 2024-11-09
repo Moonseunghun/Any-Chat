@@ -1,6 +1,7 @@
 import 'package:anychat/page/router.dart';
 import 'package:anychat/state/user_state.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -13,6 +14,9 @@ class HomePage extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final foldFavorites = useState<bool>(false);
+    final foldFriends = useState<bool>(false);
+
     return Column(
       children: [
         Row(
@@ -43,18 +47,38 @@ class HomePage extends HookConsumerWidget {
         SizedBox(height: 10.h),
         Padding(padding: EdgeInsets.symmetric(horizontal: 20.w), child: _profileWidget(ref)),
         SizedBox(height: 10.h),
-        Container(
-          width: double.infinity,
-          color: const Color(0xFFC74DFF).withOpacity(0.1),
-          padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 8.h),
-          child: Text('즐겨찾기', style: TextStyle(fontSize: 12.r, color: const Color(0xFF3B3B3B))),
-        ),
-        Container(
-          width: double.infinity,
-          color: const Color(0xFFC74DFF).withOpacity(0.1),
-          padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 8.h),
-          child: Text('친구 0명', style: TextStyle(fontSize: 12.r, color: const Color(0xFF3B3B3B))),
-        ),
+        InkWell(
+            onTap: () {
+              foldFavorites.value = !foldFavorites.value;
+            },
+            child: Container(
+                width: double.infinity,
+                color: const Color(0xFFC74DFF).withOpacity(0.1),
+                padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 8.h),
+                child: Row(
+                  children: [
+                    Text('즐겨찾기', style: TextStyle(fontSize: 12.r, color: const Color(0xFF3B3B3B))),
+                    const Spacer(),
+                    Icon(foldFavorites.value ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
+                        size: 12.r, color: const Color(0xFF3B3B3B))
+                  ],
+                ))),
+        InkWell(
+            onTap: () {
+              foldFriends.value = !foldFriends.value;
+            },
+            child: Container(
+                width: double.infinity,
+                color: const Color(0xFFC74DFF).withOpacity(0.1),
+                padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 8.h),
+                child: Row(
+                  children: [
+                    Text('친구 0명', style: TextStyle(fontSize: 12.r, color: const Color(0xFF3B3B3B))),
+                    const Spacer(),
+                    Icon(foldFriends.value ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
+                        size: 12.r, color: const Color(0xFF3B3B3B))
+                  ],
+                ))),
       ],
     );
   }
