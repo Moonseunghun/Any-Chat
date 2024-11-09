@@ -9,6 +9,7 @@ class ChatListPage extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Column(children: [
+      SizedBox(height: 10.h),
       Row(
         children: [
           SizedBox(width: 20.w),

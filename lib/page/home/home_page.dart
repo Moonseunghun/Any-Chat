@@ -19,6 +19,7 @@ class HomePage extends HookConsumerWidget {
 
     return Column(
       children: [
+        SizedBox(height: 10.h),
         Row(
           children: [
             SizedBox(width: 20.w),
