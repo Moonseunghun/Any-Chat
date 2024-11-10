@@ -6,6 +6,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
+import '../../model/auth.dart';
+
 class ProfilePage extends HookConsumerWidget {
   static const String routeName = '/profile';
 
@@ -26,12 +28,14 @@ class ProfilePage extends HookConsumerWidget {
           body: SafeArea(
               child: Column(
             children: [
+              SizedBox(height: 10.h),
               Row(
                 children: [
                   SizedBox(width: 10.w),
                   GestureDetector(
                       onTap: () {
                         if (isEditMode.value) {
+                          print(auth!.accessToken);
                           isEditMode.value = false;
                         } else {
                           router.pop();
@@ -83,27 +87,34 @@ class ProfilePage extends HookConsumerWidget {
                 ],
               ),
               SizedBox(height: 16.h),
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  SizedBox(width: 38.w),
-                  Text(
-                    user.name,
-                    style: TextStyle(
-                        fontSize: 16.r,
-                        color: const Color(0xFFF5F5F5),
-                        fontWeight: FontWeight.bold),
-                  ),
-                  Container(
-                      width: 38.w,
-                      height: 18.r,
-                      alignment: Alignment.centerRight,
-                      child: isEditMode.value
-                          ? SvgPicture.asset('assets/images/pen.svg', height: 18.r)
-                          : null)
-                ],
-              ),
+              GestureDetector(
+                  onTap: () {
+                    if (isEditMode.value) {}
+                  },
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      SizedBox(
+                        width: 38.w,
+                        height: 18.r,
+                      ),
+                      Text(
+                        user.name,
+                        style: TextStyle(
+                            fontSize: 16.r,
+                            color: const Color(0xFFF5F5F5),
+                            fontWeight: FontWeight.bold),
+                      ),
+                      Container(
+                          width: 38.w,
+                          height: 18.r,
+                          alignment: Alignment.centerRight,
+                          child: isEditMode.value
+                              ? SvgPicture.asset('assets/images/pen.svg', height: 18.r)
+                              : null)
+                    ],
+                  )),
               SizedBox(height: 12.h),
               Row(
                 mainAxisSize: MainAxisSize.min,
