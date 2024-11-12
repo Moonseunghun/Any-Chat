@@ -1,3 +1,5 @@
+import 'package:anychat/page/chat/chat_page.dart';
+import 'package:anychat/page/router.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
@@ -55,7 +57,9 @@ class ChatListPage extends HookConsumerWidget {
 
   Widget _chatHeader(WidgetRef ref) {
     return InkWell(
-        onTap: () {},
+        onTap: () {
+          router.push(ChatPage.routeName);
+        },
         child: Container(
             padding: EdgeInsets.symmetric(vertical: 12.h),
             decoration: const BoxDecoration(
