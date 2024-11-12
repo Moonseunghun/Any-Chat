@@ -1,4 +1,6 @@
 import 'package:anychat/page/router.dart';
+import 'package:anychat/service/friend_service.dart';
+import 'package:anychat/state/friend_state.dart';
 import 'package:anychat/state/user_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -6,17 +8,21 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
-import '../../model/auth.dart';
+import '../../model/friend.dart';
 
 class ProfilePage extends HookConsumerWidget {
   static const String routeName = '/profile';
 
-  const ProfilePage({super.key});
+  const ProfilePage({this.friend, super.key});
+
+  final Friend? friend;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final isEditMode = useState<bool>(false);
     final user = ref.watch(userProvider)!;
+    final Friend? friend =
+        ref.watch(friendsProvider).where((element) => element == this.friend).firstOrNull;
 
     return Container(
         decoration: const BoxDecoration(
@@ -35,7 +41,6 @@ class ProfilePage extends HookConsumerWidget {
                   GestureDetector(
                       onTap: () {
                         if (isEditMode.value) {
-                          print(auth!.accessToken);
                           isEditMode.value = false;
                         } else {
                           router.pop();
@@ -46,12 +51,25 @@ class ProfilePage extends HookConsumerWidget {
                           padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 10.h),
                           child: Icon(Icons.close, color: Colors.white, size: 24.r))),
                   const Spacer(),
-                  GestureDetector(
-                      onTap: () {},
-                      child: Container(
-                          color: Colors.transparent,
-                          padding: EdgeInsets.symmetric(horizontal: 5.w, vertical: 10.h),
-                          child: SvgPicture.asset('assets/images/star.svg', width: 24.r))),
+                  if (friend != null)
+                    GestureDetector(
+                        onTap: () {
+                          if (friend.isPinned) {
+                            FriendService().unpinFriend(ref, friend.id);
+                          } else {
+                            FriendService().pinFriend(ref, friend.id);
+                          }
+                        },
+                        child: Container(
+                            color: Colors.transparent,
+                            padding: EdgeInsets.symmetric(horizontal: 5.w, vertical: 10.h),
+                            child: SvgPicture.asset(
+                              'assets/images/star.svg',
+                              width: 24.r,
+                              colorFilter: friend.isPinned
+                                  ? const ColorFilter.mode(Colors.yellow, BlendMode.srcIn)
+                                  : null,
+                            ))),
                   GestureDetector(
                       onTap: () {},
                       child: Container(
@@ -100,7 +118,7 @@ class ProfilePage extends HookConsumerWidget {
                         height: 18.r,
                       ),
                       Text(
-                        user.name,
+                        friend?.nickname ?? user.name,
                         style: TextStyle(
                             fontSize: 16.r,
                             color: const Color(0xFFF5F5F5),
@@ -122,7 +140,7 @@ class ProfilePage extends HookConsumerWidget {
                 children: [
                   SizedBox(width: 38.w),
                   Text(
-                    user.userInfo.message ?? '여기에 상태메세지를 입력해주세요',
+                    (friend?.friend.message ?? user.userInfo.message) ?? '여기에 상태메세지를 입력해주세요',
                     style: TextStyle(
                         fontSize: 12.r,
                         fontWeight: FontWeight.w500,
@@ -145,25 +163,105 @@ class ProfilePage extends HookConsumerWidget {
                   height: 74.r + 32.h,
                   child: isEditMode.value
                       ? null
-                      : Column(
+                      : Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: [
-                            GestureDetector(
-                                onTap: () {
-                                  isEditMode.value = true;
-                                },
-                                child: Container(
-                                    color: Colors.transparent,
-                                    padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 10.h),
-                                    child: SvgPicture.asset('assets/images/pen_circle.svg',
-                                        width: 60.r))),
-                            const Spacer(),
-                            Text(
-                              '프로필편집',
-                              style: TextStyle(
-                                  fontWeight: FontWeight.w500,
-                                  fontSize: 14.r,
-                                  color: const Color(0xFFF5F5F5)),
-                            )
+                            SizedBox(width: 20.w),
+                            if (friend == null)
+                              Column(
+                                children: [
+                                  GestureDetector(
+                                      onTap: () {
+                                        isEditMode.value = true;
+                                      },
+                                      child: Container(
+                                          color: Colors.transparent,
+                                          padding: EdgeInsets.symmetric(
+                                              horizontal: 10.w, vertical: 10.h),
+                                          child: SvgPicture.asset('assets/images/pen_circle.svg',
+                                              width: 60.r))),
+                                  const Spacer(),
+                                  Text(
+                                    '프로필편집',
+                                    style: TextStyle(
+                                        fontWeight: FontWeight.w500,
+                                        fontSize: 14.r,
+                                        color: const Color(0xFFF5F5F5)),
+                                  )
+                                ],
+                              ),
+                            if (friend != null) ...[
+                              Column(
+                                children: [
+                                  GestureDetector(
+                                      onTap: () {
+                                        isEditMode.value = true;
+                                      },
+                                      child: Container(
+                                          color: Colors.transparent,
+                                          padding: EdgeInsets.symmetric(
+                                              horizontal: 10.w, vertical: 10.h),
+                                          child: SvgPicture.asset('assets/images/chat.svg',
+                                              width: 60.r))),
+                                  const Spacer(),
+                                  Text(
+                                    '채팅하기',
+                                    style: TextStyle(
+                                        fontWeight: FontWeight.w500,
+                                        fontSize: 14.r,
+                                        color: const Color(0xFFF5F5F5)),
+                                  ),
+                                  SizedBox(height: 9.h)
+                                ],
+                              ),
+                              Column(
+                                children: [
+                                  GestureDetector(
+                                      onTap: () {
+                                        isEditMode.value = true;
+                                      },
+                                      child: Container(
+                                          color: Colors.transparent,
+                                          padding: EdgeInsets.symmetric(
+                                              horizontal: 10.w, vertical: 10.h),
+                                          child: SvgPicture.asset('assets/images/voice_call.svg',
+                                              width: 60.r))),
+                                  const Spacer(),
+                                  Text(
+                                    '음성채팅',
+                                    style: TextStyle(
+                                        fontWeight: FontWeight.w500,
+                                        fontSize: 14.r,
+                                        color: const Color(0xFFF5F5F5)),
+                                  ),
+                                  SizedBox(height: 9.h)
+                                ],
+                              ),
+                              Column(
+                                children: [
+                                  GestureDetector(
+                                      onTap: () {
+                                        isEditMode.value = true;
+                                      },
+                                      child: Container(
+                                          color: Colors.transparent,
+                                          padding: EdgeInsets.symmetric(
+                                              horizontal: 10.w, vertical: 10.h),
+                                          child: SvgPicture.asset('assets/images/face_call.svg',
+                                              width: 60.r))),
+                                  const Spacer(),
+                                  Text(
+                                    '영상채팅',
+                                    style: TextStyle(
+                                        fontWeight: FontWeight.w500,
+                                        fontSize: 14.r,
+                                        color: const Color(0xFFF5F5F5)),
+                                  ),
+                                  SizedBox(height: 9.h)
+                                ],
+                              )
+                            ],
+                            SizedBox(width: 20.w)
                           ],
                         )),
               SizedBox(height: 60.h)

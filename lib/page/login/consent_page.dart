@@ -43,6 +43,7 @@ class ConsentPage extends HookConsumerWidget {
 
           LoginService().register(ref).then((_) async {
             await FriendService().getFriends(ref);
+            await FriendService().getPinned(ref);
             await UserService().getMe(ref).then((_) => router.go(MainLayout.routeName));
           });
         },

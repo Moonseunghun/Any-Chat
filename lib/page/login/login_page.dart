@@ -34,6 +34,7 @@ class LoginPage extends HookConsumerWidget {
                     if (result) {
                       loginService.login(ref).then((_) async {
                         await FriendService().getFriends(ref);
+                        await FriendService().getPinned(ref);
                         await UserService().getMe(ref).then((_) => router.go(MainLayout.routeName));
                       });
                     } else {

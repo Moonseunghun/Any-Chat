@@ -40,27 +40,20 @@ class LoginService extends HttpClient {
   }
 
   Future<bool> registerCheck(WidgetRef ref) async {
-    ref.read(loadingProvider.notifier).on();
-
     final params = {
       'idToken': prefs.getString('id_token'),
       'providerTypeId': LoginType.getByProviderId(prefs.getString('login_type')!).value
     };
 
     return await post(
-            path: '$basePath/check', queryParams: params, converter: (result) => result['data'])
-        .run(
+        path: '$basePath/check', queryParams: params, converter: (result) => result['data']).run(
+      ref,
       (result) => result['isRegistered'],
       errorMessage: '회원가입 여부를 확인하는데 실패했습니다',
-    )
-        .whenComplete(() {
-      ref.read(loadingProvider.notifier).off();
-    });
+    );
   }
 
   Future<void> register(WidgetRef ref) async {
-    ref.read(loadingProvider.notifier).on();
-
     final params = {
       'idToken': prefs.getString('id_token'),
       'providerTypeId': LoginType.getByProviderId(prefs.getString('login_type')!).value,
@@ -74,18 +67,15 @@ class LoginService extends HttpClient {
         path: '$basePath/register/social',
         queryParams: params,
         converter: (result) => result['data']).run(
+      ref,
       (data) {
         auth = Auth(accessToken: data['accessToken'], refreshToken: data['refreshToken']);
       },
       errorMessage: '회원가입에 실패했습니다',
-    ).whenComplete(() {
-      ref.read(loadingProvider.notifier).off();
-    });
+    );
   }
 
   Future<void> login(WidgetRef ref) async {
-    ref.read(loadingProvider.notifier).on();
-
     final params = {
       'idToken': prefs.getString('id_token'),
       'providerTypeId': LoginType.getByProviderId(prefs.getString('login_type')!).value,
@@ -97,13 +87,12 @@ class LoginService extends HttpClient {
         path: '$basePath/login/social',
         queryParams: params,
         converter: (result) => result['data']).run(
+      ref,
       (data) {
         auth = Auth(accessToken: data['accessToken'], refreshToken: data['refreshToken']);
       },
       errorMessage: '로그인에 실패했습니다',
-    ).whenComplete(() {
-      ref.read(loadingProvider.notifier).off();
-    });
+    );
   }
 
   Future<String> _getDeviceId() async {

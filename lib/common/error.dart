@@ -1,6 +1,9 @@
 import 'dart:async';
 
 import 'package:anychat/common/toast.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../state/util_state.dart';
 
 class CustomException implements Exception {
   final String message;
@@ -36,6 +39,14 @@ class Error {
 }
 
 extension FutureExtension<T> on Future<T> {
-  Future<R> run<R>(FutureOr<R> Function(T) onValue, {String? errorMessage}) =>
-      then(onValue).catchError((e, s) => (e as Error).handleError(message: errorMessage));
+  Future<R> run<R>(WidgetRef ref, FutureOr<R> Function(T) onValue, {String? errorMessage}) async {
+    ref.read(loadingProvider.notifier).on();
+    return await then((result) {
+      ref.read(loadingProvider.notifier).off();
+      return onValue(result);
+    }).catchError((e, s) {
+      ref.read(loadingProvider.notifier).off();
+      return (e as Error).handleError(message: errorMessage);
+    });
+  }
 }

@@ -1,4 +1,6 @@
+import 'package:anychat/common/toast.dart';
 import 'package:anychat/page/router.dart';
+import 'package:anychat/service/friend_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -61,7 +63,41 @@ class AddFriendByIdPage extends HookConsumerWidget {
                     contentPadding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 16.h),
                     border:
                         const UnderlineInputBorder(borderSide: BorderSide(color: Colors.black))),
-              ))
+              )),
+          const Spacer(),
+          GestureDetector(
+              onTap: () {
+                FocusScope.of(context).unfocus();
+
+                if (idController.text.trim().isEmpty) {
+                  errorToast(message: '친구 ID를 입력해주세요');
+                  return;
+                }
+
+                FriendService().addFriend(ref, idController.text.trim()).then((_) {
+                  idController.clear();
+                });
+              },
+              child: Container(
+                width: double.infinity,
+                height: 50.h,
+                alignment: Alignment.center,
+                margin: EdgeInsets.symmetric(horizontal: 20.w),
+                decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10.r),
+                    color: const Color(0xFFC74DFF),
+                    boxShadow: [
+                      BoxShadow(
+                          color: const Color(0xFFC74DFF).withOpacity(0.5),
+                          offset: const Offset(0, 4),
+                          blurRadius: 8,
+                          spreadRadius: 0)
+                    ]),
+                child: Text('추가',
+                    style: TextStyle(
+                        fontSize: 16.r, color: Colors.white, fontWeight: FontWeight.bold)),
+              )),
+          SizedBox(height: 28.h),
         ],
       ))),
     );
