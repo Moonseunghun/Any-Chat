@@ -49,7 +49,8 @@ class ChatListPage extends HookConsumerWidget {
                   _chatHeader(ref),
                   _chatHeader(ref),
                   _chatHeader(ref),
-                  _chatHeader(ref)
+                  _chatHeader(ref),
+                  SizedBox(height: 100.h),
                 ],
               ))))
     ]);

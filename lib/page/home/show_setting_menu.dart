@@ -1,7 +1,11 @@
+import 'package:anychat/page/home/edit_friend_page.dart';
+import 'package:anychat/page/home/hide_friend_page.dart';
+import 'package:anychat/page/router.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../common/overlay.dart';
+import 'block_friend_page.dart';
 
 showSettingMenu(BuildContext context) {
   OverlayComponent.showOverlay(
@@ -33,9 +37,15 @@ showSettingMenu(BuildContext context) {
                     ]),
                 child: Column(
                   children: [
-                    _menuItem('숨김 친구 관리', () {}),
-                    _menuItem('차단 친구 관리', () {}),
-                    _menuItem('친구 목록 편집', () {}, showBorder: false),
+                    _menuItem('숨김 친구 관리', () {
+                      router.push(HideFriendPage.routeName);
+                    }),
+                    _menuItem('차단 친구 관리', () {
+                      router.push(BlockFriendPage.routeName);
+                    }),
+                    _menuItem('친구 목록 편집', () {
+                      router.push(EditFriendPage.routeName);
+                    }, showBorder: false),
                   ],
                 )))
       ]));
