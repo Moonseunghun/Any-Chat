@@ -23,29 +23,30 @@ class HomePage extends HookConsumerWidget {
 
     return Column(
       children: [
-        SizedBox(height: 10.h),
-        Row(
-          children: [
-            SizedBox(width: 20.w),
-            Text('친구',
-                style: TextStyle(
-                    fontSize: 20.r, fontWeight: FontWeight.bold, color: const Color(0xFF3B3B3B))),
-            const Spacer(),
-            InkWell(
-                onTap: () {
-                  addFriendPopup(context, ref);
-                },
-                child: SvgPicture.asset('assets/images/friend_add.svg', width: 24.r)),
-            SizedBox(width: 7.w),
-            InkWell(
-                onTap: () {
-                  showSettingMenu(context);
-                },
-                child: SvgPicture.asset('assets/images/settings.svg', width: 24.r)),
-            SizedBox(width: 20.w),
-          ],
-        ),
-        SizedBox(height: 10.h),
+        Container(
+            height: 50,
+            alignment: Alignment.center,
+            child: Row(
+              children: [
+                SizedBox(width: 20.w),
+                const Text('친구',
+                    style: TextStyle(
+                        fontSize: 20, fontWeight: FontWeight.bold, color: Color(0xFF3B3B3B))),
+                const Spacer(),
+                InkWell(
+                    onTap: () {
+                      addFriendPopup(context, ref);
+                    },
+                    child: SvgPicture.asset('assets/images/friend_add.svg', width: 24)),
+                SizedBox(width: 7.w),
+                InkWell(
+                    onTap: () {
+                      showSettingMenu(context);
+                    },
+                    child: SvgPicture.asset('assets/images/settings.svg', width: 24)),
+                SizedBox(width: 20.w),
+              ],
+            )),
         Expanded(
             child: SingleChildScrollView(
                 child: Column(children: [
