@@ -194,9 +194,7 @@ class ProfilePage extends HookConsumerWidget {
                               Column(
                                 children: [
                                   GestureDetector(
-                                      onTap: () {
-                                        isEditMode.value = true;
-                                      },
+                                      onTap: () {},
                                       child: Container(
                                           color: Colors.transparent,
                                           padding: EdgeInsets.symmetric(
@@ -217,9 +215,7 @@ class ProfilePage extends HookConsumerWidget {
                               Column(
                                 children: [
                                   GestureDetector(
-                                      onTap: () {
-                                        isEditMode.value = true;
-                                      },
+                                      onTap: () {},
                                       child: Container(
                                           color: Colors.transparent,
                                           padding: EdgeInsets.symmetric(
@@ -240,9 +236,7 @@ class ProfilePage extends HookConsumerWidget {
                               Column(
                                 children: [
                                   GestureDetector(
-                                      onTap: () {
-                                        isEditMode.value = true;
-                                      },
+                                      onTap: () {},
                                       child: Container(
                                           color: Colors.transparent,
                                           padding: EdgeInsets.symmetric(

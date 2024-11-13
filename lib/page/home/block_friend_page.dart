@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
@@ -16,6 +17,7 @@ class BlockFriendPage extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
         appBar: AppBar(
+            systemOverlayStyle: SystemUiOverlayStyle.dark,
             backgroundColor: Colors.transparent,
             elevation: 0,
             leadingWidth: 48,
