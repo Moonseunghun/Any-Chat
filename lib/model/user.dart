@@ -34,6 +34,19 @@ class User {
       phoneNumbers: List<String>.from(json['phoneNumbers']),
     );
   }
+
+  User copyWith({
+    String? name,
+    UserInfo? userInfo,
+    List<String>? phoneNumbers,
+  }) {
+    return User(
+      id: id,
+      name: name ?? this.name,
+      userInfo: userInfo ?? this.userInfo,
+      phoneNumbers: phoneNumbers ?? this.phoneNumbers,
+    );
+  }
 }
 
 class UserInfo {
@@ -60,6 +73,23 @@ class UserInfo {
       profileImg: json['profileImg'],
       backgroundImg: json['backgroundImg'],
       message: json['message'],
+    );
+  }
+
+  UserInfo copyWith({
+    String? profileId,
+    String? lang,
+    String? profileImg,
+    String? backgroundImg,
+    String? message,
+  }) {
+    return UserInfo(
+      userId: userId,
+      profileId: profileId ?? this.profileId,
+      lang: lang ?? this.lang,
+      profileImg: profileImg ?? this.profileImg,
+      backgroundImg: backgroundImg ?? this.backgroundImg,
+      message: message ?? this.message,
     );
   }
 }

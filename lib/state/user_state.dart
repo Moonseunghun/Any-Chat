@@ -7,6 +7,10 @@ class UserNotifier extends StateNotifier<User?> {
   void setUser(User user) {
     state = user;
   }
+
+  void setProfileId(String profileId) {
+    state = state!.copyWith(userInfo: state!.userInfo.copyWith(profileId: profileId));
+  }
 }
 
 final userProvider = StateNotifierProvider<UserNotifier, User?>((ref) => UserNotifier(null));

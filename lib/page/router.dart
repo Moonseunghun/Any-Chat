@@ -8,6 +8,8 @@ import 'package:anychat/page/home/hide_friend_page.dart';
 import 'package:anychat/page/login/consent_page.dart';
 import 'package:anychat/page/login/language_select_page.dart';
 import 'package:anychat/page/login/login_page.dart';
+import 'package:anychat/page/setting/anychat_id_page.dart';
+import 'package:anychat/page/setting/set_anychat_id_page.dart';
 import 'package:anychat/page/user/profile_page.dart';
 import 'package:go_router/go_router.dart';
 
@@ -27,6 +29,8 @@ final router = GoRouter(initialLocation: '/login', routes: [
   GoRoute(path: HideFriendPage.routeName, builder: (context, state) => const HideFriendPage()),
   GoRoute(path: BlockFriendPage.routeName, builder: (context, state) => const BlockFriendPage()),
   GoRoute(path: InviteFriendPage.routeName, builder: (context, state) => const InviteFriendPage()),
+  GoRoute(path: AnychatIdPage.routeName, builder: (context, state) => const AnychatIdPage()),
+  GoRoute(path: SetAnychatIdPage.routeName, builder: (context, state) => const SetAnychatIdPage()),
   GoRoute(
     path: EditFriendPage.routeName,
     pageBuilder: (context, state) => CustomTransitionPage(

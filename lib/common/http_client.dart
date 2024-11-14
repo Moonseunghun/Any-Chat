@@ -35,9 +35,10 @@ class HttpClient {
   Future<T> put<T>(
           {required String path,
           T Function(Map<String, dynamic>)? converter,
-          Map<String, dynamic>? body}) =>
+          Map<String, dynamic>? queryParams}) =>
       createRequest(request(converter ?? (data) => data as T,
-          () => dio.put('$baseUrl$path', data: body, options: Options(headers: optionsHeader()))));
+          () => dio.put('$baseUrl$path',
+              data: queryParams, options: Options(headers: optionsHeader()))));
 
   Future<T> patch<T>(
           {required String path,
