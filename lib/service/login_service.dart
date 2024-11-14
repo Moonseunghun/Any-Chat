@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:anychat/common/error.dart';
 import 'package:anychat/common/http_client.dart';
+import 'package:anychat/model/language.dart';
 import 'package:anychat/model/user.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -53,12 +54,12 @@ class LoginService extends HttpClient {
     );
   }
 
-  Future<void> register(WidgetRef ref) async {
+  Future<void> register(WidgetRef ref, Language language) async {
     final params = {
       'idToken': prefs.getString('id_token'),
       'providerTypeId': LoginType.getByProviderId(prefs.getString('login_type')!).value,
       'profileId': "TEST",
-      'lang': 'ko',
+      'lang': language.code,
       'fcmToken': 'tmp',
       'deviceId': await _getDeviceId(),
     };

@@ -43,14 +43,14 @@ class Error {
 }
 
 extension FutureExtension<T> on Future<T> {
-  Future<R> run<R>(WidgetRef ref, FutureOr<R> Function(T) onValue,
+  Future<R> run<R>(WidgetRef? ref, FutureOr<R> Function(T) onValue,
       {String? errorMessage, Function(Error)? errorHandler}) async {
-    ref.read(loadingProvider.notifier).on();
+    ref?.read(loadingProvider.notifier).on();
     return await then((result) {
-      ref.read(loadingProvider.notifier).off();
+      ref?.read(loadingProvider.notifier).off();
       return onValue(result);
     }).catchError((e, s) {
-      ref.read(loadingProvider.notifier).off();
+      ref?.read(loadingProvider.notifier).off();
       return (e as Error).handleError(message: errorMessage, errorHandler: errorHandler);
     });
   }

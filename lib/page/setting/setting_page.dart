@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
+import '../login/language_select_page.dart';
 import 'anychat_id_page.dart';
 
 class SettingPage extends HookConsumerWidget {
@@ -23,7 +24,11 @@ class SettingPage extends HookConsumerWidget {
                     style: TextStyle(
                         fontSize: 20, fontWeight: FontWeight.bold, color: Color(0xFF3B3B3B)))),
             SizedBox(height: 20.h),
-            _buildListWidget(title: '언어 설정', onTap: () {}),
+            _buildListWidget(
+                title: '언어 설정',
+                onTap: () {
+                  router.push(LanguageSelectPage.routeName);
+                }),
             _buildListWidget(
                 title: '애니챗 ID',
                 onTap: () {

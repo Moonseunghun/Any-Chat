@@ -1,5 +1,6 @@
 import 'package:anychat/common/error.dart';
 import 'package:anychat/common/http_client.dart';
+import 'package:anychat/model/language.dart';
 import 'package:anychat/model/user.dart';
 import 'package:anychat/page/router.dart';
 import 'package:anychat/state/user_state.dart';
@@ -35,5 +36,13 @@ class UserService extends SecuredHttpClient {
         errorToast(message: 'ID 설정에 실패했습니다');
       }
     });
+  }
+
+  Future<void> setLanguage(WidgetRef ref, Language language) async {
+    await put(path: '$basePath/language', queryParams: {'lang': language.code}).run(ref, (_) {
+      ref.read(userProvider.notifier).setLanguage(language);
+      router.pop();
+      errorToast(message: '언어 설정이 완료되었습니다');
+    }, errorMessage: '언어 설정에 실패했습니다');
   }
 }

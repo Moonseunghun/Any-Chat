@@ -1,4 +1,5 @@
 import 'package:anychat/common/toast.dart';
+import 'package:anychat/model/language.dart';
 import 'package:anychat/page/main_layout.dart';
 import 'package:anychat/page/router.dart';
 import 'package:anychat/service/login_service.dart';
@@ -13,7 +14,9 @@ import '../../service/user_service.dart';
 class ConsentPage extends HookConsumerWidget {
   static const String routeName = '/consent';
 
-  const ConsentPage({super.key});
+  const ConsentPage(this.language, {super.key});
+
+  final Language language;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -41,7 +44,7 @@ class ConsentPage extends HookConsumerWidget {
             return;
           }
 
-          LoginService().register(ref).then((_) async {
+          LoginService().register(ref, language).then((_) async {
             await FriendService().getFriends(ref);
             await FriendService().getPinned(ref);
             await UserService().getMe(ref).then((_) => router.go(MainLayout.routeName));

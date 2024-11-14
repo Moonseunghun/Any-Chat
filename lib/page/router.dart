@@ -13,12 +13,17 @@ import 'package:anychat/page/setting/set_anychat_id_page.dart';
 import 'package:anychat/page/user/profile_page.dart';
 import 'package:go_router/go_router.dart';
 
+import '../model/language.dart';
 import 'main_layout.dart';
 
 final router = GoRouter(initialLocation: '/login', routes: [
   GoRoute(path: LoginPage.routeName, builder: (context, state) => const LoginPage()),
-  GoRoute(path: LanguageSelectPage.routeName, builder: (context, state) => LanguageSelectPage()),
-  GoRoute(path: ConsentPage.routeName, builder: (context, state) => const ConsentPage()),
+  GoRoute(
+      path: LanguageSelectPage.routeName,
+      builder: (context, state) => LanguageSelectPage(isCreate: (state.extra ?? false) as bool)),
+  GoRoute(
+      path: ConsentPage.routeName,
+      builder: (context, state) => ConsentPage(state.extra as Language)),
   GoRoute(path: MainLayout.routeName, builder: (context, state) => MainLayout()),
   GoRoute(
       path: ProfilePage.routeName,

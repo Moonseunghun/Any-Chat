@@ -38,7 +38,7 @@ class LoginPage extends HookConsumerWidget {
                         await UserService().getMe(ref).then((_) => router.go(MainLayout.routeName));
                       });
                     } else {
-                      router.go(LanguageSelectPage.routeName);
+                      router.go(LanguageSelectPage.routeName, extra: true);
                     }
                   });
                 }
