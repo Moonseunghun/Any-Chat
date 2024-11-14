@@ -15,62 +15,66 @@ class ChatListPage extends HookConsumerWidget {
     final newChat = useState<bool>(false);
     final isSearching = useState<bool>(false);
 
-    return Stack(children: [
-      Column(children: [
-        Container(
-            height: 50,
-            alignment: Alignment.center,
-            child: Row(
-              children: [
-                SizedBox(width: 20.w),
-                const Text('채팅',
-                    style: TextStyle(
-                        fontSize: 20, fontWeight: FontWeight.bold, color: Color(0xFF3B3B3B))),
-                const Spacer(),
-                InkWell(
-                    onTap: () {
-                      isSearching.value = true;
-                    },
-                    child: SvgPicture.asset('assets/images/search.svg', width: 24)),
-                SizedBox(width: 7.w),
-                InkWell(
-                    onTap: () {
-                      newChat.value = true;
-                    },
-                    child: SvgPicture.asset('assets/images/chat_plus.svg', width: 24)),
-                SizedBox(width: 7.w),
-                InkWell(
-                    onTap: () {
-                      showSortMenu(context);
-                    },
-                    child: SvgPicture.asset('assets/images/settings.svg', width: 24)),
-                SizedBox(width: 20.w),
-              ],
-            )),
-        Expanded(
-            child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: 17.w, vertical: 16.h),
-                child: SingleChildScrollView(
-                    child: Column(
+    return GestureDetector(
+        onTap: () {
+          FocusScope.of(context).unfocus();
+        },
+        child: Stack(children: [
+          Column(children: [
+            Container(
+                height: 50,
+                alignment: Alignment.center,
+                child: Row(
                   children: [
-                    _chatHeader(ref, newChat),
-                    _chatHeader(ref, newChat),
-                    _chatHeader(ref, newChat),
-                    _chatHeader(ref, newChat),
-                    _chatHeader(ref, newChat),
-                    _chatHeader(ref, newChat),
-                    _chatHeader(ref, newChat),
-                    _chatHeader(ref, newChat),
-                    _chatHeader(ref, newChat),
-                    _chatHeader(ref, newChat),
-                    _chatHeader(ref, newChat),
-                    SizedBox(height: 100.h),
+                    SizedBox(width: 20.w),
+                    const Text('채팅',
+                        style: TextStyle(
+                            fontSize: 20, fontWeight: FontWeight.bold, color: Color(0xFF3B3B3B))),
+                    const Spacer(),
+                    InkWell(
+                        onTap: () {
+                          isSearching.value = true;
+                        },
+                        child: SvgPicture.asset('assets/images/search.svg', width: 24)),
+                    SizedBox(width: 7.w),
+                    InkWell(
+                        onTap: () {
+                          newChat.value = true;
+                        },
+                        child: SvgPicture.asset('assets/images/chat_plus.svg', width: 24)),
+                    SizedBox(width: 7.w),
+                    InkWell(
+                        onTap: () {
+                          showSortMenu(context);
+                        },
+                        child: SvgPicture.asset('assets/images/settings.svg', width: 24)),
+                    SizedBox(width: 20.w),
                   ],
-                ))))
-      ]),
-      if (newChat.value) _newChat(newChat),
-      if (isSearching.value) _searchWidget(isSearching)
-    ]);
+                )),
+            Expanded(
+                child: Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 17.w, vertical: 16.h),
+                    child: SingleChildScrollView(
+                        child: Column(
+                      children: [
+                        _chatHeader(ref, newChat),
+                        _chatHeader(ref, newChat),
+                        _chatHeader(ref, newChat),
+                        _chatHeader(ref, newChat),
+                        _chatHeader(ref, newChat),
+                        _chatHeader(ref, newChat),
+                        _chatHeader(ref, newChat),
+                        _chatHeader(ref, newChat),
+                        _chatHeader(ref, newChat),
+                        _chatHeader(ref, newChat),
+                        _chatHeader(ref, newChat),
+                        SizedBox(height: 100.h),
+                      ],
+                    ))))
+          ]),
+          if (newChat.value) _newChat(newChat),
+          if (isSearching.value) _searchWidget(isSearching)
+        ]));
   }
 
   Widget _chatHeader(WidgetRef ref, ValueNotifier<bool> newChat) {

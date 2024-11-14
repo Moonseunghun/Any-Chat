@@ -9,6 +9,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
+import 'invite_friend_page.dart';
+
 class ChatPage extends HookConsumerWidget {
   static const String routeName = '/chat';
 
@@ -268,7 +270,10 @@ class ChatPage extends HookConsumerWidget {
                             child: Column(
                       children: [
                         GestureDetector(
-                            onTap: () {},
+                            onTap: () {
+                              isShow.value = false;
+                              router.push(InviteFriendPage.routeName);
+                            },
                             child: Container(
                                 color: Colors.transparent,
                                 padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 10.h),
