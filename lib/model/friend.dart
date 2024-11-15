@@ -60,3 +60,20 @@ class ProfileInfo {
       backgroundImg: json['backgroundImg'],
       message: json['message']);
 }
+
+extension FriendsExtension on List<Friend> {
+  List<Friend> sortByName() {
+    final koreanRegex = RegExp(r'^[가-힣]');
+
+    return this
+      ..sort((a, b) {
+        final isAKorean = koreanRegex.hasMatch(a.nickname);
+        final isBKorean = koreanRegex.hasMatch(b.nickname);
+
+        if (isAKorean && !isBKorean) return -1;
+        if (!isAKorean && isBKorean) return 1;
+
+        return a.nickname.toLowerCase().compareTo(b.nickname.toLowerCase());
+      });
+  }
+}

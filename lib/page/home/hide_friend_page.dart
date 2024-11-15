@@ -1,10 +1,11 @@
+import 'package:anychat/service/friend_service.dart';
 import 'package:anychat/state/friend_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
-import '../../common/overlay.dart';
 import '../../model/friend.dart';
 import '../router.dart';
 
@@ -15,6 +16,16 @@ class HideFriendPage extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final showPopup = useState<Friend?>(null);
+
+    useEffect(() {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        FriendService().getHidden(ref);
+      });
+
+      return () {};
+    }, []);
+
     return Scaffold(
         appBar: AppBar(
             systemOverlayStyle: SystemUiOverlayStyle.dark,
@@ -29,18 +40,22 @@ class HideFriendPage extends HookConsumerWidget {
             title: const Text('숨긴 친구 관리',
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black)),
             centerTitle: true),
-        body: SingleChildScrollView(
-            child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 10.h),
-                child: Column(children: [
-                  ...ref.watch(friendsProvider).map((friend) {
-                    return _manageContainer(ref, context, friend);
-                  }),
-                  SizedBox(height: 20.h)
-                ]))));
+        body: Stack(children: [
+          SingleChildScrollView(
+              child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 10.h),
+                  child: Column(children: [
+                    ...ref.watch(hiddenFriendsProvider).map((friend) {
+                      return _manageContainer(ref, context, friend, showPopup);
+                    }),
+                    SizedBox(height: 20.h)
+                  ]))),
+          _showPopup(context: context, ref: ref, showPopup: showPopup)
+        ]));
   }
 
-  Widget _manageContainer(WidgetRef ref, BuildContext context, Friend friend) {
+  Widget _manageContainer(
+      WidgetRef ref, BuildContext context, Friend friend, ValueNotifier<Friend?> showPopup) {
     return InkWell(
         onTap: () {},
         child: Container(
@@ -55,9 +70,9 @@ class HideFriendPage extends HookConsumerWidget {
                         fontWeight: FontWeight.w500,
                         color: const Color(0xFF3B3B3B))),
                 const Spacer(),
-                InkWell(
+                GestureDetector(
                     onTap: () {
-                      _showPopup(context: context);
+                      showPopup.value = friend;
                     },
                     child: Container(
                       padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
@@ -72,61 +87,75 @@ class HideFriendPage extends HookConsumerWidget {
             )));
   }
 
-  void _showPopup({required BuildContext context}) {
-    OverlayComponent.showOverlay(
-        context: context,
-        child: Stack(children: [
-          GestureDetector(
-              onTap: () {
-                OverlayComponent.hideOverlay();
-              },
-              child: Container(
-                width: double.infinity,
-                height: double.infinity,
-                color: Colors.transparent,
-              )),
-          Positioned(
-              bottom: 50.h,
-              child: Container(
-                width: 353.w,
-                margin: EdgeInsets.symmetric(horizontal: 20.w),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFF5F5F5),
-                  borderRadius: BorderRadius.circular(20.r),
-                ),
-                child: Column(
-                  children: [
-                    GestureDetector(
-                        onTap: () {},
-                        child: Container(
-                            color: Colors.transparent,
-                            padding: EdgeInsets.symmetric(vertical: 16.h),
-                            child: const DefaultTextStyle(
-                                style: TextStyle(
-                                    color: Color(0xFF3B3B3B),
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.w500),
-                                child: Text('친구 목록으로 복귀')))),
-                    Divider(
-                        height: 1,
-                        color: const Color(0xFFE0E2E4),
-                        thickness: 1,
-                        indent: 20.w,
-                        endIndent: 37.w),
-                    GestureDetector(
-                        onTap: () {},
-                        child: Container(
-                            color: Colors.transparent,
-                            padding: EdgeInsets.symmetric(vertical: 16.h),
-                            child: const DefaultTextStyle(
-                                style: TextStyle(
-                                    color: Color(0xFFFF0000),
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.w500),
-                                child: Text('차단'))))
-                  ],
-                ),
-              ))
-        ]));
-  }
+  Widget _showPopup(
+          {required BuildContext context,
+          required WidgetRef ref,
+          required ValueNotifier<Friend?> showPopup}) =>
+      SizedBox(
+          width: double.infinity,
+          height: double.infinity,
+          child: Stack(children: [
+            if (showPopup.value != null)
+              GestureDetector(
+                  onTap: () {
+                    showPopup.value = null;
+                  },
+                  child: Container(
+                    width: double.infinity,
+                    height: double.infinity,
+                    color: Colors.transparent,
+                  )),
+            AnimatedPositioned(
+                bottom: showPopup.value == null ? -100 - 200.h : 50.h,
+                curve: Curves.easeInOut,
+                duration: const Duration(milliseconds: 300),
+                child: Container(
+                  width: 353.w,
+                  margin: EdgeInsets.symmetric(horizontal: 20.w),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF5F5F5),
+                    borderRadius: BorderRadius.circular(20.r),
+                  ),
+                  child: Column(
+                    children: [
+                      GestureDetector(
+                          onTap: () {
+                            if (showPopup.value == null) return;
+                            FriendService().unHideFriend(ref, showPopup.value!.id);
+                            showPopup.value = null;
+                          },
+                          child: Container(
+                              color: Colors.transparent,
+                              padding: EdgeInsets.symmetric(vertical: 16.h),
+                              child: const DefaultTextStyle(
+                                  style: TextStyle(
+                                      color: Color(0xFF3B3B3B),
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.w500),
+                                  child: Text('친구 목록으로 복귀')))),
+                      Divider(
+                          height: 1,
+                          color: const Color(0xFFE0E2E4),
+                          thickness: 1,
+                          indent: 20.w,
+                          endIndent: 37.w),
+                      GestureDetector(
+                          onTap: () {
+                            if (showPopup.value == null) return;
+                            FriendService().blockFriend(ref, showPopup.value!.id);
+                            showPopup.value = null;
+                          },
+                          child: Container(
+                              color: Colors.transparent,
+                              padding: EdgeInsets.symmetric(vertical: 16.h),
+                              child: const DefaultTextStyle(
+                                  style: TextStyle(
+                                      color: Color(0xFFFF0000),
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.w500),
+                                  child: Text('차단'))))
+                    ],
+                  ),
+                ))
+          ]));
 }

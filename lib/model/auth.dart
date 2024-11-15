@@ -13,4 +13,14 @@ class Auth {
     prefs.setString('auth_token', accessToken);
     prefs.setString('refresh_token', refreshToken);
   }
+
+  Auth copyWith({
+    String? accessToken,
+    String? refreshToken,
+  }) {
+    return Auth(
+      accessToken: accessToken ?? this.accessToken,
+      refreshToken: refreshToken ?? this.refreshToken,
+    );
+  }
 }

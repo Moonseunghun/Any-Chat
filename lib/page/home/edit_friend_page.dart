@@ -62,14 +62,11 @@ class EditFriendPage extends HookConsumerWidget {
           Padding(
               padding: EdgeInsets.symmetric(horizontal: 20.w),
               child: Column(children: [
-                if (ref.watch(friendsProvider).where((e) => e.isPinned).isNotEmpty)
-                  SizedBox(height: 8.h),
+                if (ref.watch(pinnedFriendsProvider).isNotEmpty) SizedBox(height: 8.h),
                 ...ref
-                    .watch(friendsProvider)
-                    .where((e) => e.isPinned)
+                    .watch(pinnedFriendsProvider)
                     .map((friend) => _profileWidget(ref, friend: friend)),
-                if (ref.watch(friendsProvider).where((e) => e.isPinned).isNotEmpty)
-                  SizedBox(height: 8.h)
+                if (ref.watch(pinnedFriendsProvider).isNotEmpty) SizedBox(height: 8.h)
               ])),
           Container(
               width: double.infinity,
@@ -115,17 +112,20 @@ class EditFriendPage extends HookConsumerWidget {
                         fontWeight: FontWeight.w500,
                         color: const Color(0xFF3B3B3B))),
                 const Spacer(),
-                InkWell(
-                    onTap: () {},
-                    child: Container(
-                      padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(20.r),
-                        border: Border.all(color: const Color(0xFFC74DFF)),
-                      ),
-                      child: Text('숨김',
-                          style: TextStyle(fontSize: 12.r, color: const Color(0xFFC74DFF))),
-                    ))
+                if (friend != null)
+                  GestureDetector(
+                      onTap: () {
+                        FriendService().hideFriend(ref, friend.id);
+                      },
+                      child: Container(
+                        padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(20.r),
+                          border: Border.all(color: const Color(0xFFC74DFF)),
+                        ),
+                        child: Text('숨김',
+                            style: TextStyle(fontSize: 12.r, color: const Color(0xFFC74DFF))),
+                      ))
               ],
             )));
   }

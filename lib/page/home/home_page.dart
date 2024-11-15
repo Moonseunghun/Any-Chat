@@ -78,15 +78,13 @@ class HomePage extends HookConsumerWidget {
                           color: const Color(0xFF3B3B3B))
                     ],
                   ))),
-          if (!foldFavorites.value &&
-              ref.watch(friendsProvider).where((e) => e.isPinned).isNotEmpty)
+          if (!foldFavorites.value && ref.watch(pinnedFriendsProvider).isNotEmpty)
             Padding(
                 padding: EdgeInsets.symmetric(horizontal: 20.w),
                 child: Column(children: [
                   SizedBox(height: 8.h),
                   ...ref
-                      .watch(friendsProvider)
-                      .where((e) => e.isPinned)
+                      .watch(pinnedFriendsProvider)
                       .map((friend) => _profileWidget(ref, friend: friend)),
                   SizedBox(height: 8.h)
                 ])),

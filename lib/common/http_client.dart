@@ -36,7 +36,8 @@ class HttpClient {
           {required String path,
           T Function(Map<String, dynamic>)? converter,
           Map<String, dynamic>? queryParams}) =>
-      createRequest(request(converter ?? (data) => data as T,
+      createRequest(request(
+          converter ?? (data) => data as T,
           () => dio.put('$baseUrl$path',
               data: queryParams, options: Options(headers: optionsHeader()))));
 
@@ -72,7 +73,23 @@ class SecuredHttpClient extends HttpClient {
         if (auth != null) 'Authorization': 'Bearer ${auth!.accessToken}'
       };
 
-  // FIXME: Token 유효성 검사 실패 시, Refresh Token을 이용하여 재발급하는 로직 추가 필요
   @override
-  Future<T> createRequest<T>(Future<T> Function() request) => request.call();
+  Future<T> createRequest<T>(Future<T> Function() request) => request.call().catchError((e) async {
+        if ((e as Error).statusCode == 401) {
+          return await this
+              .request(
+                  (result) => result['data'],
+                  () => dio.post('$baseUrl/account/api/auth/access-token',
+                      options: Options(headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ${auth!.refreshToken}'
+                      })))()
+              .then((data) async {
+            auth = auth!.copyWith(accessToken: data['accessToken']);
+            return await request.call();
+          });
+        } else {
+          throw e;
+        }
+      });
 }

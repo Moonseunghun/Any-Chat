@@ -80,9 +80,11 @@ class ChatPage extends HookConsumerWidget {
                           child: ListView(
                             children: [
                               _opponentChat(),
-                              _opponentChat(),
-                              _myChat(),
-                              _opponentChat()
+                              _opponentChat(optional: true),
+                              const SizedBox(height: 14),
+                              _myChat(optional: true),
+                              const SizedBox(height: 14),
+                              _opponentChat(optional: true),
                             ],
                           )),
                       bottomNavigationBar: AnimatedContainer(
@@ -155,7 +157,7 @@ class ChatPage extends HookConsumerWidget {
     ]);
   }
 
-  Widget _opponentChat() {
+  Widget _opponentChat({optional = false}) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -187,30 +189,37 @@ class ChatPage extends HookConsumerWidget {
                         fontWeight: FontWeight.w500, fontSize: 14, color: Color(0xFF3B3B3B)),
                     maxLines: 3)),
             SizedBox(width: 4.w),
-            Column(
-                mainAxisAlignment: MainAxisAlignment.end,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('원문보기',
-                      style: TextStyle(fontSize: 11, color: Colors.black.withOpacity(0.7))),
-                  const SizedBox(height: 2),
-                  const Text('09:12',
-                      style: TextStyle(
-                          fontSize: 10, color: Color(0xFF3B3B3B), fontWeight: FontWeight.w500)),
-                ])
+            if (optional)
+              Column(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('2', style: TextStyle(fontSize: 11, color: Colors.black.withOpacity(0.7))),
+                    const Text('09:12',
+                        style: TextStyle(
+                            fontSize: 10, color: Color(0xFF3B3B3B), fontWeight: FontWeight.w500)),
+                  ])
           ],
         )
       ],
     );
   }
 
-  Widget _myChat() {
+  Widget _myChat({bool optional = false}) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.end,
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
-        const Text('09:12',
-            style: TextStyle(fontSize: 10, color: Color(0xFF3B3B3B), fontWeight: FontWeight.w500)),
+        if (optional)
+          Column(
+              mainAxisAlignment: MainAxisAlignment.end,
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Text('2', style: TextStyle(fontSize: 11, color: Colors.black.withOpacity(0.7))),
+                const Text('09:12',
+                    style: TextStyle(
+                        fontSize: 10, color: Color(0xFF3B3B3B), fontWeight: FontWeight.w500)),
+              ]),
         SizedBox(width: 4.w),
         Container(
             constraints: BoxConstraints(
