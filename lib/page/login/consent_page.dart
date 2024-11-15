@@ -28,9 +28,9 @@ class ConsentPage extends HookConsumerWidget {
       SizedBox(height: 153.h),
       Padding(
           padding: EdgeInsets.only(left: 20.w),
-          child: Text('개인정보 동의',
-              style: TextStyle(
-                  fontSize: 20.r, fontWeight: FontWeight.bold, color: const Color(0xFF7C4DFF)))),
+          child: const Text('개인정보 동의',
+              style:
+                  TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Color(0xFF7C4DFF)))),
       SizedBox(height: 10.h),
       const Divider(color: Color(0xFFBABABA), thickness: 1),
       SizedBox(height: 70.h),
@@ -55,11 +55,11 @@ class ConsentPage extends HookConsumerWidget {
             padding: EdgeInsets.symmetric(vertical: 12.h),
             margin: EdgeInsets.symmetric(horizontal: 20.w),
             decoration: BoxDecoration(
-                color: const Color(0xFF7C4DFF), borderRadius: BorderRadius.circular(10.r)),
-            child: Center(
+                color: const Color(0xFF7C4DFF), borderRadius: BorderRadius.circular(10)),
+            child: const Center(
                 child: Text('확인',
                     style: TextStyle(
-                        fontSize: 20.r, color: Colors.white, fontWeight: FontWeight.w600)))),
+                        fontSize: 20, color: Colors.white, fontWeight: FontWeight.w600)))),
       ),
       SizedBox(height: 57.h)
     ]));
@@ -83,16 +83,17 @@ class ConsentPage extends HookConsumerWidget {
                       }))),
           SizedBox(width: 2.w),
           Text(content,
-              style: TextStyle(fontSize: 16.r, color: Colors.black, fontWeight: FontWeight.w500)),
+              style:
+                  const TextStyle(fontSize: 16, color: Colors.black, fontWeight: FontWeight.w500)),
           const Spacer(),
           Container(
             padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
             decoration: BoxDecoration(
                 border: Border.all(color: const Color(0xFF7C4DFF)),
-                borderRadius: BorderRadius.circular(2.r)),
-            child: Text('내용보기',
-                style: TextStyle(
-                    fontSize: 10.r, color: const Color(0xFF7C4DFF), fontWeight: FontWeight.bold)),
+                borderRadius: BorderRadius.circular(2)),
+            child: const Text('내용보기',
+                style:
+                    TextStyle(fontSize: 10, color: Color(0xFF7C4DFF), fontWeight: FontWeight.bold)),
           ),
           SizedBox(width: 20.w)
         ],

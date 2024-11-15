@@ -66,6 +66,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "763579885192-47gom8vjpfusq99138aefld1fostjapq.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.anychat.flutter",
+            "certificate_hash": "9268ce4d9a590c445fbd7d13490ccfb25bc2c091"
+          }
+        },
+        {
           "client_id": "763579885192-8hm9panpn2u1003d7eq2envilcspjvob.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {

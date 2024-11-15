@@ -8,6 +8,7 @@ import 'package:anychat/page/home/hide_friend_page.dart';
 import 'package:anychat/page/login/consent_page.dart';
 import 'package:anychat/page/login/language_select_page.dart';
 import 'package:anychat/page/login/login_page.dart';
+import 'package:anychat/page/login/set_profile_id_page.dart';
 import 'package:anychat/page/setting/anychat_id_page.dart';
 import 'package:anychat/page/setting/set_anychat_id_page.dart';
 import 'package:anychat/page/user/profile_page.dart';
@@ -24,13 +25,16 @@ final router = GoRouter(initialLocation: '/login', routes: [
   GoRoute(
       path: ConsentPage.routeName,
       builder: (context, state) => ConsentPage(state.extra as Language)),
+  GoRoute(
+      path: SetProfileIdPage.routeName,
+      builder: (context, state) => SetProfileIdPage(state.extra as Language)),
   GoRoute(path: MainLayout.routeName, builder: (context, state) => MainLayout()),
   GoRoute(
       path: ProfilePage.routeName,
       builder: (context, state) => ProfilePage(friend: state.extra as Friend?)),
   GoRoute(
       path: AddFriendByIdPage.routeName, builder: (context, state) => const AddFriendByIdPage()),
-  GoRoute(path: ChatPage.routeName, builder: (context, state) => const ChatPage()),
+  GoRoute(path: ChatPage.routeName, builder: (context, state) => ChatPage()),
   GoRoute(path: HideFriendPage.routeName, builder: (context, state) => const HideFriendPage()),
   GoRoute(path: BlockFriendPage.routeName, builder: (context, state) => const BlockFriendPage()),
   GoRoute(path: InviteFriendPage.routeName, builder: (context, state) => const InviteFriendPage()),

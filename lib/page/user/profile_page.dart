@@ -49,7 +49,7 @@ class ProfilePage extends HookConsumerWidget {
                       child: Container(
                           color: Colors.transparent,
                           padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 10.h),
-                          child: Icon(Icons.close, color: Colors.white, size: 24.r))),
+                          child: const Icon(Icons.close, color: Colors.white, size: 24))),
                   const Spacer(),
                   if (friend != null)
                     GestureDetector(
@@ -65,7 +65,7 @@ class ProfilePage extends HookConsumerWidget {
                             padding: EdgeInsets.symmetric(horizontal: 5.w, vertical: 10.h),
                             child: SvgPicture.asset(
                               'assets/images/star.svg',
-                              width: 24.r,
+                              width: 24,
                               colorFilter: friend.isPinned
                                   ? const ColorFilter.mode(Colors.yellow, BlendMode.srcIn)
                                   : null,
@@ -75,7 +75,7 @@ class ProfilePage extends HookConsumerWidget {
                       child: Container(
                           color: Colors.transparent,
                           padding: EdgeInsets.symmetric(horizontal: 5.w, vertical: 10.h),
-                          child: SvgPicture.asset('assets/images/more.svg', width: 24.r))),
+                          child: SvgPicture.asset('assets/images/more.svg', width: 24))),
                   SizedBox(width: 10.w)
                 ],
               ),
@@ -88,20 +88,20 @@ class ProfilePage extends HookConsumerWidget {
                         child: Container(
                             color: Colors.transparent,
                             padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 10.h),
-                            child: SvgPicture.asset('assets/images/camera.svg', width: 24.r)))
+                            child: SvgPicture.asset('assets/images/camera.svg', width: 24)))
                   ],
                 ),
               const Spacer(),
               Stack(
                 children: [
                   ClipOval(
-                    child: Image.asset('assets/images/default_profile.png', height: 140.r),
+                    child: Image.asset('assets/images/default_profile.png', height: 140),
                   ),
                   if (isEditMode.value)
                     Positioned(
-                        right: 4.r,
-                        bottom: 4.r,
-                        child: SvgPicture.asset('assets/images/camera.svg', width: 24.w))
+                        right: 0,
+                        bottom: 0,
+                        child: SvgPicture.asset('assets/images/camera.svg', width: 24))
                 ],
               ),
               SizedBox(height: 16.h),
@@ -115,21 +115,19 @@ class ProfilePage extends HookConsumerWidget {
                     children: [
                       SizedBox(
                         width: 38.w,
-                        height: 18.r,
+                        height: 18,
                       ),
                       Text(
                         friend?.nickname ?? user.name,
-                        style: TextStyle(
-                            fontSize: 16.r,
-                            color: const Color(0xFFF5F5F5),
-                            fontWeight: FontWeight.bold),
+                        style: const TextStyle(
+                            fontSize: 16, color: Color(0xFFF5F5F5), fontWeight: FontWeight.bold),
                       ),
                       Container(
                           width: 38.w,
-                          height: 18.r,
+                          height: 18,
                           alignment: Alignment.centerRight,
                           child: isEditMode.value
-                              ? SvgPicture.asset('assets/images/pen.svg', height: 18.r)
+                              ? SvgPicture.asset('assets/images/pen.svg', height: 18)
                               : null)
                     ],
                   )),
@@ -141,18 +139,16 @@ class ProfilePage extends HookConsumerWidget {
                   SizedBox(width: 38.w),
                   Text(
                     (friend?.friend.message ?? user.userInfo.message) ?? '여기에 상태메세지를 입력해주세요',
-                    style: TextStyle(
-                        fontSize: 12.r,
-                        fontWeight: FontWeight.w500,
-                        color: const Color(0xFFF5F5F5)),
+                    style: const TextStyle(
+                        fontSize: 12, fontWeight: FontWeight.w500, color: Color(0xFFF5F5F5)),
                     textAlign: TextAlign.center,
                   ),
                   Container(
                       width: 38.w,
-                      height: 18.r,
+                      height: 18,
                       alignment: Alignment.centerRight,
                       child: isEditMode.value
-                          ? SvgPicture.asset('assets/images/pen.svg', height: 18.r)
+                          ? SvgPicture.asset('assets/images/pen.svg', height: 18)
                           : null)
                 ],
               ),
@@ -160,7 +156,7 @@ class ProfilePage extends HookConsumerWidget {
               const Divider(color: Color(0xFFE0E2E4), thickness: 1),
               SizedBox(height: 10.h),
               SizedBox(
-                  height: 74.r + 32.h,
+                  height: 74 + 32.h,
                   child: isEditMode.value
                       ? null
                       : Row(
@@ -179,14 +175,14 @@ class ProfilePage extends HookConsumerWidget {
                                           padding: EdgeInsets.symmetric(
                                               horizontal: 10.w, vertical: 10.h),
                                           child: SvgPicture.asset('assets/images/pen_circle.svg',
-                                              width: 60.r))),
+                                              width: 60))),
                                   const Spacer(),
-                                  Text(
+                                  const Text(
                                     '프로필편집',
                                     style: TextStyle(
                                         fontWeight: FontWeight.w500,
-                                        fontSize: 14.r,
-                                        color: const Color(0xFFF5F5F5)),
+                                        fontSize: 14,
+                                        color: Color(0xFFF5F5F5)),
                                   )
                                 ],
                               ),
@@ -200,14 +196,14 @@ class ProfilePage extends HookConsumerWidget {
                                           padding: EdgeInsets.symmetric(
                                               horizontal: 10.w, vertical: 10.h),
                                           child: SvgPicture.asset('assets/images/chat.svg',
-                                              width: 60.r))),
+                                              width: 60))),
                                   const Spacer(),
-                                  Text(
+                                  const Text(
                                     '채팅하기',
                                     style: TextStyle(
                                         fontWeight: FontWeight.w500,
-                                        fontSize: 14.r,
-                                        color: const Color(0xFFF5F5F5)),
+                                        fontSize: 14,
+                                        color: Color(0xFFF5F5F5)),
                                   ),
                                   SizedBox(height: 9.h)
                                 ],
@@ -221,14 +217,14 @@ class ProfilePage extends HookConsumerWidget {
                                           padding: EdgeInsets.symmetric(
                                               horizontal: 10.w, vertical: 10.h),
                                           child: SvgPicture.asset('assets/images/voice_call.svg',
-                                              width: 60.r))),
+                                              width: 60))),
                                   const Spacer(),
-                                  Text(
+                                  const Text(
                                     '음성채팅',
                                     style: TextStyle(
                                         fontWeight: FontWeight.w500,
-                                        fontSize: 14.r,
-                                        color: const Color(0xFFF5F5F5)),
+                                        fontSize: 14,
+                                        color: Color(0xFFF5F5F5)),
                                   ),
                                   SizedBox(height: 9.h)
                                 ],
@@ -242,14 +238,14 @@ class ProfilePage extends HookConsumerWidget {
                                           padding: EdgeInsets.symmetric(
                                               horizontal: 10.w, vertical: 10.h),
                                           child: SvgPicture.asset('assets/images/face_call.svg',
-                                              width: 60.r))),
+                                              width: 60))),
                                   const Spacer(),
-                                  Text(
+                                  const Text(
                                     '영상채팅',
                                     style: TextStyle(
                                         fontWeight: FontWeight.w500,
-                                        fontSize: 14.r,
-                                        color: const Color(0xFFF5F5F5)),
+                                        fontSize: 14,
+                                        color: Color(0xFFF5F5F5)),
                                   ),
                                   SizedBox(height: 9.h)
                                 ],

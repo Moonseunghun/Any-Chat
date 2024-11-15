@@ -46,7 +46,7 @@ class LoginPage extends HookConsumerWidget {
             },
             child: Container(
                 width: 358.w,
-                height: 50.h,
+                height: 50,
                 decoration: BoxDecoration(
                     border: Border.all(color: const Color(0xFFD4D4D4)),
                     borderRadius: BorderRadius.circular(6.r)),
@@ -57,13 +57,13 @@ class LoginPage extends HookConsumerWidget {
                         child: Align(
                             alignment: Alignment.centerLeft,
                             child: SvgPicture.asset('assets/images/google.svg', width: 22.r))),
-                    Positioned.fill(
+                    const Positioned.fill(
                         child: Align(
                             alignment: Alignment.center,
                             child: Text('Google로 로그인',
                                 style: TextStyle(
-                                    fontSize: 16.r,
-                                    color: const Color(0xFF1A1A1A),
+                                    fontSize: 16,
+                                    color: Color(0xFF1A1A1A),
                                     fontWeight: FontWeight.w600)))),
                   ],
                 ))),
@@ -72,7 +72,7 @@ class LoginPage extends HookConsumerWidget {
             onTap: () {},
             child: Container(
                 width: 358.w,
-                height: 50.h,
+                height: 50,
                 decoration: BoxDecoration(
                     color: const Color(0xFF303030), borderRadius: BorderRadius.circular(6.r)),
                 child: Stack(
@@ -82,12 +82,12 @@ class LoginPage extends HookConsumerWidget {
                         child: Align(
                             alignment: Alignment.centerLeft,
                             child: SvgPicture.asset('assets/images/apple.svg', width: 22.r))),
-                    Positioned.fill(
+                    const Positioned.fill(
                         child: Align(
                             alignment: Alignment.center,
                             child: Text('Apple로 로그인',
                                 style: TextStyle(
-                                    fontSize: 16.r,
+                                    fontSize: 16,
                                     color: Colors.white,
                                     fontWeight: FontWeight.w600)))),
                   ],
