@@ -43,7 +43,7 @@ class BlockFriendPage extends HookConsumerWidget {
         body: Stack(children: [
           SingleChildScrollView(
               child: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 10.h),
+                  padding: EdgeInsets.symmetric(vertical: 10.h),
                   child: Column(children: [
                     ...ref.watch(blockFriendsProvider).map((friend) {
                       return _manageContainer(ref, context, friend, showPopup);
@@ -56,35 +56,31 @@ class BlockFriendPage extends HookConsumerWidget {
 
   Widget _manageContainer(
       WidgetRef ref, BuildContext context, Friend friend, ValueNotifier<Friend?> showPopup) {
-    return InkWell(
-        onTap: () {},
-        child: Container(
-            padding: EdgeInsets.symmetric(vertical: 6.h),
-            child: Row(
-              children: [
-                Image.asset('assets/images/default_profile.png', width: 44.r),
-                SizedBox(width: 11.w),
-                Text(friend.nickname,
-                    style: TextStyle(
-                        fontSize: 16.r,
-                        fontWeight: FontWeight.w500,
-                        color: const Color(0xFF3B3B3B))),
-                const Spacer(),
-                GestureDetector(
-                    onTap: () {
-                      showPopup.value = friend;
-                    },
-                    child: Container(
-                      padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(20.r),
-                        border: Border.all(color: const Color(0xFFC74DFF)),
-                      ),
-                      child: Text('관리',
-                          style: TextStyle(fontSize: 12.r, color: const Color(0xFFC74DFF))),
-                    ))
-              ],
-            )));
+    return Container(
+        padding: EdgeInsets.symmetric(vertical: 6.h, horizontal: 20.w),
+        child: Row(
+          children: [
+            Image.asset('assets/images/default_profile.png', width: 44.r),
+            SizedBox(width: 11.w),
+            Text(friend.nickname,
+                style: TextStyle(
+                    fontSize: 16.r, fontWeight: FontWeight.w500, color: const Color(0xFF3B3B3B))),
+            const Spacer(),
+            GestureDetector(
+                onTap: () {
+                  showPopup.value = friend;
+                },
+                child: Container(
+                  padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(20.r),
+                    border: Border.all(color: const Color(0xFFC74DFF)),
+                  ),
+                  child:
+                      Text('관리', style: TextStyle(fontSize: 12.r, color: const Color(0xFFC74DFF))),
+                ))
+          ],
+        ));
   }
 
   Widget _showPopup(

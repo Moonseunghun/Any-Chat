@@ -299,15 +299,17 @@ class ChatPage extends HookConsumerWidget {
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Container(
-            width: 44,
-            height: 44,
-            margin: const EdgeInsets.only(top: 6),
-            child: first
-                ? ClipOval(
-                    child: Image.asset('assets/images/default_profile.png', fit: BoxFit.cover),
-                  )
-                : null),
+        GestureDetector(
+            onTap: () {},
+            child: Container(
+                width: 44,
+                height: 44,
+                margin: const EdgeInsets.only(top: 6),
+                child: first
+                    ? ClipOval(
+                        child: Image.asset('assets/images/default_profile.png', fit: BoxFit.cover),
+                      )
+                    : null)),
         Row(
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [

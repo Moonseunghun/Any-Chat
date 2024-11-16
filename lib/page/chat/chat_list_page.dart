@@ -31,19 +31,19 @@ class ChatListPage extends HookConsumerWidget {
                         style: TextStyle(
                             fontSize: 20, fontWeight: FontWeight.bold, color: Color(0xFF3B3B3B))),
                     const Spacer(),
-                    InkWell(
+                    GestureDetector(
                         onTap: () {
                           isSearching.value = true;
                         },
                         child: SvgPicture.asset('assets/images/search.svg', width: 24)),
                     SizedBox(width: 7.w),
-                    InkWell(
+                    GestureDetector(
                         onTap: () {
                           newChat.value = true;
                         },
                         child: SvgPicture.asset('assets/images/chat_plus.svg', width: 24)),
                     SizedBox(width: 7.w),
-                    InkWell(
+                    GestureDetector(
                         onTap: () {
                           showSortMenu(context);
                         },

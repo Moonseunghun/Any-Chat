@@ -33,13 +33,13 @@ class HomePage extends HookConsumerWidget {
                     style: TextStyle(
                         fontSize: 20, fontWeight: FontWeight.bold, color: Color(0xFF3B3B3B))),
                 const Spacer(),
-                InkWell(
+                GestureDetector(
                     onTap: () {
                       addFriendPopup(context, ref);
                     },
                     child: SvgPicture.asset('assets/images/friend_add.svg', width: 24)),
                 SizedBox(width: 7.w),
-                InkWell(
+                GestureDetector(
                     onTap: () {
                       showSettingMenu(context);
                     },
@@ -57,7 +57,7 @@ class HomePage extends HookConsumerWidget {
             child: Text('프로필', style: TextStyle(fontSize: 12.r, color: const Color(0xFF3B3B3B))),
           ),
           SizedBox(height: 8.h),
-          Padding(padding: EdgeInsets.symmetric(horizontal: 20.w), child: _profileWidget(ref)),
+          _profileWidget(ref),
           SizedBox(height: 8.h),
           InkWell(
               onTap: () {
@@ -79,15 +79,13 @@ class HomePage extends HookConsumerWidget {
                     ],
                   ))),
           if (!foldFavorites.value && ref.watch(pinnedFriendsProvider).isNotEmpty)
-            Padding(
-                padding: EdgeInsets.symmetric(horizontal: 20.w),
-                child: Column(children: [
-                  SizedBox(height: 8.h),
-                  ...ref
-                      .watch(pinnedFriendsProvider)
-                      .map((friend) => _profileWidget(ref, friend: friend)),
-                  SizedBox(height: 8.h)
-                ])),
+            Column(children: [
+              SizedBox(height: 8.h),
+              ...ref
+                  .watch(pinnedFriendsProvider)
+                  .map((friend) => _profileWidget(ref, friend: friend)),
+              SizedBox(height: 8.h)
+            ]),
           InkWell(
               onTap: () {
                 foldFriends.value = !foldFriends.value;
@@ -106,12 +104,10 @@ class HomePage extends HookConsumerWidget {
                     ],
                   ))),
           if (!foldFriends.value && ref.watch(friendsProvider).isNotEmpty)
-            Padding(
-                padding: EdgeInsets.symmetric(horizontal: 20.w),
-                child: Column(children: [
-                  SizedBox(height: 8.h),
-                  ...ref.watch(friendsProvider).map((friend) => _profileWidget(ref, friend: friend))
-                ])),
+            Column(children: [
+              SizedBox(height: 8.h),
+              ...ref.watch(friendsProvider).map((friend) => _profileWidget(ref, friend: friend))
+            ]),
           SizedBox(height: 100.h),
         ])))
       ],
@@ -123,14 +119,14 @@ class HomePage extends HookConsumerWidget {
         onTap: () {
           if (friend != null) {
             FriendService().getFriendInfo(ref, friend.id).then((detail) {
-              router.push(ProfilePage.routeName, extra: friend);
+              router.push(ProfilePage.routeName, extra: detail);
             });
           } else {
             router.push(ProfilePage.routeName);
           }
         },
         child: Container(
-            padding: EdgeInsets.symmetric(vertical: 10.h),
+            padding: EdgeInsets.symmetric(vertical: 10.h, horizontal: 20.w),
             child: Row(
               children: [
                 Image.asset('assets/images/default_profile.png', width: 44.r),

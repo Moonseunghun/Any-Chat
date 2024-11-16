@@ -47,7 +47,7 @@ class AnychatIdPage extends ConsumerWidget {
                 ],
               ),
               const Spacer(),
-              InkWell(
+              GestureDetector(
                   onTap: () {
                     router.push(SetAnychatIdPage.routeName);
                   },

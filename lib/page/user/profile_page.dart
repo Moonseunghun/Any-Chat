@@ -24,8 +24,9 @@ class ProfilePage extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final isEditMode = useState<bool>(false);
     final user = ref.watch(userProvider)!;
-    final Friend? friend =
-        ref.watch(friendsProvider).where((element) => element == this.friend).firstOrNull;
+    final Friend? friend = [...ref.watch(friendsProvider), ...ref.watch(hiddenFriendsProvider)]
+        .where((element) => element == this.friend)
+        .firstOrNull;
     final nameClicked = useState<bool>(false);
     final messageClicked = useState<bool>(false);
 
@@ -71,7 +72,11 @@ class ProfilePage extends HookConsumerWidget {
                                   padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 10.h),
                                   child: const Icon(Icons.close, color: Colors.white, size: 24))),
                           const Spacer(),
-                          if (friend != null)
+                          if (friend != null &&
+                              !ref
+                                  .watch(hiddenFriendsProvider)
+                                  .map((e) => e.id)
+                                  .contains(this.friend!.id))
                             GestureDetector(
                                 onTap: () {
                                   if (friend.isPinned) {
@@ -185,8 +190,9 @@ class ProfilePage extends HookConsumerWidget {
                                 children: [
                                   SizedBox(width: 38.w),
                                   Text(
-                                    (friend?.friend.stateMessage ?? user.userInfo.stateMessage) ??
-                                        '여기에 상태메세지를 입력해주세요',
+                                    friend == null
+                                        ? user.userInfo.stateMessage ?? '여기에 상태메세지를 입력해주세요'
+                                        : friend.friend.stateMessage ?? '여기에 상태메세지를 입력해주세요',
                                     style: const TextStyle(
                                         fontSize: 12,
                                         fontWeight: FontWeight.w500,

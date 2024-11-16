@@ -33,7 +33,7 @@ class ConsentPage extends HookConsumerWidget {
       _buildCheckBox(content: '개인정보처리방침 (필수)', check: firstCheck, url: ''),
       _buildCheckBox(content: '서비스 이용약관 동의 (필수)', check: secondCheck, url: ''),
       const Spacer(),
-      InkWell(
+      GestureDetector(
         onTap: () {
           if (!firstCheck.value || !secondCheck.value) {
             errorToast(message: '필수 항목에 동의해주세요');

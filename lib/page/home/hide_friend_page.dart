@@ -8,6 +8,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import '../../model/friend.dart';
 import '../router.dart';
+import '../user/profile_page.dart';
 
 class HideFriendPage extends HookConsumerWidget {
   static const String routeName = '/hide';
@@ -43,7 +44,7 @@ class HideFriendPage extends HookConsumerWidget {
         body: Stack(children: [
           SingleChildScrollView(
               child: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 10.h),
+                  padding: EdgeInsets.symmetric(vertical: 10.h),
                   child: Column(children: [
                     ...ref.watch(hiddenFriendsProvider).map((friend) {
                       return _manageContainer(ref, context, friend, showPopup);
@@ -57,9 +58,13 @@ class HideFriendPage extends HookConsumerWidget {
   Widget _manageContainer(
       WidgetRef ref, BuildContext context, Friend friend, ValueNotifier<Friend?> showPopup) {
     return InkWell(
-        onTap: () {},
+        onTap: () {
+          FriendService().getFriendInfo(ref, friend.id).then((detail) {
+            router.push(ProfilePage.routeName, extra: detail);
+          });
+        },
         child: Container(
-            padding: EdgeInsets.symmetric(vertical: 6.h),
+            padding: EdgeInsets.symmetric(vertical: 6.h, horizontal: 20.w),
             child: Row(
               children: [
                 Image.asset('assets/images/default_profile.png', width: 44.r),

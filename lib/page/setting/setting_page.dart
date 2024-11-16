@@ -47,14 +47,13 @@ class SettingPage extends HookConsumerWidget {
   _buildListWidget({required String title, required Function onTap, String? optionText}) => Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SizedBox(height: 10.h),
-          GestureDetector(
+          InkWell(
               onTap: () {
                 onTap();
               },
               child: Container(
                   color: Colors.transparent,
-                  padding: EdgeInsets.only(left: 20.w, bottom: 10.h, top: 10.h),
+                  padding: EdgeInsets.only(left: 20.w, bottom: 20.h, top: 20.h),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -66,7 +65,6 @@ class SettingPage extends HookConsumerWidget {
                             style: const TextStyle(fontSize: 16, color: Color(0xFF3B3B3B))),
                     ],
                   ))),
-          SizedBox(height: 10.h),
           const Divider(color: Color(0xFFE0E2E4), thickness: 1, height: 1)
         ],
       );

@@ -58,7 +58,7 @@ class SetProfileIdPage extends HookConsumerWidget {
                       '프로필 ID는 영문 + 숫자 조합 8자로 적어주세요.\n프로필 ID는 친구를 추가하거나 찾을때 사용하는 고유 식별자 입니다.',
                       style: TextStyle(fontSize: 12, color: Colors.black))),
               const Spacer(),
-              InkWell(
+              GestureDetector(
                 onTap: () {
                   if (!isValidProfileId(idController.text.trim())) {
                     errorToast(message: '영문 + 숫자 조합 8자로 적어주세요');

@@ -37,7 +37,7 @@ class SetAnychatIdPage extends HookConsumerWidget {
                   style: TextStyle(
                       fontSize: 20, fontWeight: FontWeight.bold, color: Color(0xFF3B3B3B))),
               actions: [
-                InkWell(
+                GestureDetector(
                     onTap: () {
                       if (!isValidProfileId(idController.text.trim())) {
                         errorToast(message: '영문 + 숫자 조합 8자로 적어주세요');
