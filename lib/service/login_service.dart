@@ -20,7 +20,10 @@ class LoginService extends HttpClient {
     late final bool result;
     ref.read(loadingProvider.notifier).on();
     try {
-      final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
+      final GoogleSignInAccount? googleUser = await GoogleSignIn(
+              // serverClientId: '763579885192-epakl69dn21vroig9bplttg03rdbnmul.apps.googleusercontent.com'
+              )
+          .signIn();
 
       final GoogleSignInAuthentication? googleAuth = await googleUser?.authentication;
 
@@ -31,6 +34,7 @@ class LoginService extends HttpClient {
 
       result = true;
     } catch (error) {
+      print('에러: $error');
       errorToast(message: "구글 계정 로그인에 실패했습니다");
       result = false;
     } finally {
@@ -45,6 +49,8 @@ class LoginService extends HttpClient {
       'idToken': prefs.getString('id_token'),
       'providerTypeId': LoginType.getByProviderId(prefs.getString('login_type')!).value
     };
+
+    print('idToken: ${prefs.getString('id_token')}');
 
     return await post(
         path: '$basePath/check', queryParams: params, converter: (result) => result['data']).run(

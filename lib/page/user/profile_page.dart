@@ -1,5 +1,8 @@
+import 'package:anychat/common/toast.dart';
 import 'package:anychat/page/router.dart';
+import 'package:anychat/page/user/show_image_picker.dart';
 import 'package:anychat/service/friend_service.dart';
+import 'package:anychat/service/user_service.dart';
 import 'package:anychat/state/friend_state.dart';
 import 'package:anychat/state/user_state.dart';
 import 'package:flutter/material.dart';
@@ -23,240 +26,387 @@ class ProfilePage extends HookConsumerWidget {
     final user = ref.watch(userProvider)!;
     final Friend? friend =
         ref.watch(friendsProvider).where((element) => element == this.friend).firstOrNull;
+    final nameClicked = useState<bool>(false);
+    final messageClicked = useState<bool>(false);
 
-    return Container(
-        decoration: const BoxDecoration(
-          image: DecorationImage(
-              fit: BoxFit.cover, image: AssetImage('assets/images/default_profile_background.png')),
-        ),
-        child: Scaffold(
-          backgroundColor: Colors.black.withOpacity(0.6),
-          body: SafeArea(
-              child: Column(
-            children: [
-              SizedBox(height: 10.h),
-              Row(
-                children: [
-                  SizedBox(width: 10.w),
-                  GestureDetector(
-                      onTap: () {
-                        if (isEditMode.value) {
-                          isEditMode.value = false;
-                        } else {
-                          router.pop();
-                        }
-                      },
-                      child: Container(
-                          color: Colors.transparent,
-                          padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 10.h),
-                          child: const Icon(Icons.close, color: Colors.white, size: 24))),
-                  const Spacer(),
-                  if (friend != null)
-                    GestureDetector(
-                        onTap: () {
-                          if (friend.isPinned) {
-                            FriendService().unpinFriend(ref, friend.id);
-                          } else {
-                            FriendService().pinFriend(ref, friend.id);
-                          }
-                        },
-                        child: Container(
-                            color: Colors.transparent,
-                            padding: EdgeInsets.symmetric(horizontal: 5.w, vertical: 10.h),
-                            child: SvgPicture.asset(
-                              'assets/images/star.svg',
-                              width: 24,
-                              colorFilter: friend.isPinned
-                                  ? const ColorFilter.mode(Colors.yellow, BlendMode.srcIn)
-                                  : null,
-                            ))),
-                  GestureDetector(
-                      onTap: () {},
-                      child: Container(
-                          color: Colors.transparent,
-                          padding: EdgeInsets.symmetric(horizontal: 5.w, vertical: 10.h),
-                          child: SvgPicture.asset('assets/images/more.svg', width: 24))),
-                  SizedBox(width: 10.w)
-                ],
-              ),
-              if (isEditMode.value)
-                Row(
-                  children: [
-                    SizedBox(width: 10.w),
-                    GestureDetector(
-                        onTap: () {},
-                        child: Container(
-                            color: Colors.transparent,
-                            padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 10.h),
-                            child: SvgPicture.asset('assets/images/camera.svg', width: 24)))
-                  ],
-                ),
-              const Spacer(),
-              Stack(
-                children: [
-                  ClipOval(
-                    child: Image.asset('assets/images/default_profile.png', height: 140),
-                  ),
-                  if (isEditMode.value)
-                    Positioned(
-                        right: 0,
-                        bottom: 0,
-                        child: SvgPicture.asset('assets/images/camera.svg', width: 24))
-                ],
-              ),
-              SizedBox(height: 16.h),
-              GestureDetector(
-                  onTap: () {
-                    if (isEditMode.value) {}
-                  },
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    mainAxisAlignment: MainAxisAlignment.center,
+    final nameFocus = useFocusNode();
+    final messageFocus = useFocusNode();
+
+    final nameController = useTextEditingController();
+    final messageController = useTextEditingController();
+
+    return GestureDetector(
+        onVerticalDragUpdate: (details) {
+          if (details.primaryDelta! > 15) {
+            router.pop();
+          }
+        },
+        child: Container(
+            decoration: const BoxDecoration(
+              image: DecorationImage(
+                  fit: BoxFit.cover,
+                  image: AssetImage('assets/images/default_profile_background.png')),
+            ),
+            child: Scaffold(
+                resizeToAvoidBottomInset: false,
+                backgroundColor: Colors.black.withOpacity(0.6),
+                body: Stack(children: [
+                  SafeArea(
+                      child: Column(
                     children: [
+                      SizedBox(height: 10.h),
+                      Row(
+                        children: [
+                          SizedBox(width: 10.w),
+                          GestureDetector(
+                              onTap: () {
+                                if (isEditMode.value) {
+                                  isEditMode.value = false;
+                                } else {
+                                  router.pop();
+                                }
+                              },
+                              child: Container(
+                                  color: Colors.transparent,
+                                  padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 10.h),
+                                  child: const Icon(Icons.close, color: Colors.white, size: 24))),
+                          const Spacer(),
+                          if (friend != null)
+                            GestureDetector(
+                                onTap: () {
+                                  if (friend.isPinned) {
+                                    FriendService().unpinFriend(ref, friend.id);
+                                  } else {
+                                    FriendService().pinFriend(ref, friend.id);
+                                  }
+                                },
+                                child: Container(
+                                    color: Colors.transparent,
+                                    padding: EdgeInsets.symmetric(horizontal: 5.w, vertical: 10.h),
+                                    child: SvgPicture.asset(
+                                      'assets/images/star.svg',
+                                      width: 24,
+                                      colorFilter: friend.isPinned
+                                          ? const ColorFilter.mode(Colors.yellow, BlendMode.srcIn)
+                                          : null,
+                                    ))),
+                          GestureDetector(
+                              onTap: () {},
+                              child: Container(
+                                  color: Colors.transparent,
+                                  padding: EdgeInsets.symmetric(horizontal: 5.w, vertical: 10.h),
+                                  child: SvgPicture.asset('assets/images/more.svg', width: 24))),
+                          SizedBox(width: 10.w)
+                        ],
+                      ),
+                      if (isEditMode.value)
+                        Row(
+                          children: [
+                            SizedBox(width: 10.w),
+                            GestureDetector(
+                                onTap: () {},
+                                child: Container(
+                                    color: Colors.transparent,
+                                    padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 10.h),
+                                    child: SvgPicture.asset('assets/images/camera.svg', width: 24)))
+                          ],
+                        ),
+                      const Spacer(),
+                      GestureDetector(
+                          onTap: () {
+                            if (isEditMode.value) {
+                              showImagePicker(ref: ref, context: context);
+                            }
+                          },
+                          child: Stack(
+                            children: [
+                              ClipOval(
+                                child:
+                                    Image.asset('assets/images/default_profile.png', height: 140),
+                              ),
+                              if (isEditMode.value)
+                                Positioned(
+                                    right: 0,
+                                    bottom: 0,
+                                    child: SvgPicture.asset('assets/images/camera.svg', width: 24))
+                            ],
+                          )),
+                      SizedBox(height: 16.h),
+                      GestureDetector(
+                          onTap: () {
+                            if (isEditMode.value) {
+                              nameController.text = user.name;
+                              nameClicked.value = true;
+                              FocusScope.of(context).requestFocus(nameFocus);
+                            }
+                          },
+                          child: Container(
+                              color: Colors.transparent,
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  SizedBox(
+                                    width: 38.w,
+                                    height: 18,
+                                  ),
+                                  Text(
+                                    friend?.nickname ?? user.name,
+                                    style: const TextStyle(
+                                        fontSize: 16,
+                                        color: Color(0xFFF5F5F5),
+                                        fontWeight: FontWeight.bold),
+                                  ),
+                                  Container(
+                                      width: 38.w,
+                                      height: 18,
+                                      alignment: Alignment.centerRight,
+                                      child: isEditMode.value
+                                          ? SvgPicture.asset('assets/images/pen.svg', height: 18)
+                                          : null)
+                                ],
+                              ))),
+                      SizedBox(height: 12.h),
+                      GestureDetector(
+                          onTap: () {
+                            if (isEditMode.value) {
+                              messageController.text = user.userInfo.stateMessage ?? '';
+                              messageClicked.value = true;
+                              FocusScope.of(context).requestFocus(messageFocus);
+                            }
+                          },
+                          child: Container(
+                              color: Colors.transparent,
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  SizedBox(width: 38.w),
+                                  Text(
+                                    (friend?.friend.stateMessage ?? user.userInfo.stateMessage) ??
+                                        '여기에 상태메세지를 입력해주세요',
+                                    style: const TextStyle(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w500,
+                                        color: Color(0xFFF5F5F5)),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                  Container(
+                                      width: 38.w,
+                                      height: 18,
+                                      alignment: Alignment.centerRight,
+                                      child: isEditMode.value
+                                          ? SvgPicture.asset('assets/images/pen.svg', height: 18)
+                                          : null)
+                                ],
+                              ))),
+                      SizedBox(height: 28.h),
+                      const Divider(color: Color(0xFFE0E2E4), thickness: 1),
+                      SizedBox(height: 10.h),
                       SizedBox(
-                        width: 38.w,
-                        height: 18,
-                      ),
-                      Text(
-                        friend?.nickname ?? user.name,
-                        style: const TextStyle(
-                            fontSize: 16, color: Color(0xFFF5F5F5), fontWeight: FontWeight.bold),
-                      ),
-                      Container(
-                          width: 38.w,
-                          height: 18,
-                          alignment: Alignment.centerRight,
+                          height: 74 + 32.h,
                           child: isEditMode.value
-                              ? SvgPicture.asset('assets/images/pen.svg', height: 18)
-                              : null)
+                              ? null
+                              : Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                  children: [
+                                    SizedBox(width: 20.w),
+                                    if (friend == null)
+                                      Column(
+                                        children: [
+                                          GestureDetector(
+                                              onTap: () {
+                                                isEditMode.value = true;
+                                              },
+                                              child: Container(
+                                                  color: Colors.transparent,
+                                                  padding: EdgeInsets.symmetric(
+                                                      horizontal: 10.w, vertical: 10.h),
+                                                  child: SvgPicture.asset(
+                                                      'assets/images/pen_circle.svg',
+                                                      width: 60))),
+                                          const Spacer(),
+                                          const Text(
+                                            '프로필편집',
+                                            style: TextStyle(
+                                                fontWeight: FontWeight.w500,
+                                                fontSize: 14,
+                                                color: Color(0xFFF5F5F5)),
+                                          )
+                                        ],
+                                      ),
+                                    if (friend != null) ...[
+                                      Column(
+                                        children: [
+                                          GestureDetector(
+                                              onTap: () {},
+                                              child: Container(
+                                                  color: Colors.transparent,
+                                                  padding: EdgeInsets.symmetric(
+                                                      horizontal: 10.w, vertical: 10.h),
+                                                  child: SvgPicture.asset('assets/images/chat.svg',
+                                                      width: 60))),
+                                          const Spacer(),
+                                          const Text(
+                                            '채팅하기',
+                                            style: TextStyle(
+                                                fontWeight: FontWeight.w500,
+                                                fontSize: 14,
+                                                color: Color(0xFFF5F5F5)),
+                                          ),
+                                          SizedBox(height: 9.h)
+                                        ],
+                                      ),
+                                      Column(
+                                        children: [
+                                          GestureDetector(
+                                              onTap: () {},
+                                              child: Container(
+                                                  color: Colors.transparent,
+                                                  padding: EdgeInsets.symmetric(
+                                                      horizontal: 10.w, vertical: 10.h),
+                                                  child: SvgPicture.asset(
+                                                      'assets/images/voice_call.svg',
+                                                      width: 60))),
+                                          const Spacer(),
+                                          const Text(
+                                            '음성채팅',
+                                            style: TextStyle(
+                                                fontWeight: FontWeight.w500,
+                                                fontSize: 14,
+                                                color: Color(0xFFF5F5F5)),
+                                          ),
+                                          SizedBox(height: 9.h)
+                                        ],
+                                      ),
+                                      Column(
+                                        children: [
+                                          GestureDetector(
+                                              onTap: () {},
+                                              child: Container(
+                                                  color: Colors.transparent,
+                                                  padding: EdgeInsets.symmetric(
+                                                      horizontal: 10.w, vertical: 10.h),
+                                                  child: SvgPicture.asset(
+                                                      'assets/images/face_call.svg',
+                                                      width: 60))),
+                                          const Spacer(),
+                                          const Text(
+                                            '영상채팅',
+                                            style: TextStyle(
+                                                fontWeight: FontWeight.w500,
+                                                fontSize: 14,
+                                                color: Color(0xFFF5F5F5)),
+                                          ),
+                                          SizedBox(height: 9.h)
+                                        ],
+                                      )
+                                    ],
+                                    SizedBox(width: 20.w)
+                                  ],
+                                )),
+                      SizedBox(height: 60.h)
                     ],
                   )),
-              SizedBox(height: 12.h),
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  SizedBox(width: 38.w),
-                  Text(
-                    (friend?.friend.message ?? user.userInfo.message) ?? '여기에 상태메세지를 입력해주세요',
-                    style: const TextStyle(
-                        fontSize: 12, fontWeight: FontWeight.w500, color: Color(0xFFF5F5F5)),
-                    textAlign: TextAlign.center,
-                  ),
-                  Container(
-                      width: 38.w,
-                      height: 18,
-                      alignment: Alignment.centerRight,
-                      child: isEditMode.value
-                          ? SvgPicture.asset('assets/images/pen.svg', height: 18)
-                          : null)
-                ],
-              ),
-              SizedBox(height: 28.h),
-              const Divider(color: Color(0xFFE0E2E4), thickness: 1),
-              SizedBox(height: 10.h),
-              SizedBox(
-                  height: 74 + 32.h,
-                  child: isEditMode.value
-                      ? null
-                      : Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  if (nameClicked.value || messageClicked.value) ...[
+                    GestureDetector(
+                        onTap: () {
+                          FocusScope.of(context).unfocus();
+                        },
+                        child: Container(
+                            width: double.infinity,
+                            height: double.infinity,
+                            color: Colors.black.withOpacity(0.7))),
+                    Positioned(
+                        left: 10.w,
+                        top: 10.h,
+                        child: SafeArea(
+                            child: GestureDetector(
+                                onTap: () {
+                                  nameClicked.value = false;
+                                  messageClicked.value = false;
+                                },
+                                child: Container(
+                                    color: Colors.transparent,
+                                    padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 10.h),
+                                    child:
+                                        const Icon(Icons.close, color: Colors.white, size: 24))))),
+                    Container(
+                        width: 393.w,
+                        height: 600.h,
+                        padding: EdgeInsets.symmetric(horizontal: 30.w),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            SizedBox(width: 20.w),
-                            if (friend == null)
-                              Column(
-                                children: [
-                                  GestureDetector(
-                                      onTap: () {
-                                        isEditMode.value = true;
-                                      },
-                                      child: Container(
-                                          color: Colors.transparent,
-                                          padding: EdgeInsets.symmetric(
-                                              horizontal: 10.w, vertical: 10.h),
-                                          child: SvgPicture.asset('assets/images/pen_circle.svg',
-                                              width: 60))),
-                                  const Spacer(),
-                                  const Text(
-                                    '프로필편집',
-                                    style: TextStyle(
-                                        fontWeight: FontWeight.w500,
-                                        fontSize: 14,
-                                        color: Color(0xFFF5F5F5)),
-                                  )
-                                ],
-                              ),
-                            if (friend != null) ...[
-                              Column(
-                                children: [
-                                  GestureDetector(
-                                      onTap: () {},
-                                      child: Container(
-                                          color: Colors.transparent,
-                                          padding: EdgeInsets.symmetric(
-                                              horizontal: 10.w, vertical: 10.h),
-                                          child: SvgPicture.asset('assets/images/chat.svg',
-                                              width: 60))),
-                                  const Spacer(),
-                                  const Text(
-                                    '채팅하기',
-                                    style: TextStyle(
-                                        fontWeight: FontWeight.w500,
-                                        fontSize: 14,
-                                        color: Color(0xFFF5F5F5)),
-                                  ),
-                                  SizedBox(height: 9.h)
-                                ],
-                              ),
-                              Column(
-                                children: [
-                                  GestureDetector(
-                                      onTap: () {},
-                                      child: Container(
-                                          color: Colors.transparent,
-                                          padding: EdgeInsets.symmetric(
-                                              horizontal: 10.w, vertical: 10.h),
-                                          child: SvgPicture.asset('assets/images/voice_call.svg',
-                                              width: 60))),
-                                  const Spacer(),
-                                  const Text(
-                                    '음성채팅',
-                                    style: TextStyle(
-                                        fontWeight: FontWeight.w500,
-                                        fontSize: 14,
-                                        color: Color(0xFFF5F5F5)),
-                                  ),
-                                  SizedBox(height: 9.h)
-                                ],
-                              ),
-                              Column(
-                                children: [
-                                  GestureDetector(
-                                      onTap: () {},
-                                      child: Container(
-                                          color: Colors.transparent,
-                                          padding: EdgeInsets.symmetric(
-                                              horizontal: 10.w, vertical: 10.h),
-                                          child: SvgPicture.asset('assets/images/face_call.svg',
-                                              width: 60))),
-                                  const Spacer(),
-                                  const Text(
-                                    '영상채팅',
-                                    style: TextStyle(
-                                        fontWeight: FontWeight.w500,
-                                        fontSize: 14,
-                                        color: Color(0xFFF5F5F5)),
-                                  ),
-                                  SizedBox(height: 9.h)
-                                ],
-                              )
-                            ],
-                            SizedBox(width: 20.w)
+                            Row(
+                              children: [
+                                SizedBox(width: 8.w),
+                                Expanded(
+                                    child: TextField(
+                                  controller:
+                                      nameClicked.value ? nameController : messageController,
+                                  focusNode: nameClicked.value ? nameFocus : messageFocus,
+                                  textAlign: TextAlign.center,
+                                  onSubmitted: (value) {
+                                    if (nameClicked.value) {
+                                      if (value.trim().isEmpty || value.trim() == user.name) {
+                                        nameClicked.value = false;
+                                      } else if (value.trim().length > 12) {
+                                        errorToast(message: '닉네임은 12자 이내로 입력해주세요');
+                                      } else {
+                                        UserService()
+                                            .updateProfile(ref, name: value.trim())
+                                            .then((_) {
+                                          nameClicked.value = false;
+                                        });
+                                      }
+                                    } else {
+                                      if (value.trim().isEmpty ||
+                                          value.trim() == user.userInfo.stateMessage) {
+                                        messageClicked.value = false;
+                                      } else if (value.trim().length > 60) {
+                                        errorToast(message: '상태메세지는 60자 이내로 입력해주세요');
+                                      } else {
+                                        UserService()
+                                            .updateProfile(ref, stateMessage: value.trim())
+                                            .then((_) {
+                                          messageClicked.value = false;
+                                        });
+                                      }
+                                    }
+                                  },
+                                  style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.bold),
+                                  decoration: InputDecoration(
+                                      hintText: nameClicked.value ? '닉네임' : '상태메세지',
+                                      hintStyle: const TextStyle(
+                                          color: Color(0xFFDBDBDB),
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.normal),
+                                      border: InputBorder.none),
+                                )),
+                                SizedBox(width: 4.w),
+                                GestureDetector(
+                                    onTap: () {
+                                      if (nameClicked.value) {
+                                        nameController.text = '';
+                                      } else {
+                                        messageController.text = '';
+                                      }
+                                    },
+                                    child: Container(
+                                      color: Colors.transparent,
+                                      padding: EdgeInsets.symmetric(horizontal: 5.w, vertical: 5),
+                                      child: const Icon(Icons.close, color: Colors.white, size: 24),
+                                    ))
+                              ],
+                            ),
+                            const Divider(color: Colors.white, thickness: 1, height: 1),
                           ],
-                        )),
-              SizedBox(height: 60.h)
-            ],
-          )),
-        ));
+                        ))
+                  ]
+                ]))));
   }
 }

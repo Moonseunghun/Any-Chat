@@ -50,15 +50,15 @@ class ProfileInfo {
   final String id;
   final String? profileImg;
   final String? backgroundImg;
-  final String? message;
+  final String? stateMessage;
 
-  ProfileInfo({required this.id, required this.profileImg, this.backgroundImg, this.message});
+  ProfileInfo({required this.id, required this.profileImg, this.backgroundImg, this.stateMessage});
 
   factory ProfileInfo.fromJson(Map<String, dynamic> json) => ProfileInfo(
       id: json['id'],
       profileImg: json['profileImg'],
       backgroundImg: json['backgroundImg'],
-      message: json['message']);
+      stateMessage: json['stateMessage']);
 }
 
 extension FriendsExtension on List<Friend> {

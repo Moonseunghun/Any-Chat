@@ -55,7 +55,7 @@ class UserInfo {
   final String lang;
   final String? profileImg;
   final String? backgroundImg;
-  final String? message;
+  final String? stateMessage;
 
   UserInfo(
       {required this.userId,
@@ -63,7 +63,7 @@ class UserInfo {
       required this.lang,
       required this.profileImg,
       required this.backgroundImg,
-      required this.message});
+      required this.stateMessage});
 
   factory UserInfo.fromJson(Map<String, dynamic> json) {
     return UserInfo(
@@ -72,7 +72,7 @@ class UserInfo {
       lang: json['lang'],
       profileImg: json['profileImg'],
       backgroundImg: json['backgroundImg'],
-      message: json['message'],
+      stateMessage: json['stateMessage'],
     );
   }
 
@@ -89,7 +89,7 @@ class UserInfo {
       lang: lang ?? this.lang,
       profileImg: profileImg ?? this.profileImg,
       backgroundImg: backgroundImg ?? this.backgroundImg,
-      message: message ?? this.message,
+      stateMessage: message ?? this.stateMessage,
     );
   }
 }

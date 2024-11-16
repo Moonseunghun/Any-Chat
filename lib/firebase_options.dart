@@ -62,8 +62,6 @@ class DefaultFirebaseOptions {
     messagingSenderId: '763579885192',
     projectId: 'anychat-78034',
     storageBucket: 'anychat-78034.firebasestorage.app',
-    androidClientId: '763579885192-44t5aqkvikpuhl7dje91942tltpe4vdi.apps.googleusercontent.com',
-    iosClientId: '763579885192-61l68e2hhio5268ecnlsmcp2ubmjtn97.apps.googleusercontent.com',
     iosBundleId: 'com.anychat.flutter',
   );
 }

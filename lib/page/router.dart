@@ -12,6 +12,7 @@ import 'package:anychat/page/login/set_profile_id_page.dart';
 import 'package:anychat/page/setting/anychat_id_page.dart';
 import 'package:anychat/page/setting/set_anychat_id_page.dart';
 import 'package:anychat/page/user/profile_page.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:go_router/go_router.dart';
 
 import '../model/language.dart';
@@ -31,7 +32,20 @@ final router = GoRouter(initialLocation: '/login', routes: [
   GoRoute(path: MainLayout.routeName, builder: (context, state) => MainLayout()),
   GoRoute(
       path: ProfilePage.routeName,
-      builder: (context, state) => ProfilePage(friend: state.extra as Friend?)),
+      pageBuilder: (context, state) => CustomTransitionPage(
+          key: state.pageKey,
+          child: ProfilePage(friend: state.extra as Friend?),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            const begin = Offset(0.0, 1.0);
+            const end = Offset.zero;
+            const curve = Curves.easeInOut;
+
+            var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+            var offsetAnimation = animation.drive(tween);
+
+            return SlideTransition(position: offsetAnimation, child: child);
+          },
+          transitionDuration: const Duration(milliseconds: 300))),
   GoRoute(
       path: AddFriendByIdPage.routeName, builder: (context, state) => const AddFriendByIdPage()),
   GoRoute(path: ChatPage.routeName, builder: (context, state) => ChatPage()),

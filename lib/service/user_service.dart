@@ -38,6 +38,22 @@ class UserService extends SecuredHttpClient {
     });
   }
 
+  Future<void> updateProfile(WidgetRef ref,
+      {String? name, String? stateMessage, String? profileImage, String? backgroundImage}) async {
+    await put(path: '$basePath/profile', queryParams: {
+      if (name != null) 'name': name,
+      if (stateMessage != null) 'stateMessage': stateMessage,
+      if (profileImage != null) 'profileImage': profileImage,
+      if (backgroundImage != null) 'backgroundImage': backgroundImage,
+    }).run(ref, (_) {
+      ref.read(userProvider.notifier).updateProfile(
+          name: name,
+          stateMessage: stateMessage,
+          profileImage: profileImage,
+          backgroundImage: backgroundImage);
+    }, errorMessage: '프로필 수정에 실패했습니다');
+  }
+
   Future<void> setLanguage(WidgetRef ref, Language language) async {
     await put(path: '$basePath/language', queryParams: {'lang': language.code}).run(ref, (_) {
       ref.read(userProvider.notifier).setLanguage(language);
