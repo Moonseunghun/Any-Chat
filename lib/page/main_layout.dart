@@ -34,18 +34,22 @@ class MainLayout extends HookConsumerWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              SizedBox(width: 30.w),
+              SizedBox(width: 4.w),
               navigationBarIcon(
                   ref: ref, index: 0, name: '홈', iconUrl: 'assets/images/home', iconSize: 24.r),
               navigationBarIcon(
                   ref: ref, index: 1, name: '채팅', iconUrl: 'assets/images/chat', iconSize: 24.r),
+              Container(
+                  color: Colors.transparent,
+                  padding: EdgeInsets.symmetric(horizontal: 15.w, vertical: 10.h),
+                  child: Image.asset('assets/images/anychat.png', height: 61.r)),
               navigationBarIcon(
                   ref: ref,
                   index: 2,
                   name: '설정',
                   iconUrl: 'assets/images/setting',
                   iconSize: 25.6.r),
-              SizedBox(width: 30.w),
+              SizedBox(width: 4.w),
             ],
           )),
     );
@@ -64,7 +68,7 @@ class MainLayout extends HookConsumerWidget {
         },
         child: Container(
             color: Colors.transparent,
-            padding: EdgeInsets.symmetric(horizontal: 30.w, vertical: 10.h),
+            padding: EdgeInsets.symmetric(horizontal: 15.w, vertical: 10.h),
             child: SizedBox(
                 width: 40.w,
                 height: 47.h,
