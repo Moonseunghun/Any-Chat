@@ -81,7 +81,7 @@ class UserInfo {
     String? lang,
     String? profileImg,
     String? backgroundImg,
-    String? message,
+    String? stateMessage,
   }) {
     return UserInfo(
       userId: userId,
@@ -89,7 +89,9 @@ class UserInfo {
       lang: lang ?? this.lang,
       profileImg: profileImg ?? this.profileImg,
       backgroundImg: backgroundImg ?? this.backgroundImg,
-      stateMessage: message ?? this.stateMessage,
+      stateMessage: stateMessage ?? this.stateMessage,
     );
   }
 }
+
+bool isValidProfileId(String profileId) => RegExp(r'^[a-zA-Z0-9._-]{4,20}$').hasMatch(profileId);

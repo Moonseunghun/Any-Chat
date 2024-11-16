@@ -21,8 +21,8 @@ class LoginService extends HttpClient {
     ref.read(loadingProvider.notifier).on();
     try {
       final GoogleSignInAccount? googleUser = await GoogleSignIn(
-              // serverClientId: '763579885192-epakl69dn21vroig9bplttg03rdbnmul.apps.googleusercontent.com'
-              )
+              serverClientId:
+                  '763579885192-epakl69dn21vroig9bplttg03rdbnmul.apps.googleusercontent.com')
           .signIn();
 
       final GoogleSignInAuthentication? googleAuth = await googleUser?.authentication;
@@ -34,7 +34,6 @@ class LoginService extends HttpClient {
 
       result = true;
     } catch (error) {
-      print('에러: $error');
       errorToast(message: "구글 계정 로그인에 실패했습니다");
       result = false;
     } finally {
@@ -50,8 +49,6 @@ class LoginService extends HttpClient {
       'providerTypeId': LoginType.getByProviderId(prefs.getString('login_type')!).value
     };
 
-    print('idToken: ${prefs.getString('id_token')}');
-
     return await post(
         path: '$basePath/check', queryParams: params, converter: (result) => result['data']).run(
       ref,
@@ -60,11 +57,11 @@ class LoginService extends HttpClient {
     );
   }
 
-  Future<void> register(WidgetRef ref, Language language) async {
+  Future<void> register(WidgetRef ref, Language language, String profileId) async {
     final params = {
       'idToken': prefs.getString('id_token'),
       'providerTypeId': LoginType.getByProviderId(prefs.getString('login_type')!).value,
-      'profileId': "TEST",
+      'profileId': profileId,
       'lang': language.code,
       'fcmToken': 'tmp',
       'deviceId': await _getDeviceId(),
@@ -73,13 +70,15 @@ class LoginService extends HttpClient {
     await post(
         path: '$basePath/register/social',
         queryParams: params,
-        converter: (result) => result['data']).run(
-      ref,
-      (data) {
-        auth = Auth(accessToken: data['accessToken'], refreshToken: data['refreshToken']);
-      },
-      errorMessage: '회원가입에 실패했습니다',
-    );
+        converter: (result) => result['data']).run(ref, (data) {
+      auth = Auth(accessToken: data['accessToken'], refreshToken: data['refreshToken']);
+    }, errorHandler: (error) {
+      if (error.statusCode == 403) {
+        errorToast(message: '중복된 ID입니다');
+      } else {
+        errorToast(message: '회원가입에 실패했습니다');
+      }
+    });
   }
 
   Future<void> login(WidgetRef ref) async {

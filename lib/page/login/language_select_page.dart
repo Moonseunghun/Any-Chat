@@ -7,6 +7,7 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
+import '../../state/user_state.dart';
 import 'consent_page.dart';
 
 class LanguageSelectPage extends HookConsumerWidget {
@@ -18,7 +19,8 @@ class LanguageSelectPage extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final selectedLanguage = useState<Language?>(null);
+    final selectedLanguage = useState<Language?>(
+        isCreate ? null : Language.fromName(ref.read(userProvider)!.userInfo.lang));
 
     return Scaffold(
       body: SafeArea(
@@ -86,7 +88,8 @@ class LanguageSelectPage extends HookConsumerWidget {
                                             style: const TextStyle(
                                                 fontSize: 11,
                                                 color: Colors.black,
-                                                fontWeight: FontWeight.w500)),
+                                                fontWeight: FontWeight.w500),
+                                            textAlign: TextAlign.center),
                                       ],
                                     )));
                           })),

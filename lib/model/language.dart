@@ -23,4 +23,12 @@ enum Language {
   final String value;
 
   const Language(this.code, this.value);
+
+  factory Language.fromCode(String code) {
+    return Language.values.firstWhere((e) => e.code == code);
+  }
+
+  factory Language.fromName(String name) {
+    return Language.values.firstWhere((e) => e.name == name);
+  }
 }

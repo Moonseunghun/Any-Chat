@@ -1,5 +1,5 @@
 import 'package:anychat/common/toast.dart';
-import 'package:anychat/model/auth.dart';
+import 'package:anychat/model/user.dart';
 import 'package:anychat/service/user_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -39,8 +39,8 @@ class SetAnychatIdPage extends HookConsumerWidget {
               actions: [
                 InkWell(
                     onTap: () {
-                      if (idController.text.trim().isEmpty) {
-                        errorToast(message: 'ID를 입력해주세요');
+                      if (!isValidProfileId(idController.text.trim())) {
+                        errorToast(message: '영문 + 숫자 조합 8자로 적어주세요');
                         return;
                       }
 

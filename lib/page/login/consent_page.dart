@@ -1,15 +1,11 @@
 import 'package:anychat/common/toast.dart';
 import 'package:anychat/model/language.dart';
-import 'package:anychat/page/main_layout.dart';
+import 'package:anychat/page/login/set_profile_id_page.dart';
 import 'package:anychat/page/router.dart';
-import 'package:anychat/service/login_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-
-import '../../service/friend_service.dart';
-import '../../service/user_service.dart';
 
 class ConsentPage extends HookConsumerWidget {
   static const String routeName = '/consent';
@@ -44,11 +40,7 @@ class ConsentPage extends HookConsumerWidget {
             return;
           }
 
-          LoginService().register(ref, language).then((_) async {
-            await FriendService().getFriends(ref);
-            await FriendService().getPinned(ref);
-            await UserService().getMe(ref).then((_) => router.go(MainLayout.routeName));
-          });
+          router.go(SetProfileIdPage.routeName, extra: language);
         },
         child: Container(
             width: double.infinity,

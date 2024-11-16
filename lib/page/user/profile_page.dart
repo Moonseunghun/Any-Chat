@@ -104,7 +104,9 @@ class ProfilePage extends HookConsumerWidget {
                           children: [
                             SizedBox(width: 10.w),
                             GestureDetector(
-                                onTap: () {},
+                                onTap: () {
+                                  showImagePicker(ref: ref, context: context);
+                                },
                                 child: Container(
                                     color: Colors.transparent,
                                     padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 10.h),

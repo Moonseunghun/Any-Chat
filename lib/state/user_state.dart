@@ -22,7 +22,7 @@ class UserNotifier extends StateNotifier<User?> {
     state = state!.copyWith(
       name: name ?? state!.name,
       userInfo: state!.userInfo.copyWith(
-        message: stateMessage ?? state!.userInfo.stateMessage,
+        stateMessage: stateMessage ?? state!.userInfo.stateMessage,
         profileImg: profileImage ?? state!.userInfo.profileImg,
         backgroundImg: backgroundImage ?? state!.userInfo.backgroundImg,
       ),

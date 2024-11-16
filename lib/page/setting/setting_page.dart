@@ -34,8 +34,7 @@ class SettingPage extends HookConsumerWidget {
                 onTap: () {
                   router.push(AnychatIdPage.routeName);
                 },
-                optionText:
-                    ref.watch(userProvider)!.userInfo.profileId == null ? 'ID를 만들어주세요' : null),
+                optionText: ref.watch(userProvider)!.userInfo.profileId ?? 'ID를 만들어주세요'),
             _buildListWidget(title: '이용약관 보기', onTap: () {}),
             _buildListWidget(title: '개인정보처리방침 보기', onTap: () {}),
             _buildListWidget(title: '앱 버전 1.152.1', onTap: () {}),
@@ -64,10 +63,7 @@ class SettingPage extends HookConsumerWidget {
                               fontSize: 16, fontWeight: FontWeight.w500, color: Color(0xFF3B3B3B))),
                       if (optionText != null)
                         Text(optionText,
-                            style: const TextStyle(
-                                fontSize: 16,
-                                color: Color(0xFF3B3B3B),
-                                fontWeight: FontWeight.w500)),
+                            style: const TextStyle(fontSize: 16, color: Color(0xFF3B3B3B))),
                     ],
                   ))),
           SizedBox(height: 10.h),
