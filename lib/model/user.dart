@@ -1,3 +1,7 @@
+import 'dart:io';
+
+import '../common/cache_manager.dart';
+
 enum LoginType {
   google(2),
   apple(3);
@@ -26,11 +30,11 @@ class User {
 
   User({required this.id, required this.name, required this.userInfo, required this.phoneNumbers});
 
-  factory User.fromJson(Map<String, dynamic> json) {
+  static Future<User> fromJson(Map<String, dynamic> json) async {
     return User(
       id: json['id'],
       name: json['name'],
-      userInfo: UserInfo.fromJson(json['userInfo']),
+      userInfo: await UserInfo.fromJson(json['userInfo']),
       phoneNumbers: List<String>.from(json['phoneNumbers']),
     );
   }
@@ -53,8 +57,8 @@ class UserInfo {
   final String userId;
   final String? profileId;
   final String lang;
-  final String? profileImg;
-  final String? backgroundImg;
+  final File? profileImg;
+  final File? backgroundImg;
   final String? stateMessage;
 
   UserInfo(
@@ -65,13 +69,33 @@ class UserInfo {
       required this.backgroundImg,
       required this.stateMessage});
 
-  factory UserInfo.fromJson(Map<String, dynamic> json) {
+  static Future<UserInfo> fromJson(Map<String, dynamic> json) async {
+    File? profileImg;
+    File? backgroundImg;
+    if (json['profileImg'] != null) {
+      final File? cachedImage = await CacheManager.getCachedImage(json['profileImg']);
+      if (cachedImage != null) {
+        profileImg = cachedImage;
+      } else {
+        profileImg = await CacheManager.downloadAndCacheImage(json['profileImg']);
+      }
+    }
+
+    if (json['backgroundImg'] != null) {
+      final File? cachedImage = await CacheManager.getCachedImage(json['backgroundImg']);
+      if (cachedImage != null) {
+        backgroundImg = cachedImage;
+      } else {
+        backgroundImg = await CacheManager.downloadAndCacheImage(json['backgroundImg']);
+      }
+    }
+
     return UserInfo(
       userId: json['userId'],
       profileId: json['profileId'],
       lang: json['lang'],
-      profileImg: json['profileImg'],
-      backgroundImg: json['backgroundImg'],
+      profileImg: profileImg,
+      backgroundImg: backgroundImg,
       stateMessage: json['stateMessage'],
     );
   }
@@ -79,8 +103,8 @@ class UserInfo {
   UserInfo copyWith({
     String? profileId,
     String? lang,
-    String? profileImg,
-    String? backgroundImg,
+    File? profileImg,
+    File? backgroundImg,
     String? stateMessage,
   }) {
     return UserInfo(

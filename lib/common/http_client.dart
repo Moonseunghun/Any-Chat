@@ -13,7 +13,7 @@ class HttpClient {
   Future<T> createRequest<T>(Future<T> Function() request) => request.call();
 
   Map<String, dynamic> optionsHeader({bool isMultipart = false}) =>
-      {'Content-Type': isMultipart ? 'multipart/form-data' : 'application/json'};
+      {if (!isMultipart) 'Content-Type': 'application/json'};
 
   Future<T> get<T>(
           {required String path,
@@ -73,7 +73,7 @@ class SecuredHttpClient extends HttpClient {
 
   @override
   Map<String, dynamic> optionsHeader({bool isMultipart = false}) => {
-        'Content-Type': isMultipart ? 'multipart/form-data' : 'application/json',
+        if (!isMultipart) 'Content-Type': 'application/json',
         if (auth != null) 'Authorization': 'Bearer ${auth!.accessToken}'
       };
 

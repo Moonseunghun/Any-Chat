@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:anychat/common/cache_manager.dart';
 import 'package:anychat/common/error.dart';
 import 'package:anychat/common/http_client.dart';
 import 'package:anychat/model/language.dart';
@@ -17,8 +18,8 @@ class UserService extends SecuredHttpClient {
   Future<void> getMe(WidgetRef ref) async {
     await get(path: '$basePath/get-me', converter: (result) => result['data']).run(
       ref,
-      (data) {
-        ref.read(userProvider.notifier).setUser(User.fromJson(data));
+      (data) async {
+        ref.read(userProvider.notifier).setUser(await User.fromJson(data));
       },
       errorMessage: '내 정보를 불러오는데 실패했습니다',
     );
@@ -49,17 +50,37 @@ class UserService extends SecuredHttpClient {
       queryParams: FormData.fromMap({
         if (name != null) 'name': name,
         if (stateMessage != null) 'stateMessage': stateMessage,
-        if (profileImage != null) 'profileImage': await MultipartFile.fromFile(profileImage.path),
+        if (profileImage != null) 'profileImg': await MultipartFile.fromFile(profileImage.path),
         if (backgroundImage != null)
-          'backgroundImage': await MultipartFile.fromFile(backgroundImage.path),
+          'backgroundImg': await MultipartFile.fromFile(backgroundImage.path),
       }),
       converter: (result) => result['data'],
-    ).run(ref, (data) {
+    ).run(ref, (data) async {
+      File? profileImg;
+      File? backgroundImg;
+      if (profileImage != null) {
+        final File? cachedImage = await CacheManager.getCachedImage(data['profileImg']);
+        if (cachedImage != null) {
+          profileImg = cachedImage;
+        } else {
+          profileImg = await CacheManager.downloadAndCacheImage(data['profileImg']);
+        }
+      }
+
+      if (backgroundImage != null) {
+        final File? cachedImage = await CacheManager.getCachedImage(data['backgroundImg']);
+        if (cachedImage != null) {
+          backgroundImg = cachedImage;
+        } else {
+          backgroundImg = await CacheManager.downloadAndCacheImage(data['backgroundImg']);
+        }
+      }
+
       ref.read(userProvider.notifier).updateProfile(
           name: name,
           stateMessage: stateMessage,
-          profileImage: data['profileImg'],
-          backgroundImage: data['backgroundImg']);
+          profileImage: profileImg,
+          backgroundImage: backgroundImg);
     }, errorMessage: '프로필 수정에 실패했습니다');
   }
 

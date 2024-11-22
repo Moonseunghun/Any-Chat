@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:anychat/model/language.dart';
 import 'package:anychat/model/user.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -18,7 +20,7 @@ class UserNotifier extends StateNotifier<User?> {
   }
 
   void updateProfile(
-      {String? name, String? stateMessage, String? profileImage, String? backgroundImage}) {
+      {String? name, String? stateMessage, File? profileImage, File? backgroundImage}) {
     state = state!.copyWith(
       name: name ?? state!.name,
       userInfo: state!.userInfo.copyWith(

@@ -100,7 +100,17 @@ class EditFriendPage extends HookConsumerWidget {
             padding: EdgeInsets.symmetric(vertical: 10.h, horizontal: 20.w),
             child: Row(
               children: [
-                Image.asset('assets/images/default_profile.png', width: 44.r),
+                ClipOval(
+                    child: (friend == null
+                            ? ref.watch(userProvider)!.userInfo.profileImg == null
+                                ? null
+                                : Image.file(ref.watch(userProvider)!.userInfo.profileImg!,
+                                    width: 44.r, height: 44.r, fit: BoxFit.fill)
+                            : friend.friend.profileImg == null
+                                ? null
+                                : Image.file(friend.friend.profileImg!,
+                                    width: 44.r, height: 44.r, fit: BoxFit.fill)) ??
+                        Image.asset('assets/images/default_profile.png', width: 44.r)),
                 SizedBox(width: 11.w),
                 Text(friend?.nickname ?? ref.watch(userProvider)!.name,
                     style: TextStyle(

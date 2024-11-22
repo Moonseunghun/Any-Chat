@@ -1,6 +1,5 @@
 import 'package:anychat/page/login/language_select_page.dart';
 import 'package:anychat/page/router.dart';
-import 'package:anychat/service/friend_service.dart';
 import 'package:anychat/service/login_service.dart';
 import 'package:anychat/service/user_service.dart';
 import 'package:flutter/material.dart';
@@ -33,8 +32,6 @@ class LoginPage extends HookConsumerWidget {
                   loginService.registerCheck(ref).then((result) {
                     if (result) {
                       loginService.login(ref).then((_) async {
-                        await FriendService().getFriends(ref);
-                        await FriendService().getPinned(ref);
                         await UserService().getMe(ref).then((_) => router.go(MainLayout.routeName));
                       });
                     } else {

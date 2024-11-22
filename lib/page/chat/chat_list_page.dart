@@ -57,17 +57,17 @@ class ChatListPage extends HookConsumerWidget {
                     child: SingleChildScrollView(
                         child: Column(
                       children: [
-                        _chatHeader(ref, newChat),
-                        _chatHeader(ref, newChat),
-                        _chatHeader(ref, newChat),
-                        _chatHeader(ref, newChat),
-                        _chatHeader(ref, newChat),
-                        _chatHeader(ref, newChat),
-                        _chatHeader(ref, newChat),
-                        _chatHeader(ref, newChat),
-                        _chatHeader(ref, newChat),
-                        _chatHeader(ref, newChat),
-                        _chatHeader(ref, newChat),
+                        // _chatHeader(ref, newChat),
+                        // _chatHeader(ref, newChat),
+                        // _chatHeader(ref, newChat),
+                        // _chatHeader(ref, newChat),
+                        // _chatHeader(ref, newChat),
+                        // _chatHeader(ref, newChat),
+                        // _chatHeader(ref, newChat),
+                        // _chatHeader(ref, newChat),
+                        // _chatHeader(ref, newChat),
+                        // _chatHeader(ref, newChat),
+                        // _chatHeader(ref, newChat),
                         SizedBox(height: 100.h),
                       ],
                     ))))

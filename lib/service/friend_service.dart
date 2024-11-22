@@ -10,34 +10,50 @@ class FriendService extends SecuredHttpClient {
   final String basePath = '/friend/api';
 
   Future<void> getFriends(WidgetRef ref) async {
-    await get(path: '$basePath?take=200', converter: (result) => result['data']).run(ref, (data) {
-      ref.read(friendsProvider.notifier).setFriends(List<dynamic>.from(data['data'])
-          .map((e) => Friend.fromJson(e as Map<String, dynamic>))
-          .toList());
+    await get(path: '$basePath?take=200', converter: (result) => result['data']).run(ref,
+        (data) async {
+      List<Friend> friends = [];
+
+      for (final friend in List<dynamic>.from(data['data'])) {
+        friends.add(await Friend.fromJson(friend as Map<String, dynamic>));
+      }
+
+      ref.read(friendsProvider.notifier).setFriends(friends);
     }, errorMessage: '친구 목록을 불러오는 중 오류가 발생했습니다');
   }
 
   Future<void> getPinned(WidgetRef ref) async {
-    await get(path: '$basePath/pinned', converter: (result) => result['data']).run(null, (data) {
-      ref.read(pinnedFriendsProvider.notifier).setPinned(List<dynamic>.from(data['data'])
-          .map((e) => Friend.fromJson(e as Map<String, dynamic>))
-          .toList());
+    await get(path: '$basePath/pinned', converter: (result) => result['data']).run(null,
+        (data) async {
+      List<Friend> friends = [];
+
+      for (final friend in List<dynamic>.from(data['data'])) {
+        friends.add(await Friend.fromJson(friend as Map<String, dynamic>));
+      }
+
+      ref.read(pinnedFriendsProvider.notifier).setPinned(friends);
     }, errorMessage: '친구 목록을 불러오는 중 오류가 발생했습니다');
   }
 
   Future<void> getHidden(WidgetRef ref) async {
     await get(path: '$basePath/hidden-friends', converter: (result) => result['data']).run(ref,
-        (data) {
-      ref.read(hiddenFriendsProvider.notifier).setHidden(List<dynamic>.from(data['data'])
-          .map((e) => Friend.fromJson(e as Map<String, dynamic>))
-          .toList());
+        (data) async {
+      List<Friend> friends = [];
+
+      for (final friend in List<dynamic>.from(data['data'])) {
+        friends.add(await Friend.fromJson(friend as Map<String, dynamic>));
+      }
+
+      ref.read(hiddenFriendsProvider.notifier).setHidden(friends);
     }, errorMessage: '친구 목록을 불러오는 중 오류가 발생했습니다');
   }
 
   Future<void> addFriend(WidgetRef ref, String friendId) async {
     await post(path: '$basePath/add-friend/$friendId', converter: (result) => result['data'])
-        .run(ref, (data) {
-      ref.read(friendsProvider.notifier).addFriend(Friend.fromJson(data as Map<String, dynamic>));
+        .run(ref, (data) async {
+      ref
+          .read(friendsProvider.notifier)
+          .addFriend(await Friend.fromJson(data as Map<String, dynamic>));
       errorToast(message: '친구 추가가 완료되었습니다');
     }, errorHandler: (error) {
       if (error.statusCode == 400) {
@@ -82,10 +98,14 @@ class FriendService extends SecuredHttpClient {
 
   Future<void> getBlocked(WidgetRef ref) async {
     await get(path: '$basePath/blocked-friends', converter: (result) => result['data']).run(ref,
-        (data) {
-      ref.read(blockFriendsProvider.notifier).setBlocked(List<dynamic>.from(data['data'])
-          .map((e) => Friend.fromJson(e as Map<String, dynamic>))
-          .toList());
+        (data) async {
+      List<Friend> friends = [];
+
+      for (final friend in List<dynamic>.from(data['data'])) {
+        friends.add(await Friend.fromJson(friend as Map<String, dynamic>));
+      }
+
+      ref.read(blockFriendsProvider.notifier).setBlocked(friends);
     }, errorMessage: '차단된 친구 목록을 불러오는 중 오류가 발생했습니다');
   }
 

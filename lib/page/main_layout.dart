@@ -1,11 +1,14 @@
 import 'package:anychat/page/chat/chat_list_page.dart';
 import 'package:anychat/page/home/home_page.dart';
 import 'package:anychat/page/setting/setting_page.dart';
+import 'package:anychat/service/chat_service.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
+import '../service/friend_service.dart';
 import '../state/util_state.dart';
 
 class MainLayout extends HookConsumerWidget {
@@ -17,6 +20,16 @@ class MainLayout extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    useEffect(() {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        FriendService().getFriends(ref);
+        FriendService().getPinned(ref);
+        ChatService().getRooms();
+      });
+
+      return () {};
+    }, []);
+
     return Scaffold(
       body: SafeArea(child: pages[ref.watch(indexProvider)]),
       bottomSheet: Container(

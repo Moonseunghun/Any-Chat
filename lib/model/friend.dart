@@ -1,4 +1,8 @@
+import 'dart:io';
+
 import 'package:equatable/equatable.dart';
+
+import '../common/cache_manager.dart';
 
 class Friend extends Equatable {
   final int id;
@@ -16,14 +20,16 @@ class Friend extends Equatable {
       required this.isPinned,
       required this.friend});
 
-  factory Friend.fromJson(Map<String, dynamic> json) => Friend(
-        id: json['id'],
-        nickname: json['nickname'],
-        originName: json['originName'],
-        friendTypeId: json['friendTypeId'],
-        isPinned: json['isPinned'],
-        friend: ProfileInfo.fromJson(json['friend']),
-      );
+  static Future<Friend> fromJson(Map<String, dynamic> json) async {
+    return Friend(
+      id: json['id'],
+      nickname: json['nickname'],
+      originName: json['originName'],
+      friendTypeId: json['friendTypeId'],
+      isPinned: json['isPinned'],
+      friend: await ProfileInfo.fromJson(json['friend']),
+    );
+  }
 
   Friend copyWith(
       {int? id,
@@ -48,17 +54,39 @@ class Friend extends Equatable {
 
 class ProfileInfo {
   final String id;
-  final String? profileImg;
-  final String? backgroundImg;
+  final File? profileImg;
+  final File? backgroundImg;
   final String? stateMessage;
 
   ProfileInfo({required this.id, required this.profileImg, this.backgroundImg, this.stateMessage});
 
-  factory ProfileInfo.fromJson(Map<String, dynamic> json) => ProfileInfo(
-      id: json['id'],
-      profileImg: json['profileImg'],
-      backgroundImg: json['backgroundImg'],
-      stateMessage: json['stateMessage']);
+  static Future<ProfileInfo> fromJson(Map<String, dynamic> json) async {
+    File? profileImg;
+    File? backgroundImg;
+    if (json['profileImg'] != null) {
+      final File? cachedImage = await CacheManager.getCachedImage(json['profileImg']);
+      if (cachedImage != null) {
+        profileImg = cachedImage;
+      } else {
+        profileImg = await CacheManager.downloadAndCacheImage(json['profileImg']);
+      }
+    }
+
+    if (json['backgroundImg'] != null) {
+      final File? cachedImage = await CacheManager.getCachedImage(json['backgroundImg']);
+      if (cachedImage != null) {
+        backgroundImg = cachedImage;
+      } else {
+        backgroundImg = await CacheManager.downloadAndCacheImage(json['backgroundImg']);
+      }
+    }
+
+    return ProfileInfo(
+        id: json['id'],
+        profileImg: profileImg,
+        backgroundImg: backgroundImg,
+        stateMessage: json['stateMessage']);
+  }
 }
 
 extension FriendsExtension on List<Friend> {

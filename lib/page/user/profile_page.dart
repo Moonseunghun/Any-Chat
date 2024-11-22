@@ -5,7 +5,6 @@ import 'package:anychat/service/friend_service.dart';
 import 'package:anychat/service/user_service.dart';
 import 'package:anychat/state/friend_state.dart';
 import 'package:anychat/state/user_state.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -49,13 +48,11 @@ class ProfilePage extends HookConsumerWidget {
                       ? user.userInfo.backgroundImg == null
                           ? null
                           : DecorationImage(
-                              fit: BoxFit.cover,
-                              image: CachedNetworkImageProvider(user.userInfo.backgroundImg!))
+                              fit: BoxFit.cover, image: FileImage(user.userInfo.backgroundImg!))
                       : friend.friend.backgroundImg == null
                           ? null
                           : DecorationImage(
-                              fit: BoxFit.cover,
-                              image: CachedNetworkImageProvider(friend.friend.backgroundImg!))) ??
+                              fit: BoxFit.cover, image: FileImage(friend.friend.backgroundImg!))) ??
                   const DecorationImage(
                       fit: BoxFit.cover,
                       image: AssetImage('assets/images/default_profile_background.png')),
@@ -153,27 +150,14 @@ class ProfilePage extends HookConsumerWidget {
                                 child: (friend == null
                                         ? user.userInfo.profileImg == null
                                             ? null
-                                            : CachedNetworkImage(
-                                                imageUrl: user.userInfo.profileImg!,
-                                                fit: BoxFit.cover,
-                                                progressIndicatorBuilder:
-                                                    (context, url, downloadProgress) =>
-                                                        CircularProgressIndicator(
-                                                            value: downloadProgress.progress),
-                                                errorWidget: (context, url, error) =>
-                                                    Container(color: Colors.grey))
+                                            : Image.file(user.userInfo.profileImg!,
+                                                width: 140, height: 140, fit: BoxFit.fill)
                                         : friend.friend.profileImg == null
                                             ? null
-                                            : CachedNetworkImage(
-                                                imageUrl: friend.friend.profileImg!,
-                                                fit: BoxFit.cover,
-                                                progressIndicatorBuilder:
-                                                    (context, url, downloadProgress) =>
-                                                        CircularProgressIndicator(
-                                                            value: downloadProgress.progress),
-                                                errorWidget: (context, url, error) =>
-                                                    Container(color: Colors.grey))) ??
-                                    Image.asset('assets/images/default_profile.png', height: 140),
+                                            : Image.file(friend.friend.profileImg!,
+                                                width: 140, height: 140, fit: BoxFit.fill)) ??
+                                    Image.asset('assets/images/default_profile.png',
+                                        width: 140, height: 140),
                               ),
                               if (isEditMode.value)
                                 Positioned(
