@@ -1,9 +1,12 @@
+import 'dart:io';
+
 import 'package:anychat/common/error.dart';
 import 'package:anychat/common/http_client.dart';
 import 'package:anychat/model/language.dart';
 import 'package:anychat/model/user.dart';
 import 'package:anychat/page/router.dart';
 import 'package:anychat/state/user_state.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../common/toast.dart';
@@ -39,18 +42,24 @@ class UserService extends SecuredHttpClient {
   }
 
   Future<void> updateProfile(WidgetRef ref,
-      {String? name, String? stateMessage, String? profileImage, String? backgroundImage}) async {
-    await put(path: '$basePath/profile', queryParams: {
-      if (name != null) 'name': name,
-      if (stateMessage != null) 'stateMessage': stateMessage,
-      if (profileImage != null) 'profileImage': profileImage,
-      if (backgroundImage != null) 'backgroundImage': backgroundImage,
-    }).run(ref, (_) {
+      {String? name, String? stateMessage, File? profileImage, File? backgroundImage}) async {
+    await put(
+      path: '$basePath/profile',
+      isMultipart: true,
+      queryParams: FormData.fromMap({
+        if (name != null) 'name': name,
+        if (stateMessage != null) 'stateMessage': stateMessage,
+        if (profileImage != null) 'profileImage': await MultipartFile.fromFile(profileImage.path),
+        if (backgroundImage != null)
+          'backgroundImage': await MultipartFile.fromFile(backgroundImage.path),
+      }),
+      converter: (result) => result['data'],
+    ).run(ref, (data) {
       ref.read(userProvider.notifier).updateProfile(
           name: name,
           stateMessage: stateMessage,
-          profileImage: profileImage,
-          backgroundImage: backgroundImage);
+          profileImage: data['profileImg'],
+          backgroundImage: data['backgroundImg']);
     }, errorMessage: '프로필 수정에 실패했습니다');
   }
 

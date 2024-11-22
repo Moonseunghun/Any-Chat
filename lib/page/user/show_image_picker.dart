@@ -1,10 +1,15 @@
+import 'dart:io';
+
 import 'package:anychat/page/router.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:image_picker/image_picker.dart';
 
-showImagePicker({required WidgetRef ref, required BuildContext context}) {
+showImagePicker(
+    {required WidgetRef ref,
+    required BuildContext context,
+    required void Function(File file) onSelected}) {
   showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
@@ -24,8 +29,10 @@ showImagePicker({required WidgetRef ref, required BuildContext context}) {
                           await ImagePicker()
                               .pickImage(source: ImageSource.gallery, imageQuality: 10)
                               .then((value) {
-                            if (value != null) {}
                             router.pop();
+                            if (value != null) {
+                              onSelected(File(value.path));
+                            }
                           });
                         },
                         child: Container(

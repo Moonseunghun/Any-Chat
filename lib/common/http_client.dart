@@ -12,7 +12,8 @@ class HttpClient {
 
   Future<T> createRequest<T>(Future<T> Function() request) => request.call();
 
-  Map<String, dynamic> optionsHeader() => {'Content-Type': 'application/json'};
+  Map<String, dynamic> optionsHeader({bool isMultipart = false}) =>
+      {'Content-Type': isMultipart ? 'multipart/form-data' : 'application/json'};
 
   Future<T> get<T>(
           {required String path,
@@ -32,14 +33,17 @@ class HttpClient {
           () => dio.post('$baseUrl$path',
               data: queryParams, options: Options(headers: optionsHeader()))));
 
-  Future<T> put<T>(
-          {required String path,
-          T Function(Map<String, dynamic>)? converter,
-          Map<String, dynamic>? queryParams}) =>
+  Future<T> put<T>({
+    required String path,
+    T Function(Map<String, dynamic>)? converter,
+    Object? queryParams,
+    bool isMultipart = false,
+  }) =>
       createRequest(request(
           converter ?? (data) => data as T,
           () => dio.put('$baseUrl$path',
-              data: queryParams, options: Options(headers: optionsHeader()))));
+              data: queryParams,
+              options: Options(headers: optionsHeader(isMultipart: isMultipart)))));
 
   Future<T> patch<T>(
           {required String path,
@@ -68,8 +72,8 @@ class SecuredHttpClient extends HttpClient {
   SecuredHttpClient();
 
   @override
-  Map<String, dynamic> optionsHeader() => {
-        'Content-Type': 'application/json',
+  Map<String, dynamic> optionsHeader({bool isMultipart = false}) => {
+        'Content-Type': isMultipart ? 'multipart/form-data' : 'application/json',
         if (auth != null) 'Authorization': 'Bearer ${auth!.accessToken}'
       };
 
