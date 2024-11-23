@@ -24,7 +24,7 @@ class MainLayout extends HookConsumerWidget {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         FriendService().getFriends(ref);
         FriendService().getPinned(ref);
-        ChatService().getRooms();
+        ChatService().getRooms(ref);
       });
 
       return () {};

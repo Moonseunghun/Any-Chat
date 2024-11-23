@@ -6,6 +6,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import '../../common/toast.dart';
+import '../../service/chat_service.dart';
 import '../../service/login_service.dart';
 import '../../service/user_service.dart';
 import '../main_layout.dart';
@@ -65,6 +66,7 @@ class SetProfileIdPage extends HookConsumerWidget {
                   }
 
                   LoginService().register(ref, language, idController.text.trim()).then((_) async {
+                    ChatService().connectSocket();
                     await UserService().getMe(ref).then((_) => router.go(MainLayout.routeName));
                   });
                 },

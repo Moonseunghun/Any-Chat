@@ -1,6 +1,9 @@
+import 'package:anychat/common/datetime_extension.dart';
+import 'package:anychat/model/chat.dart';
 import 'package:anychat/page/chat/chat_page.dart';
 import 'package:anychat/page/chat/show_sort_menu.dart';
 import 'package:anychat/page/router.dart';
+import 'package:anychat/state/chat_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -57,17 +60,9 @@ class ChatListPage extends HookConsumerWidget {
                     child: SingleChildScrollView(
                         child: Column(
                       children: [
-                        // _chatHeader(ref, newChat),
-                        // _chatHeader(ref, newChat),
-                        // _chatHeader(ref, newChat),
-                        // _chatHeader(ref, newChat),
-                        // _chatHeader(ref, newChat),
-                        // _chatHeader(ref, newChat),
-                        // _chatHeader(ref, newChat),
-                        // _chatHeader(ref, newChat),
-                        // _chatHeader(ref, newChat),
-                        // _chatHeader(ref, newChat),
-                        // _chatHeader(ref, newChat),
+                        ...ref.watch(chatRoomInfoProvider).map((chatRoomInfo) {
+                          return _chatHeader(ref, chatRoomInfo, newChat);
+                        }),
                         SizedBox(height: 100.h),
                       ],
                     ))))
@@ -77,11 +72,12 @@ class ChatListPage extends HookConsumerWidget {
         ]));
   }
 
-  Widget _chatHeader(WidgetRef ref, ValueNotifier<bool> newChat) {
+  Widget _chatHeader(WidgetRef ref, ChatRoomInfo chatRoomInfo, ValueNotifier<bool> newChat) {
     return InkWell(
         onTap: () {
           newChat.value = false;
-          router.push(ChatPage.routeName);
+          router.push(ChatPage.routeName,
+              extra: ChatRoomHeader(chatRoomId: chatRoomInfo.id, chatRoomName: chatRoomInfo.name));
         },
         child: Container(
             padding: EdgeInsets.symmetric(vertical: 12.h),
@@ -93,19 +89,21 @@ class ChatListPage extends HookConsumerWidget {
                     width: 44,
                     height: 44,
                     child: ClipOval(
-                        child:
-                            Image.asset('assets/images/default_profile.png', fit: BoxFit.cover))),
+                        child: chatRoomInfo.profileImg != null
+                            ? Image.file(chatRoomInfo.profileImg!,
+                                width: 140, height: 140, fit: BoxFit.fill)
+                            : Image.asset('assets/images/default_profile.png', fit: BoxFit.cover))),
                 SizedBox(width: 10.w),
                 Expanded(
                     child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('시원스쿨랩',
-                        style: TextStyle(
+                    Text(chatRoomInfo.name,
+                        style: const TextStyle(
                             fontSize: 14, fontWeight: FontWeight.w500, color: Color(0xFF3B3B3B))),
                     SizedBox(height: 5.h),
-                    const Text('[시원스쿨] 홍길동님 수강중인 시원스쿨 토픽 수강기간이 30일 남았습니다. 동해물과 백두산이 마르고 닳도록...',
-                        style: TextStyle(fontSize: 10, color: Color(0xFF3B3B3B)),
+                    Text(chatRoomInfo.lastMessage,
+                        style: const TextStyle(fontSize: 10, color: Color(0xFF3B3B3B)),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis),
                   ],
@@ -118,25 +116,29 @@ class ChatListPage extends HookConsumerWidget {
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.end,
                           children: [
-                            const Text('12:24',
-                                style: TextStyle(
+                            Text(chatRoomInfo.updatedAt.toCustomDateFormat(),
+                                style: const TextStyle(
                                     fontSize: 12,
                                     color: Color(0xFF3B3B3B),
                                     fontWeight: FontWeight.w500)),
                             const SizedBox(height: 8),
-                            Container(
-                              decoration: BoxDecoration(
-                                color: const Color(0xFFF56971),
-                                borderRadius: BorderRadius.circular(20),
+                            if (chatRoomInfo.unreadCount > 0)
+                              Container(
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFFF56971),
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                                alignment: Alignment.center,
+                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                child: Text(
+                                    chatRoomInfo.unreadCount > 999
+                                        ? '999+'
+                                        : chatRoomInfo.unreadCount.toString(),
+                                    style: const TextStyle(
+                                        fontSize: 10,
+                                        color: Color(0xFFF5F5F5),
+                                        fontWeight: FontWeight.w500)),
                               ),
-                              alignment: Alignment.center,
-                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                              child: const Text('20',
-                                  style: TextStyle(
-                                      fontSize: 10,
-                                      color: Color(0xFFF5F5F5),
-                                      fontWeight: FontWeight.w500)),
-                            ),
                           ],
                         )
                       ],

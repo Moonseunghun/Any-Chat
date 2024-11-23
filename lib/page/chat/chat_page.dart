@@ -1,5 +1,8 @@
+import 'package:anychat/common/datetime_extension.dart';
+import 'package:anychat/model/chat.dart';
 import 'package:anychat/model/friend.dart';
 import 'package:anychat/page/router.dart';
+import 'package:anychat/service/chat_service.dart';
 import 'package:anychat/state/friend_state.dart';
 import 'package:anychat/state/user_state.dart';
 import 'package:flutter/material.dart';
@@ -9,12 +12,13 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
+import '../../model/message.dart';
 import 'invite_friend_page.dart';
 
 class ChatPage extends HookConsumerWidget {
   static const String routeName = '/chat';
 
-  ChatPage({super.key});
+  ChatPage(this.chatRoomHeader, {super.key});
 
   final Map<String, String> plusMenu = {
     'album': '앨범',
@@ -26,6 +30,9 @@ class ChatPage extends HookConsumerWidget {
   };
 
   final ScrollController _scrollController = ScrollController();
+  final int participantsCount = 2;
+
+  final ChatRoomHeader chatRoomHeader;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -34,6 +41,9 @@ class ChatPage extends HookConsumerWidget {
     final showPlusMenu = useState<bool>(false);
     final plusMenuHeight = useState<double>(300.h);
     final focusNode = useFocusNode();
+    final messageController = useTextEditingController();
+
+    final messages = useState<List<Message>>([]);
 
     useEffect(() {
       if (keyboardHeight > plusMenuHeight.value) {
@@ -44,11 +54,23 @@ class ChatPage extends HookConsumerWidget {
 
     useEffect(() {
       WidgetsBinding.instance.addPostFrameCallback((_) {
+        ChatService().joinRoom(chatRoomHeader.chatRoomId);
+        ChatService().getMessages(messages, chatRoomHeader.chatRoomId);
+        ChatService().onMessageRead(messages);
+        ChatService().onMessageReceived(messages);
+
+        // ChatService().getParticipants(chatRoomId).then((_) {
+        //   ChatService().getMessages(ref, chatRoomId);
+        //   ChatService().onMessageRead();
+        //   ChatService().onMessageReceived();
+        // });
+
         _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
       });
 
       return () {
         _scrollController.dispose();
+        ChatService().leaveRoom();
       };
     }, []);
 
@@ -103,8 +125,8 @@ class ChatPage extends HookConsumerWidget {
                                         width: 24))),
                             SizedBox(width: 14.w)
                           ],
-                          title: const Text('홍길동',
-                              style: TextStyle(
+                          title: Text(chatRoomHeader.chatRoomName,
+                              style: const TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.bold,
                                   color: Color(0xFF3B3B3B))),
@@ -115,19 +137,45 @@ class ChatPage extends HookConsumerWidget {
                             controller: _scrollController,
                             children: [
                               SizedBox(height: 6.h),
-                              _opponentChat(first: true),
-                              _opponentChat(optional: true),
-                              const SizedBox(height: 14),
-                              _myChat(optional: true),
-                              const SizedBox(height: 14),
-                              _opponentChat(first: true),
-                              _opponentChat(),
-                              _opponentChat(),
-                              _opponentChat(),
-                              _opponentChat(optional: true),
-                              const SizedBox(height: 14),
-                              _myChat(optional: true),
-                              SizedBox(height: 18.h),
+                              ...messages.value.map((message) {
+                                final bool isMyMessage =
+                                    message.senderId == ref.read(userProvider)!.id;
+                                final String? beforeSenderId = messages.value
+                                    .where((e) => e.seqId == message.seqId - 1)
+                                    .firstOrNull
+                                    ?.senderId;
+                                final String? afterSenderId = messages.value
+                                    .where((e) => e.seqId == message.seqId + 1)
+                                    .firstOrNull
+                                    ?.senderId;
+                                final bool optional = (messages.value
+                                        .where((e) => e.seqId == message.seqId + 1)
+                                        .map((e) => e.createdAt.to24HourFormat())
+                                        .firstOrNull) !=
+                                    message.createdAt.to24HourFormat();
+
+                                return isMyMessage
+                                    ? _myChat(
+                                        message: message,
+                                        optional: optional || afterSenderId == null
+                                            ? true
+                                            : afterSenderId != ref.read(userProvider)!.id,
+                                        change: afterSenderId == null
+                                            ? true
+                                            : afterSenderId != ref.read(userProvider)!.id)
+                                    : _opponentChat(
+                                        message: message,
+                                        optional: optional || afterSenderId == null
+                                            ? true
+                                            : afterSenderId == ref.read(userProvider)!.id,
+                                        first: beforeSenderId == null
+                                            ? true
+                                            : beforeSenderId == ref.read(userProvider)!.id,
+                                        change: afterSenderId == null
+                                            ? true
+                                            : afterSenderId == ref.read(userProvider)!.id);
+                              }),
+                              SizedBox(height: 6.h),
                             ],
                           )),
                       bottomNavigationBar: Container(
@@ -175,6 +223,7 @@ class ChatPage extends HookConsumerWidget {
                                             ),
                                           ),
                                           child: TextField(
+                                            controller: messageController,
                                             focusNode: focusNode,
                                             keyboardType: TextInputType.multiline,
                                             minLines: 1,
@@ -204,18 +253,24 @@ class ChatPage extends HookConsumerWidget {
                                       padding: EdgeInsets.symmetric(horizontal: 5.w, vertical: 7),
                                       child: SvgPicture.asset('assets/images/emoticon.svg',
                                           height: 24)),
-                                  Container(
-                                      color: Colors.transparent,
-                                      padding: EdgeInsets.symmetric(horizontal: 5.w, vertical: 6),
+                                  GestureDetector(
+                                      onTap: () {
+                                        ChatService().sendMessage(messageController.text);
+                                        messageController.clear();
+                                      },
                                       child: Container(
-                                          padding: const EdgeInsets.only(
-                                              left: 5, bottom: 5, top: 7, right: 7),
-                                          decoration: const BoxDecoration(
-                                            shape: BoxShape.circle,
-                                            color: Color(0xFFF5F5F5),
-                                          ),
-                                          child: SvgPicture.asset('assets/images/send.svg',
-                                              height: 14))),
+                                          color: Colors.transparent,
+                                          padding:
+                                              EdgeInsets.symmetric(horizontal: 5.w, vertical: 6),
+                                          child: Container(
+                                              padding: const EdgeInsets.only(
+                                                  left: 5, bottom: 5, top: 7, right: 7),
+                                              decoration: const BoxDecoration(
+                                                shape: BoxShape.circle,
+                                                color: Color(0xFFF5F5F5),
+                                              ),
+                                              child: SvgPicture.asset('assets/images/send.svg',
+                                                  height: 14)))),
                                   SizedBox(width: 10.w)
                                 ],
                               ),
@@ -294,90 +349,106 @@ class ChatPage extends HookConsumerWidget {
     ]);
   }
 
-  Widget _opponentChat({bool first = false, bool optional = false}) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.start,
-      crossAxisAlignment: CrossAxisAlignment.start,
+  Widget _opponentChat(
+      {bool first = false, bool optional = false, required Message message, bool change = false}) {
+    return Column(
       children: [
-        GestureDetector(
-            onTap: () {},
-            child: Container(
-                width: 44,
-                height: 44,
-                margin: const EdgeInsets.only(top: 6),
-                child: first
-                    ? ClipOval(
-                        child: Image.asset('assets/images/default_profile.png', fit: BoxFit.cover),
-                      )
-                    : null)),
         Row(
-          crossAxisAlignment: CrossAxisAlignment.end,
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(
-                constraints: BoxConstraints(
-                  maxWidth: 243.w,
-                ),
-                margin: EdgeInsets.only(left: 7.w, top: 6),
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-                decoration: ShapeDecoration(
-                  color: Colors.white,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                ),
-                child: const Text('동해물과 백두산이 마르고 닳도록 하느님이 보우하사 우리 나라만세 무궁화 삼천리 화려강산',
-                    style: TextStyle(
-                        fontWeight: FontWeight.w500, fontSize: 14, color: Color(0xFF3B3B3B)),
-                    maxLines: 3)),
-            SizedBox(width: 4.w),
-            if (optional)
-              Column(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('2', style: TextStyle(fontSize: 11, color: Colors.black.withOpacity(0.7))),
-                    const Text('09:12',
-                        style: TextStyle(
-                            fontSize: 10, color: Color(0xFF3B3B3B), fontWeight: FontWeight.w500)),
-                  ])
+            GestureDetector(
+                onTap: () {},
+                child: Container(
+                    width: 38,
+                    height: 38,
+                    margin: const EdgeInsets.only(top: 4),
+                    child: first
+                        ? ClipOval(
+                            child:
+                                Image.asset('assets/images/default_profile.png', fit: BoxFit.cover),
+                          )
+                        : null)),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Container(
+                    constraints: BoxConstraints(
+                      maxWidth: 243.w,
+                    ),
+                    margin: EdgeInsets.only(left: 7.w, top: 6),
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                    decoration: ShapeDecoration(
+                      color: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                    ),
+                    child: Text(message.content,
+                        style: const TextStyle(
+                            fontWeight: FontWeight.w500, fontSize: 14, color: Color(0xFF3B3B3B)),
+                        maxLines: 3)),
+                SizedBox(width: 4.w),
+                if (optional)
+                  Column(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text((participantsCount - message.readCount).toString(),
+                            style: TextStyle(fontSize: 11, color: Colors.black.withOpacity(0.7))),
+                        Text(message.createdAt.to24HourFormat(),
+                            style: const TextStyle(
+                                fontSize: 10,
+                                color: Color(0xFF3B3B3B),
+                                fontWeight: FontWeight.w500)),
+                      ])
+              ],
+            )
           ],
-        )
+        ),
+        if (change) const SizedBox(height: 14)
       ],
     );
   }
 
-  Widget _myChat({bool optional = false}) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.end,
-      crossAxisAlignment: CrossAxisAlignment.end,
+  Widget _myChat({required Message message, bool optional = false, bool change = false}) {
+    return Column(
       children: [
-        if (optional)
-          Column(
-              mainAxisAlignment: MainAxisAlignment.end,
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Text('2', style: TextStyle(fontSize: 11, color: Colors.black.withOpacity(0.7))),
-                const Text('09:12',
-                    style: TextStyle(
-                        fontSize: 10, color: Color(0xFF3B3B3B), fontWeight: FontWeight.w500)),
-              ]),
-        SizedBox(width: 4.w),
-        Container(
-            constraints: BoxConstraints(
-              maxWidth: 243.w,
-            ),
-            margin: const EdgeInsets.only(top: 6),
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-            decoration: ShapeDecoration(
-              color: const Color(0xFFECE5FF),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
-              ),
-            ),
-            child: const Text('동해물과 백두산이 마르고 닳도록 하느님이 보우하사 우리 나라만세 무궁화 삼천리 화려강산',
-                style:
-                    TextStyle(fontWeight: FontWeight.w500, fontSize: 14, color: Color(0xFF3B3B3B)),
-                maxLines: 3))
+        Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            if (optional)
+              Column(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Text((participantsCount - message.readCount).toString(),
+                        style: TextStyle(fontSize: 11, color: Colors.black.withOpacity(0.7))),
+                    Text(message.createdAt.to24HourFormat(),
+                        style: const TextStyle(
+                            fontSize: 10, color: Color(0xFF3B3B3B), fontWeight: FontWeight.w500)),
+                  ]),
+            SizedBox(width: 4.w),
+            Container(
+                constraints: BoxConstraints(
+                  maxWidth: 243.w,
+                ),
+                margin: const EdgeInsets.only(top: 6),
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                decoration: ShapeDecoration(
+                  color: const Color(0xFFECE5FF),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                ),
+                child: Text(message.content,
+                    style: const TextStyle(
+                        fontWeight: FontWeight.w500, fontSize: 14, color: Color(0xFF3B3B3B)),
+                    maxLines: 3))
+          ],
+        ),
+        if (change) const SizedBox(height: 14)
       ],
     );
   }

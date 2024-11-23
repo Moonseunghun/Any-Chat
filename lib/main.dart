@@ -1,16 +1,21 @@
 import 'package:anychat/page/router.dart';
+import 'package:anychat/service/chat_service.dart';
 import 'package:anychat/state/util_state.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:socket_io_client/socket_io_client.dart';
 import 'package:toastification/toastification.dart';
 
 import 'firebase_options.dart';
+import 'model/auth.dart';
 
 late final SharedPreferences prefs;
+Socket? socket;
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -29,6 +34,20 @@ class MyApp extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    useEffect(() {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (auth != null) {
+          ChatService().connectSocket();
+        }
+      });
+
+      return () {
+        if (socket != null) {
+          ChatService().disposeSocket();
+        }
+      };
+    }, []);
+
     return ScreenUtilInit(
         designSize: const Size(393, 852),
         splitScreenMode: false,

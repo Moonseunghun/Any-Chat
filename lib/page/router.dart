@@ -1,3 +1,4 @@
+import 'package:anychat/model/chat.dart';
 import 'package:anychat/model/friend.dart';
 import 'package:anychat/page/chat/chat_page.dart';
 import 'package:anychat/page/chat/invite_friend_page.dart';
@@ -48,7 +49,9 @@ final router = GoRouter(initialLocation: '/login', routes: [
           transitionDuration: const Duration(milliseconds: 300))),
   GoRoute(
       path: AddFriendByIdPage.routeName, builder: (context, state) => const AddFriendByIdPage()),
-  GoRoute(path: ChatPage.routeName, builder: (context, state) => ChatPage()),
+  GoRoute(
+      path: ChatPage.routeName,
+      builder: (context, state) => ChatPage(state.extra as ChatRoomHeader)),
   GoRoute(path: HideFriendPage.routeName, builder: (context, state) => const HideFriendPage()),
   GoRoute(path: BlockFriendPage.routeName, builder: (context, state) => const BlockFriendPage()),
   GoRoute(path: InviteFriendPage.routeName, builder: (context, state) => const InviteFriendPage()),
