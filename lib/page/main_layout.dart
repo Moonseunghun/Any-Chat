@@ -12,6 +12,8 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import '../service/friend_service.dart';
 import '../state/util_state.dart';
 
+String? friendsCursor;
+
 class MainLayout extends HookConsumerWidget {
   static const String routeName = '/';
 
@@ -23,7 +25,9 @@ class MainLayout extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     useEffect(() {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        FriendService().getFriends(ref);
+        FriendService().getFriends(ref).then((value) {
+          friendsCursor = value;
+        });
         FriendService().getPinned(ref);
         ChatService().getRooms(ref).then((_) {
           prefs.setBool('isInitialSync', false);

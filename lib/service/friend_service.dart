@@ -1,6 +1,7 @@
 import 'package:anychat/common/error.dart';
 import 'package:anychat/common/http_client.dart';
 import 'package:anychat/common/toast.dart';
+import 'package:anychat/page/main_layout.dart';
 import 'package:anychat/service/database_service.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -8,11 +9,9 @@ import '../model/friend.dart';
 import '../state/friend_state.dart';
 
 class FriendService extends SecuredHttpClient {
-  static String? friendsCursor;
-
   final String basePath = '/friend/api';
 
-  Future<void> getFriends(WidgetRef ref) async {
+  Future<String?> getFriends(WidgetRef ref) async {
     DatabaseService.search('Friends', where: 'isPinned = ?', whereArgs: [0]).then((value) async {
       List<Friend> friends = [];
 
@@ -23,12 +22,10 @@ class FriendService extends SecuredHttpClient {
       ref.read(friendsProvider.notifier).setFriends(friends);
     });
 
-    await get(
+    return await get(
         path: basePath,
-        queryParams: {'take': 30, 'cursor': friendsCursor},
+        queryParams: {'cursor': friendsCursor},
         converter: (result) => result['data']).run(null, (data) async {
-      friendsCursor = data['meta']['nextCursor'];
-
       List<Friend> friends = [];
 
       DatabaseService.batchInsert(
@@ -41,7 +38,9 @@ class FriendService extends SecuredHttpClient {
         friends.add(await Friend.fromJson(friend as Map<String, dynamic>));
       }
 
-      ref.read(friendsProvider.notifier).addFriends(friends);
+      ref.read(friendsProvider.notifier).setFriends(friends);
+
+      return data['meta']['nextCursor'];
     }, errorMessage: '친구 목록을 불러오는 중 오류가 발생했습니다');
   }
 
@@ -74,9 +73,11 @@ class FriendService extends SecuredHttpClient {
     }, errorMessage: '친구 목록을 불러오는 중 오류가 발생했습니다');
   }
 
-  Future<void> getHidden(WidgetRef ref) async {
-    await get(path: '$basePath/hidden-friends', converter: (result) => result['data']).run(ref,
-        (data) async {
+  Future<String?> getHidden(WidgetRef ref, String? cursor) async {
+    return await get(
+        path: '$basePath/hidden-friends',
+        queryParams: {'cursor': cursor},
+        converter: (result) => result['data']).run(null, (data) async {
       List<Friend> friends = [];
 
       for (final friend in List<dynamic>.from(data['data'])) {
@@ -84,6 +85,8 @@ class FriendService extends SecuredHttpClient {
       }
 
       ref.read(hiddenFriendsProvider.notifier).setHidden(friends);
+
+      return data['meta']['nextCursor'];
     }, errorMessage: '친구 목록을 불러오는 중 오류가 발생했습니다');
   }
 
@@ -135,9 +138,11 @@ class FriendService extends SecuredHttpClient {
     }, errorMessage: '친구 숨김을 해제하는 중 오류가 발생했습니다');
   }
 
-  Future<void> getBlocked(WidgetRef ref) async {
-    await get(path: '$basePath/blocked-friends', converter: (result) => result['data']).run(ref,
-        (data) async {
+  Future<String?> getBlocked(WidgetRef ref, String? cursor) async {
+    return await get(
+        path: '$basePath/blocked-friends',
+        queryParams: {'cursor': cursor},
+        converter: (result) => result['data']).run(null, (data) async {
       List<Friend> friends = [];
 
       for (final friend in List<dynamic>.from(data['data'])) {
@@ -145,6 +150,8 @@ class FriendService extends SecuredHttpClient {
       }
 
       ref.read(blockFriendsProvider.notifier).setBlocked(friends);
+
+      return data['meta']['nextCursor'];
     }, errorMessage: '차단된 친구 목록을 불러오는 중 오류가 발생했습니다');
   }
 

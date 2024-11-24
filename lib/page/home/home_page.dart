@@ -10,6 +10,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
+import '../main_layout.dart';
 import '../user/profile_page.dart';
 import 'add_freind.dart';
 
@@ -52,7 +53,9 @@ class HomePage extends HookConsumerWidget {
                 onNotification: (notification) {
                   if (notification is ScrollEndNotification &&
                       notification.metrics.extentAfter == 0) {
-                    FriendService().getFriends(ref);
+                    FriendService().getFriends(ref).then((value) {
+                      friendsCursor = value;
+                    });
                   }
 
                   return false;

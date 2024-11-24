@@ -5,10 +5,6 @@ class FriendsNotifier extends StateNotifier<List<Friend>> {
   FriendsNotifier(super.state);
 
   void setFriends(List<Friend> friends) {
-    state = friends;
-  }
-
-  void addFriends(List<Friend> friends) {
     final List<Friend> newFriends = [];
     for (final friend in friends) {
       if (!state.any((e) => e.id == friend.id)) {
@@ -67,7 +63,13 @@ class HiddenFriendsNotifier extends StateNotifier<List<Friend>> {
   HiddenFriendsNotifier(super.state);
 
   void setHidden(List<Friend> friends) {
-    state = friends;
+    final List<Friend> newFriends = [];
+    for (final friend in friends) {
+      if (!state.any((e) => e.id == friend.id)) {
+        newFriends.add(friend);
+      }
+    }
+    state = [...state, ...newFriends].sortByName();
   }
 
   void hide(WidgetRef ref, int id) {
@@ -91,7 +93,13 @@ class BlockFriendsNotifier extends StateNotifier<List<Friend>> {
   BlockFriendsNotifier(super.state);
 
   void setBlocked(List<Friend> friends) {
-    state = friends;
+    final List<Friend> newFriends = [];
+    for (final friend in friends) {
+      if (!state.any((e) => e.id == friend.id)) {
+        newFriends.add(friend);
+      }
+    }
+    state = [...state, ...newFriends].sortByName();
   }
 
   void block(WidgetRef ref, int id) {

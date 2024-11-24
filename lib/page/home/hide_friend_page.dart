@@ -18,10 +18,13 @@ class HideFriendPage extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final showPopup = useState<Friend?>(null);
+    final cursor = useState<String?>(null);
 
     useEffect(() {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        FriendService().getHidden(ref);
+        FriendService().getHidden(ref, cursor.value).then((value) {
+          cursor.value = value;
+        });
       });
 
       return () {};
@@ -42,15 +45,26 @@ class HideFriendPage extends HookConsumerWidget {
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black)),
             centerTitle: true),
         body: Stack(children: [
-          SingleChildScrollView(
-              child: Padding(
-                  padding: EdgeInsets.symmetric(vertical: 10.h),
-                  child: Column(children: [
-                    ...ref.watch(hiddenFriendsProvider).map((friend) {
-                      return _manageContainer(ref, context, friend, showPopup);
-                    }),
-                    SizedBox(height: 20.h)
-                  ]))),
+          NotificationListener<ScrollNotification>(
+              onNotification: (notification) {
+                if (notification is ScrollEndNotification &&
+                    notification.metrics.extentAfter == 0) {
+                  FriendService().getHidden(ref, cursor.value).then((value) {
+                    cursor.value = value;
+                  });
+                }
+
+                return false;
+              },
+              child: SingleChildScrollView(
+                  child: Padding(
+                      padding: EdgeInsets.symmetric(vertical: 10.h),
+                      child: Column(children: [
+                        ...ref.watch(hiddenFriendsProvider).map((friend) {
+                          return _manageContainer(ref, context, friend, showPopup);
+                        }),
+                        SizedBox(height: 20.h)
+                      ])))),
           _showPopup(context: context, ref: ref, showPopup: showPopup)
         ]));
   }
