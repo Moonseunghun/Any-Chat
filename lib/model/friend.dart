@@ -31,6 +31,31 @@ class Friend extends Equatable {
     );
   }
 
+  static Future<Friend> fromMap(Map<String, dynamic> json) async {
+    final profileInfo = {'id': json['stringId'], 'profileImg': json['profileImg']};
+
+    return Friend(
+      id: json['id'],
+      nickname: json['nickname'],
+      originName: json['originName'],
+      friendTypeId: json['friendTypeId'],
+      isPinned: (json['isPinned'] as int) == 1 ? true : false,
+      friend: await ProfileInfo.fromJson(profileInfo),
+    );
+  }
+
+  static Map<String, dynamic> toMap(Map<String, dynamic> json) {
+    return {
+      'id': json['id'],
+      'stringId': json['friend']['id'],
+      'nickname': json['nickname'],
+      'originName': json['originName'],
+      'friendTypeId': json['friendTypeId'],
+      'isPinned': json['isPinned'] as bool ? 1 : 0,
+      'profileImg': json['friend']['profileImg'],
+    };
+  }
+
   Friend copyWith(
       {int? id,
       String? nickname,

@@ -17,15 +17,25 @@ class ChatService extends SecuredHttpClient {
   final String basePath = '/chat/api';
 
   Future<void> getRooms(WidgetRef ref) async {
+    List<ChatRoomInfo> chatRoomInfos = [];
+
+    final List<Map<String, dynamic>> savedInfo = await DatabaseService.search('ChatRoomInfo');
+
+    for (final Map<String, dynamic> chatRoomInfo in savedInfo) {
+      chatRoomInfos.add(await ChatRoomInfo.fromJson(chatRoomInfo));
+    }
+
     get(
         path: basePath,
         queryParams: {if (prefs.getBool('isInitialSync') ?? true) 'isInitialSync': true},
         converter: (result) => result['data']).run(null, (result) async {
       List<ChatRoomInfo> chatRoomInfos = [];
 
-      for (final Map<String, dynamic> chatRoomInfo in List<dynamic>.from(result['data'])) {
-        await DatabaseService.insert('ChatRoomInfo', ChatRoomInfo.toMap(ref, chatRoomInfo));
-      }
+      await DatabaseService.batchInsert(
+          'ChatRoomInfo',
+          List<dynamic>.from(result['data'])
+              .map((e) => ChatRoomInfo.toMap(ref, e as Map<String, dynamic>))
+              .toList());
 
       final List<Map<String, dynamic>> savedInfo = await DatabaseService.search('ChatRoomInfo');
 
@@ -54,11 +64,25 @@ class ChatService extends SecuredHttpClient {
   }
 
   Future<void> getMessages(ValueNotifier<List<Message>> messages, String chatRoomId) async {
-    get(path: '$basePath/$chatRoomId/messages', converter: (result) => result['data']).run(null,
-        (result) {
-      messages.value = List<dynamic>.from(result['newMessages'])
-          .map((e) => Message.fromJson(e as Map<String, dynamic>))
-          .toList();
+    DatabaseService.search('Message', where: 'chatRoomId = ?', whereArgs: [chatRoomId])
+        .then((value) {
+      messages.value = value.map((e) => Message.fromJson(e)).toList();
+    });
+
+    get(
+        path: '$basePath/$chatRoomId/messages',
+        queryParams: {'limit': 30},
+        converter: (result) => result['data']).run(null, (result) async {
+      await DatabaseService.batchInsert(
+          'Message',
+          List<dynamic>.from(result['newMessages'])
+              .map((e) => Message.toMap(e as Map<String, dynamic>))
+              .toList());
+
+      await DatabaseService.search('Message', where: 'chatRoomId = ?', whereArgs: [chatRoomId])
+          .then((value) {
+        messages.value = value.map((e) => Message.fromJson(e)).toList();
+      });
 
       if (messages.value.isNotEmpty) {
         readMessage(messages.value.last.id);
@@ -108,6 +132,8 @@ class ChatService extends SecuredHttpClient {
   void onMessageReceived(ValueNotifier<List<Message>> messages) {
     socket!.on('S_SEND_MESSAGE', (result) {
       messages.value = [...messages.value, Message.fromJson(result)];
+
+      DatabaseService.insert('Message', Message.toMap(result));
 
       readMessage(messages.value.last.id);
     });

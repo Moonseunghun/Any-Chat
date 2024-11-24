@@ -1,6 +1,7 @@
 import 'package:anychat/common/error.dart';
 import 'package:anychat/common/http_client.dart';
 import 'package:anychat/common/toast.dart';
+import 'package:anychat/service/database_service.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../model/friend.dart';
@@ -10,9 +11,25 @@ class FriendService extends SecuredHttpClient {
   final String basePath = '/friend/api';
 
   Future<void> getFriends(WidgetRef ref) async {
+    DatabaseService.search('Friends').then((value) async {
+      List<Friend> friends = [];
+
+      for (final friend in value) {
+        friends.add(await Friend.fromMap(friend));
+      }
+
+      ref.read(friendsProvider.notifier).setFriends(friends);
+    });
+
     await get(path: '$basePath?take=200', converter: (result) => result['data']).run(ref,
         (data) async {
       List<Friend> friends = [];
+
+      DatabaseService.batchInsert(
+          'Friends',
+          List<dynamic>.from(data['data'])
+              .map((e) => Friend.toMap(e as Map<String, dynamic>))
+              .toList());
 
       for (final friend in List<dynamic>.from(data['data'])) {
         friends.add(await Friend.fromJson(friend as Map<String, dynamic>));

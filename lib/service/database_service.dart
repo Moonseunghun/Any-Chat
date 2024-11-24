@@ -15,7 +15,7 @@ class DatabaseService {
 
     _database = await openDatabase(
       path,
-      version: 1,
+      version: 3,
       onCreate: (db, version) async {
         await db.execute('''
           CREATE TABLE ChatRoomInfo (
@@ -28,15 +28,57 @@ class DatabaseService {
           )
         ''');
       },
+      onUpgrade: (db, oldVersion, newVersion) async {
+        if (oldVersion < 2) {
+          await db.execute('''
+          CREATE TABLE Message (
+            id TEXT PRIMARY KEY,
+            chatRoomId TEXT NOT NULL,
+            seqId INTEGER,
+            senderId TEXT,
+            content TEXT,
+            messageType INTEGER,
+            readCount INTEGER,
+            createdAt TEXT
+          )
+          ''');
+        }
+
+        if (oldVersion < 3) {
+          await db.execute('''
+          CREATE TABLE Friends (
+            id INTEGER PRIMARY KEY,
+            stringId TEXT NOT NULL,
+            nickName TEXT NOT NULL,
+            originName TEXT NOT NULL,
+            friendTypeId INTEGER NOT NULL,
+            isPinned INTEGER NOT NULL,
+            profileImg TEXT
+          )
+          ''');
+        }
+      },
     );
   }
 
-  static Future<void> insert(String table, Map<String, dynamic> data) async {
-    await _database!.insert(table, data, conflictAlgorithm: ConflictAlgorithm.replace);
+  static Future<void> insert(String table, Map<String, dynamic> data, {bool replace = true}) async {
+    await _database!.insert(table, data,
+        conflictAlgorithm: replace ? ConflictAlgorithm.replace : ConflictAlgorithm.ignore);
   }
 
-  static Future<List<Map<String, dynamic>>> search(String table) async {
-    return await _database!.query(table);
+  static Future<void> batchInsert(String table, List<Map<String, dynamic>> dataList,
+      {bool replace = true}) async {
+    final Batch batch = _database!.batch();
+    for (final Map<String, dynamic> data in dataList) {
+      batch.insert(table, data,
+          conflictAlgorithm: replace ? ConflictAlgorithm.replace : ConflictAlgorithm.ignore);
+    }
+    await batch.commit(noResult: true);
+  }
+
+  static Future<List<Map<String, dynamic>>> search(String table,
+      {String? where, List<dynamic>? whereArgs}) async {
+    return await _database!.query(table, where: where, whereArgs: whereArgs);
   }
 
   static Future<void> close() async {
