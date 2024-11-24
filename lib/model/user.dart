@@ -1,7 +1,6 @@
 import 'dart:io';
 
 import 'package:anychat/main.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../common/cache_manager.dart';
 
@@ -121,9 +120,15 @@ class UserInfo {
     prefs.setString('userId', json['userId']);
     prefs.setString('profileId', json['profileId']);
     prefs.setString('lang', json['lang']);
-    prefs.setString('profileImg', json['profileImg']);
-    prefs.setString('backgroundImg', json['backgroundImg']);
-    prefs.setString('stateMessage', json['stateMessage']);
+    if (json['profileImg'] != null) {
+      prefs.setString('profileImg', json['profileImg']);
+    }
+    if (json['backgroundImg'] != null) {
+      prefs.setString('backgroundImg', json['backgroundImg']);
+    }
+    if (json['stateMessage'] != null) {
+      prefs.setString('stateMessage', json['stateMessage']);
+    }
 
     return UserInfo(
       userId: json['userId'],

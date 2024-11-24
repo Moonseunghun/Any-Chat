@@ -46,7 +46,7 @@ final router = GoRouter(
               const curve = Curves.easeInOut;
 
               var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
-                  var offsetAnimation = animation.drive(tween);
+              var offsetAnimation = animation.drive(tween);
 
               return SlideTransition(position: offsetAnimation, child: child);
             },
@@ -76,6 +76,7 @@ final router = GoRouter(
   ],
   redirect: (BuildContext context, GoRouterState state) {
     final allowRoute = [
+      LoginPage.routeName,
       LanguageSelectPage.routeName,
       ConsentPage.routeName,
       SetProfileIdPage.routeName

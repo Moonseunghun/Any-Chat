@@ -33,6 +33,7 @@ class LoginPage extends HookConsumerWidget {
                   loginService.registerCheck(ref).then((result) {
                     if (result) {
                       loginService.login(ref).then((_) async {
+                        print('로그인 완료');
                         ChatService().connectSocket();
                         await UserService().getMe(ref).then((_) => router.go(MainLayout.routeName));
                       });
