@@ -2,6 +2,7 @@ import 'package:anychat/common/error.dart';
 import 'package:anychat/common/http_client.dart';
 import 'package:anychat/main.dart';
 import 'package:anychat/model/chat.dart';
+import 'package:anychat/service/database_service.dart';
 import 'package:anychat/state/chat_state.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -16,12 +17,20 @@ class ChatService extends SecuredHttpClient {
   final String basePath = '/chat/api';
 
   Future<void> getRooms(WidgetRef ref) async {
-    get(path: basePath, queryParams: {'isInitialSync': true}, converter: (result) => result['data'])
-        .run(null, (result) async {
+    get(
+        path: basePath,
+        queryParams: {if (prefs.getBool('isInitialSync') ?? true) 'isInitialSync': true},
+        converter: (result) => result['data']).run(null, (result) async {
       List<ChatRoomInfo> chatRoomInfos = [];
 
-      for (final chatRoomInfo in List<dynamic>.from(result['data'])) {
-        chatRoomInfos.add(await ChatRoomInfo.fromJson(ref, chatRoomInfo as Map<String, dynamic>));
+      for (final Map<String, dynamic> chatRoomInfo in List<dynamic>.from(result['data'])) {
+        await DatabaseService.insert('ChatRoomInfo', ChatRoomInfo.toMap(ref, chatRoomInfo));
+      }
+
+      final List<Map<String, dynamic>> savedInfo = await DatabaseService.search('ChatRoomInfo');
+
+      for (final Map<String, dynamic> chatRoomInfo in savedInfo) {
+        chatRoomInfos.add(await ChatRoomInfo.fromJson(chatRoomInfo));
       }
 
       ref.read(chatRoomInfoProvider.notifier).set(chatRoomInfos);

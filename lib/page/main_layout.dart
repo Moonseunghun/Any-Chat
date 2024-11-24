@@ -1,3 +1,4 @@
+import 'package:anychat/main.dart';
 import 'package:anychat/page/chat/chat_list_page.dart';
 import 'package:anychat/page/home/home_page.dart';
 import 'package:anychat/page/setting/setting_page.dart';
@@ -24,7 +25,9 @@ class MainLayout extends HookConsumerWidget {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         FriendService().getFriends(ref);
         FriendService().getPinned(ref);
-        ChatService().getRooms(ref);
+        ChatService().getRooms(ref).then((_) {
+          prefs.setBool('isInitialSync', false);
+        });
       });
 
       return () {};

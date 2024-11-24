@@ -1,5 +1,6 @@
 import 'package:anychat/page/router.dart';
 import 'package:anychat/service/chat_service.dart';
+import 'package:anychat/service/database_service.dart';
 import 'package:anychat/state/util_state.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -26,6 +27,8 @@ Future<void> main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
+  await DatabaseService.getDatabase();
+
   runApp(const ProviderScope(child: MyApp()));
 }
 
@@ -42,6 +45,7 @@ class MyApp extends HookConsumerWidget {
       });
 
       return () {
+        DatabaseService.close();
         if (socket != null) {
           ChatService().disposeSocket();
         }
