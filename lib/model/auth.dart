@@ -10,7 +10,7 @@ class Auth {
     required this.accessToken,
     required this.refreshToken,
   }) {
-    prefs.setString('auth_token', accessToken);
+    prefs.setString('access_token', accessToken);
     prefs.setString('refresh_token', refreshToken);
   }
 

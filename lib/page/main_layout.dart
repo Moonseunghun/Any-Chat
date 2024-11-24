@@ -9,7 +9,12 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
+import '../model/chat.dart';
+import '../model/friend.dart';
+import '../service/database_service.dart';
 import '../service/friend_service.dart';
+import '../state/chat_state.dart';
+import '../state/friend_state.dart';
 import '../state/util_state.dart';
 
 String? friendsCursor;
@@ -25,6 +30,37 @@ class MainLayout extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     useEffect(() {
       WidgetsBinding.instance.addPostFrameCallback((_) {
+        DatabaseService.search('Friends', where: 'isPinned = ?', whereArgs: [0])
+            .then((value) async {
+          List<Friend> friends = [];
+
+          for (final friend in value) {
+            friends.add(await Friend.fromMap(friend));
+          }
+
+          ref.read(friendsProvider.notifier).setFriends(friends);
+        });
+
+        DatabaseService.search('Friends', where: 'isPinned = ?', whereArgs: [1])
+            .then((value) async {
+          List<Friend> friends = [];
+
+          for (final friend in value) {
+            friends.add(await Friend.fromMap(friend));
+          }
+
+          ref.read(friendsProvider.notifier).setFriends(friends);
+        });
+
+        DatabaseService.search('ChatRoomInfo').then((savedInfo) async {
+          List<ChatRoomInfo> chatRoomInfos = [];
+          for (final Map<String, dynamic> chatRoomInfo in savedInfo) {
+            chatRoomInfos.add(await ChatRoomInfo.fromJson(chatRoomInfo));
+          }
+
+          ref.read(chatRoomInfoProvider.notifier).set(chatRoomInfos);
+        });
+
         FriendService().getFriends(ref).then((value) {
           friendsCursor = value;
         });

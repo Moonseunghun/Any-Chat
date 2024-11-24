@@ -12,16 +12,6 @@ class FriendService extends SecuredHttpClient {
   final String basePath = '/friend/api';
 
   Future<String?> getFriends(WidgetRef ref) async {
-    DatabaseService.search('Friends', where: 'isPinned = ?', whereArgs: [0]).then((value) async {
-      List<Friend> friends = [];
-
-      for (final friend in value) {
-        friends.add(await Friend.fromMap(friend));
-      }
-
-      ref.read(friendsProvider.notifier).setFriends(friends);
-    });
-
     return await get(
         path: basePath,
         queryParams: {'cursor': friendsCursor},
@@ -45,16 +35,6 @@ class FriendService extends SecuredHttpClient {
   }
 
   Future<void> getPinned(WidgetRef ref) async {
-    DatabaseService.search('Friends', where: 'isPinned = ?', whereArgs: [1]).then((value) async {
-      List<Friend> friends = [];
-
-      for (final friend in value) {
-        friends.add(await Friend.fromMap(friend));
-      }
-
-      ref.read(friendsProvider.notifier).setFriends(friends);
-    });
-
     await get(path: '$basePath/pinned', converter: (result) => result['data']).run(null,
         (data) async {
       List<Friend> friends = [];

@@ -47,6 +47,11 @@
 	<true/>
 	<key>NSPhotoLibraryUsageDescription</key>
     <string>Permission is required to use photos in the app</string>
+    <key>NSAppTransportSecurity</key>
+    <dict>
+        <key>NSAllowsArbitraryLoads</key>
+        <true/>
+    </dict>
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict>

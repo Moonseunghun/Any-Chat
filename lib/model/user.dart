@@ -1,5 +1,8 @@
 import 'dart:io';
 
+import 'package:anychat/main.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import '../common/cache_manager.dart';
 
 enum LoginType {
@@ -31,6 +34,9 @@ class User {
   User({required this.id, required this.name, required this.userInfo, required this.phoneNumbers});
 
   static Future<User> fromJson(Map<String, dynamic> json) async {
+    prefs.setString('id', json['id']);
+    prefs.setString('name', json['name']);
+
     return User(
       id: json['id'],
       name: json['name'],
@@ -50,6 +56,28 @@ class User {
       userInfo: userInfo ?? this.userInfo,
       phoneNumbers: phoneNumbers ?? this.phoneNumbers,
     );
+  }
+
+  static User? getUser() {
+    if (prefs.getString('id') != null) {
+      final User user = User(
+        id: prefs.getString('id')!,
+        name: prefs.getString('name')!,
+        userInfo: UserInfo(
+          userId: prefs.getString('userId')!,
+          profileId: prefs.getString('profileId'),
+          lang: prefs.getString('lang')!,
+          profileImg: null,
+          backgroundImg: null,
+          stateMessage: prefs.getString('stateMessage'),
+        ),
+        phoneNumbers: prefs.getStringList('phoneNumbers') ?? [],
+      );
+
+      return user;
+    } else {
+      return null;
+    }
   }
 }
 
@@ -89,6 +117,13 @@ class UserInfo {
         backgroundImg = await CacheManager.downloadAndCacheImage(json['backgroundImg']);
       }
     }
+
+    prefs.setString('userId', json['userId']);
+    prefs.setString('profileId', json['profileId']);
+    prefs.setString('lang', json['lang']);
+    prefs.setString('profileImg', json['profileImg']);
+    prefs.setString('backgroundImg', json['backgroundImg']);
+    prefs.setString('stateMessage', json['stateMessage']);
 
     return UserInfo(
       userId: json['userId'],

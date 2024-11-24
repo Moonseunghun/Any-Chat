@@ -17,15 +17,7 @@ class ChatService extends SecuredHttpClient {
   final String basePath = '/chat/api';
 
   Future<void> getRooms(WidgetRef ref) async {
-    List<ChatRoomInfo> chatRoomInfos = [];
-
-    final List<Map<String, dynamic>> savedInfo = await DatabaseService.search('ChatRoomInfo');
-
-    for (final Map<String, dynamic> chatRoomInfo in savedInfo) {
-      chatRoomInfos.add(await ChatRoomInfo.fromJson(chatRoomInfo));
-    }
-
-    get(
+    await get(
         path: basePath,
         queryParams: {if (prefs.getBool('isInitialSync') ?? true) 'isInitialSync': true},
         converter: (result) => result['data']).run(null, (result) async {
