@@ -46,6 +46,7 @@ class ChatPage extends HookConsumerWidget {
 
     final messages = useState<List<Message>>([]);
     final cursor = useState<String?>(null);
+    final scrollAtBottom = useState<bool>(true);
 
     useEffect(() {
       if (keyboardHeight > plusMenuHeight.value) {
@@ -64,21 +65,23 @@ class ChatPage extends HookConsumerWidget {
                 orderBy: 'seqId ASC')
             .then((value) {
           messages.value = value.map((e) => Message.fromJson(e)).toList();
+          _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
         });
 
         ChatService().getMessages(messages, chatRoomHeader.chatRoomId, cursor.value).then((value) {
           cursor.value = value;
+          _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
         });
         ChatService().onMessageRead(messages);
         ChatService().onMessageReceived(messages);
 
-        // ChatService().getParticipants(chatRoomId).then((_) {
-        //   ChatService().getMessages(ref, chatRoomId);
-        //   ChatService().onMessageRead();
-        //   ChatService().onMessageReceived();
-        // });
-
-        _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
+        _scrollController.addListener(() {
+          if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent) {
+            scrollAtBottom.value = true;
+          } else {
+            scrollAtBottom.value = false;
+          }
+        });
       });
 
       return () {
@@ -86,6 +89,17 @@ class ChatPage extends HookConsumerWidget {
         ChatService().leaveRoom();
       };
     }, []);
+
+    useEffect(() {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (scrollAtBottom.value) {
+          _scrollController.animateTo(_scrollController.position.maxScrollExtent,
+              duration: const Duration(milliseconds: 200), curve: Curves.easeOut);
+        }
+      });
+
+      return () {};
+    }, [messages.value]);
 
     return Stack(children: [
       GestureDetector(
@@ -257,6 +271,14 @@ class ChatPage extends HookConsumerWidget {
                                             onTap: () {
                                               FocusScope.of(context).requestFocus(focusNode);
                                               showPlusMenu.value = false;
+                                              if (scrollAtBottom.value) {
+                                                WidgetsBinding.instance.addPostFrameCallback((_) {
+                                                  if (scrollAtBottom.value) {
+                                                    _scrollController.jumpTo(
+                                                        _scrollController.position.maxScrollExtent);
+                                                  }
+                                                });
+                                              }
                                             },
                                             decoration: InputDecoration(
                                                 isDense: true,

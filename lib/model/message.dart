@@ -38,7 +38,7 @@ class Message extends Equatable {
       content: json['content'] as String,
       messageType: MessageType.values.firstWhere((e) => e.value == json['messageType'] as int),
       readCount: json['readCount'] as int? ?? 1,
-      createdAt: DateTime.parse(json['createdAt'] as String),
+      createdAt: DateTime.parse(json['createdAt'] as String).toLocal(),
     );
   }
 

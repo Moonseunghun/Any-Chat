@@ -63,7 +63,7 @@ class ChatRoomInfo {
       id: json['id'] as String,
       name: json['name'] as String,
       lastMessage: json['lastMessage'] as String,
-      updatedAt: DateTime.parse(json['updatedAt'] as String),
+      updatedAt: DateTime.parse(json['updatedAt'] as String).toLocal(),
       unreadCount: json['unreadCount'] as int,
       profileImg: profileImg,
     );
