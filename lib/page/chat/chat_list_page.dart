@@ -109,7 +109,7 @@ class ChatListPage extends HookConsumerWidget {
                   ],
                 )),
                 SizedBox(
-                    width: 40,
+                    width: 70,
                     child: Row(
                       children: [
                         const Spacer(),

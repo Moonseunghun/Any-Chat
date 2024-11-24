@@ -77,8 +77,8 @@ class DatabaseService {
   }
 
   static Future<List<Map<String, dynamic>>> search(String table,
-      {String? where, List<dynamic>? whereArgs}) async {
-    return await _database!.query(table, where: where, whereArgs: whereArgs);
+      {String? where, List<dynamic>? whereArgs, String? orderBy}) async {
+    return await _database!.query(table, where: where, whereArgs: whereArgs, orderBy: orderBy);
   }
 
   static Future<void> close() async {

@@ -63,30 +63,31 @@ class ChatService extends SecuredHttpClient {
     }, errorMessage: '채팅방을 생성하는데 실패했습니다.');
   }
 
-  Future<void> getMessages(ValueNotifier<List<Message>> messages, String chatRoomId) async {
-    DatabaseService.search('Message', where: 'chatRoomId = ?', whereArgs: [chatRoomId])
-        .then((value) {
-      messages.value = value.map((e) => Message.fromJson(e)).toList();
-    });
-
-    get(
+  Future<String?> getMessages(
+      ValueNotifier<List<Message>> messages, String chatRoomId, String? cursor) async {
+    return await get(
         path: '$basePath/$chatRoomId/messages',
-        queryParams: {'limit': 30},
+        queryParams: {'limit': 40, 'cursor': cursor},
         converter: (result) => result['data']).run(null, (result) async {
+      final List<Message> notSortedMessages = [
+        ...messages.value,
+        ...List<Map<String, dynamic>>.from(result['newMessages']).map((e) => Message.fromJson(e))
+      ];
+
+      messages.value = notSortedMessages.toSet().toList()
+        ..sort((a, b) => a.seqId.compareTo(b.seqId));
+
       await DatabaseService.batchInsert(
           'Message',
           List<dynamic>.from(result['newMessages'])
               .map((e) => Message.toMap(e as Map<String, dynamic>))
               .toList());
 
-      await DatabaseService.search('Message', where: 'chatRoomId = ?', whereArgs: [chatRoomId])
-          .then((value) {
-        messages.value = value.map((e) => Message.fromJson(e)).toList();
-      });
-
       if (messages.value.isNotEmpty) {
         readMessage(messages.value.last.id);
       }
+
+      return result['nextCursor'];
     }, errorHandler: (_) {});
   }
 

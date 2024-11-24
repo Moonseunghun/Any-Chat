@@ -13,6 +13,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import '../../model/message.dart';
+import '../../service/database_service.dart';
 import 'invite_friend_page.dart';
 
 class ChatPage extends HookConsumerWidget {
@@ -44,6 +45,7 @@ class ChatPage extends HookConsumerWidget {
     final messageController = useTextEditingController();
 
     final messages = useState<List<Message>>([]);
+    final cursor = useState<String?>(null);
 
     useEffect(() {
       if (keyboardHeight > plusMenuHeight.value) {
@@ -55,7 +57,18 @@ class ChatPage extends HookConsumerWidget {
     useEffect(() {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         ChatService().joinRoom(chatRoomHeader.chatRoomId);
-        ChatService().getMessages(messages, chatRoomHeader.chatRoomId);
+
+        DatabaseService.search('Message',
+                where: 'chatRoomId = ?',
+                whereArgs: [chatRoomHeader.chatRoomId],
+                orderBy: 'seqId ASC')
+            .then((value) {
+          messages.value = value.map((e) => Message.fromJson(e)).toList();
+        });
+
+        ChatService().getMessages(messages, chatRoomHeader.chatRoomId, cursor.value).then((value) {
+          cursor.value = value;
+        });
         ChatService().onMessageRead(messages);
         ChatService().onMessageReceived(messages);
 
@@ -131,53 +144,66 @@ class ChatPage extends HookConsumerWidget {
                                   fontWeight: FontWeight.bold,
                                   color: Color(0xFF3B3B3B))),
                           centerTitle: true),
-                      body: Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 16.w),
-                          child: ListView(
-                            controller: _scrollController,
-                            children: [
-                              SizedBox(height: 6.h),
-                              ...messages.value.map((message) {
-                                final bool isMyMessage =
-                                    message.senderId == ref.read(userProvider)!.id;
-                                final String? beforeSenderId = messages.value
-                                    .where((e) => e.seqId == message.seqId - 1)
-                                    .firstOrNull
-                                    ?.senderId;
-                                final String? afterSenderId = messages.value
-                                    .where((e) => e.seqId == message.seqId + 1)
-                                    .firstOrNull
-                                    ?.senderId;
-                                final bool optional = (messages.value
-                                        .where((e) => e.seqId == message.seqId + 1)
-                                        .map((e) => e.createdAt.to24HourFormat())
-                                        .firstOrNull) !=
-                                    message.createdAt.to24HourFormat();
+                      body: NotificationListener<ScrollNotification>(
+                          onNotification: (notification) {
+                            if (notification is ScrollEndNotification &&
+                                notification.metrics.extentBefore == 0) {
+                              ChatService()
+                                  .getMessages(messages, chatRoomHeader.chatRoomId, cursor.value)
+                                  .then((value) {
+                                cursor.value = value;
+                              });
+                            }
 
-                                return isMyMessage
-                                    ? _myChat(
-                                        message: message,
-                                        optional: optional || afterSenderId == null
-                                            ? true
-                                            : afterSenderId != ref.read(userProvider)!.id,
-                                        change: afterSenderId == null
-                                            ? true
-                                            : afterSenderId != ref.read(userProvider)!.id)
-                                    : _opponentChat(
-                                        message: message,
-                                        optional: optional || afterSenderId == null
-                                            ? true
-                                            : afterSenderId == ref.read(userProvider)!.id,
-                                        first: beforeSenderId == null
-                                            ? true
-                                            : beforeSenderId == ref.read(userProvider)!.id,
-                                        change: afterSenderId == null
-                                            ? true
-                                            : afterSenderId == ref.read(userProvider)!.id);
-                              }),
-                              SizedBox(height: 6.h),
-                            ],
-                          )),
+                            return false;
+                          },
+                          child: Padding(
+                              padding: EdgeInsets.symmetric(horizontal: 16.w),
+                              child: ListView(
+                                controller: _scrollController,
+                                children: [
+                                  SizedBox(height: 6.h),
+                                  ...messages.value.map((message) {
+                                    final bool isMyMessage =
+                                        message.senderId == ref.read(userProvider)!.id;
+                                    final String? beforeSenderId = messages.value
+                                        .where((e) => e.seqId == message.seqId - 1)
+                                        .firstOrNull
+                                        ?.senderId;
+                                    final String? afterSenderId = messages.value
+                                        .where((e) => e.seqId == message.seqId + 1)
+                                        .firstOrNull
+                                        ?.senderId;
+                                    final bool optional = (messages.value
+                                            .where((e) => e.seqId == message.seqId + 1)
+                                            .map((e) => e.createdAt.to24HourFormat())
+                                            .firstOrNull) !=
+                                        message.createdAt.to24HourFormat();
+
+                                    return isMyMessage
+                                        ? _myChat(
+                                            message: message,
+                                            optional: optional || afterSenderId == null
+                                                ? true
+                                                : afterSenderId != ref.read(userProvider)!.id,
+                                            change: afterSenderId == null
+                                                ? true
+                                                : afterSenderId != ref.read(userProvider)!.id)
+                                        : _opponentChat(
+                                            message: message,
+                                            optional: optional || afterSenderId == null
+                                                ? true
+                                                : afterSenderId == ref.read(userProvider)!.id,
+                                            first: beforeSenderId == null
+                                                ? true
+                                                : beforeSenderId == ref.read(userProvider)!.id,
+                                            change: afterSenderId == null
+                                                ? true
+                                                : afterSenderId == ref.read(userProvider)!.id);
+                                  }),
+                                  SizedBox(height: 6.h),
+                                ],
+                              ))),
                       bottomNavigationBar: Container(
                         padding: const EdgeInsets.only(top: 10),
                         color: Colors.white,

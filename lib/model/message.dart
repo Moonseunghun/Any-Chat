@@ -1,3 +1,5 @@
+import 'package:equatable/equatable.dart';
+
 enum MessageType {
   text(1000);
 
@@ -6,7 +8,7 @@ enum MessageType {
   const MessageType(this.value);
 }
 
-class Message {
+class Message extends Equatable {
   final String id;
   final String chatRoomId;
   final int seqId;
@@ -16,7 +18,7 @@ class Message {
   final int readCount;
   final DateTime createdAt;
 
-  Message({
+  const Message({
     required this.id,
     required this.chatRoomId,
     required this.seqId,
@@ -64,4 +66,7 @@ class Message {
         readCount: readCount ?? this.readCount,
         createdAt: createdAt);
   }
+
+  @override
+  List<Object?> get props => [id];
 }
