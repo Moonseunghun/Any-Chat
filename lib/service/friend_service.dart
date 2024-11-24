@@ -8,6 +8,8 @@ import '../model/friend.dart';
 import '../state/friend_state.dart';
 
 class FriendService extends SecuredHttpClient {
+  static String? friendsCursor;
+
   final String basePath = '/friend/api';
 
   Future<void> getFriends(WidgetRef ref) async {
@@ -21,8 +23,12 @@ class FriendService extends SecuredHttpClient {
       ref.read(friendsProvider.notifier).setFriends(friends);
     });
 
-    await get(path: '$basePath?take=200', converter: (result) => result['data']).run(ref,
-        (data) async {
+    await get(
+        path: basePath,
+        queryParams: {'take': 30, 'cursor': friendsCursor},
+        converter: (result) => result['data']).run(null, (data) async {
+      friendsCursor = data['meta']['nextCursor'];
+
       List<Friend> friends = [];
 
       DatabaseService.batchInsert(
@@ -35,7 +41,7 @@ class FriendService extends SecuredHttpClient {
         friends.add(await Friend.fromJson(friend as Map<String, dynamic>));
       }
 
-      ref.read(friendsProvider.notifier).setFriends(friends);
+      ref.read(friendsProvider.notifier).addFriends(friends);
     }, errorMessage: '친구 목록을 불러오는 중 오류가 발생했습니다');
   }
 

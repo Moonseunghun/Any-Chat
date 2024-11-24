@@ -48,68 +48,86 @@ class HomePage extends HookConsumerWidget {
               ],
             )),
         Expanded(
-            child: SingleChildScrollView(
-                child: Column(children: [
-          Container(
-            width: double.infinity,
-            color: const Color(0xFFC74DFF).withOpacity(0.1),
-            padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 8.h),
-            child: Text('프로필', style: TextStyle(fontSize: 12.r, color: const Color(0xFF3B3B3B))),
-          ),
-          SizedBox(height: 8.h),
-          _profileWidget(ref),
-          SizedBox(height: 8.h),
-          InkWell(
-              onTap: () {
-                foldFavorites.value = !foldFavorites.value;
-              },
-              child: Container(
-                  width: double.infinity,
-                  color: const Color(0xFFC74DFF).withOpacity(0.1),
-                  padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 8.h),
-                  child: Row(
-                    children: [
-                      Text('즐겨찾기',
-                          style: TextStyle(fontSize: 12.r, color: const Color(0xFF3B3B3B))),
-                      const Spacer(),
-                      Icon(
-                          foldFavorites.value ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
-                          size: 12.r,
-                          color: const Color(0xFF3B3B3B))
-                    ],
-                  ))),
-          if (!foldFavorites.value && ref.watch(pinnedFriendsProvider).isNotEmpty)
-            Column(children: [
-              SizedBox(height: 8.h),
-              ...ref
-                  .watch(pinnedFriendsProvider)
-                  .map((friend) => _profileWidget(ref, friend: friend)),
-              SizedBox(height: 8.h)
-            ]),
-          InkWell(
-              onTap: () {
-                foldFriends.value = !foldFriends.value;
-              },
-              child: Container(
-                  width: double.infinity,
-                  color: const Color(0xFFC74DFF).withOpacity(0.1),
-                  padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 8.h),
-                  child: Row(
-                    children: [
-                      Text('친구 ${ref.watch(friendsProvider).length}명',
-                          style: TextStyle(fontSize: 12.r, color: const Color(0xFF3B3B3B))),
-                      const Spacer(),
-                      Icon(foldFriends.value ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
-                          size: 12.r, color: const Color(0xFF3B3B3B))
-                    ],
-                  ))),
-          if (!foldFriends.value && ref.watch(friendsProvider).isNotEmpty)
-            Column(children: [
-              SizedBox(height: 8.h),
-              ...ref.watch(friendsProvider).map((friend) => _profileWidget(ref, friend: friend))
-            ]),
-          SizedBox(height: 100.h),
-        ])))
+            child: NotificationListener<ScrollNotification>(
+                onNotification: (notification) {
+                  if (notification is ScrollEndNotification &&
+                      notification.metrics.extentAfter == 0) {
+                    FriendService().getFriends(ref);
+                  }
+
+                  return false;
+                },
+                child: SingleChildScrollView(
+                    child: Column(children: [
+                  Container(
+                    width: double.infinity,
+                    color: const Color(0xFFC74DFF).withOpacity(0.1),
+                    padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 8.h),
+                    child: Text('프로필',
+                        style: TextStyle(fontSize: 12.r, color: const Color(0xFF3B3B3B))),
+                  ),
+                  SizedBox(height: 8.h),
+                  _profileWidget(ref),
+                  SizedBox(height: 8.h),
+                  InkWell(
+                      onTap: () {
+                        foldFavorites.value = !foldFavorites.value;
+                      },
+                      child: Container(
+                          width: double.infinity,
+                          color: const Color(0xFFC74DFF).withOpacity(0.1),
+                          padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 8.h),
+                          child: Row(
+                            children: [
+                              Text('즐겨찾기',
+                                  style: TextStyle(fontSize: 12.r, color: const Color(0xFF3B3B3B))),
+                              const Spacer(),
+                              Icon(
+                                  foldFavorites.value
+                                      ? Icons.keyboard_arrow_up
+                                      : Icons.keyboard_arrow_down,
+                                  size: 12.r,
+                                  color: const Color(0xFF3B3B3B))
+                            ],
+                          ))),
+                  if (!foldFavorites.value && ref.watch(pinnedFriendsProvider).isNotEmpty)
+                    Column(children: [
+                      SizedBox(height: 8.h),
+                      ...ref
+                          .watch(pinnedFriendsProvider)
+                          .map((friend) => _profileWidget(ref, friend: friend)),
+                      SizedBox(height: 8.h)
+                    ]),
+                  InkWell(
+                      onTap: () {
+                        foldFriends.value = !foldFriends.value;
+                      },
+                      child: Container(
+                          width: double.infinity,
+                          color: const Color(0xFFC74DFF).withOpacity(0.1),
+                          padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 8.h),
+                          child: Row(
+                            children: [
+                              Text('친구 ${ref.watch(friendsProvider).length}명',
+                                  style: TextStyle(fontSize: 12.r, color: const Color(0xFF3B3B3B))),
+                              const Spacer(),
+                              Icon(
+                                  foldFriends.value
+                                      ? Icons.keyboard_arrow_up
+                                      : Icons.keyboard_arrow_down,
+                                  size: 12.r,
+                                  color: const Color(0xFF3B3B3B))
+                            ],
+                          ))),
+                  if (!foldFriends.value && ref.watch(friendsProvider).isNotEmpty)
+                    Column(children: [
+                      SizedBox(height: 8.h),
+                      ...ref
+                          .watch(friendsProvider)
+                          .map((friend) => _profileWidget(ref, friend: friend))
+                    ]),
+                  SizedBox(height: 100.h),
+                ]))))
       ],
     );
   }

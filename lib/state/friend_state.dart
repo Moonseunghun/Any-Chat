@@ -8,6 +8,16 @@ class FriendsNotifier extends StateNotifier<List<Friend>> {
     state = friends;
   }
 
+  void addFriends(List<Friend> friends) {
+    final List<Friend> newFriends = [];
+    for (final friend in friends) {
+      if (!state.any((e) => e.id == friend.id)) {
+        newFriends.add(friend);
+      }
+    }
+    state = [...state, ...newFriends].sortByName();
+  }
+
   void addFriend(Friend friend) {
     state = [...state, friend].sortByName();
   }
