@@ -36,7 +36,7 @@ class Friend extends Equatable {
 
     return Friend(
       id: json['id'],
-      nickname: json['nickname'],
+      nickname: json['nickName'],
       originName: json['originName'],
       friendTypeId: json['friendTypeId'],
       isPinned: (json['isPinned'] as int) == 1 ? true : false,
@@ -48,7 +48,7 @@ class Friend extends Equatable {
     return {
       'id': json['id'],
       'stringId': json['friend']['id'],
-      'nickname': json['nickname'],
+      'nickName': json['nickname'],
       'originName': json['originName'],
       'friendTypeId': json['friendTypeId'],
       'isPinned': json['isPinned'] as bool ? 1 : 0,

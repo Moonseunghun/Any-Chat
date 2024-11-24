@@ -11,7 +11,7 @@ class FriendService extends SecuredHttpClient {
   final String basePath = '/friend/api';
 
   Future<void> getFriends(WidgetRef ref) async {
-    DatabaseService.search('Friends').then((value) async {
+    DatabaseService.search('Friends', where: 'isPinned = ?', whereArgs: [0]).then((value) async {
       List<Friend> friends = [];
 
       for (final friend in value) {
@@ -40,9 +40,25 @@ class FriendService extends SecuredHttpClient {
   }
 
   Future<void> getPinned(WidgetRef ref) async {
+    DatabaseService.search('Friends', where: 'isPinned = ?', whereArgs: [1]).then((value) async {
+      List<Friend> friends = [];
+
+      for (final friend in value) {
+        friends.add(await Friend.fromMap(friend));
+      }
+
+      ref.read(friendsProvider.notifier).setFriends(friends);
+    });
+
     await get(path: '$basePath/pinned', converter: (result) => result['data']).run(null,
         (data) async {
       List<Friend> friends = [];
+
+      DatabaseService.batchInsert(
+          'Friends',
+          List<dynamic>.from(data['data'])
+              .map((e) => Friend.toMap(e as Map<String, dynamic>))
+              .toList());
 
       for (final friend in List<dynamic>.from(data['data'])) {
         friends.add(await Friend.fromJson(friend as Map<String, dynamic>));
