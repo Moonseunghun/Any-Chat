@@ -5,13 +5,24 @@ class FriendsNotifier extends StateNotifier<List<Friend>> {
   FriendsNotifier(super.state);
 
   void setFriends(List<Friend> friends) {
+    state = friends.sortByName();
+  }
+
+  void addFriends(List<Friend> friends) {
+    final List<Friend> updateFriends = [];
     final List<Friend> newFriends = [];
     for (final friend in friends) {
-      if (!state.any((e) => e.id == friend.id)) {
+      if (!state.any((e) => e == friend)) {
         newFriends.add(friend);
+      } else {
+        updateFriends.add(friend);
       }
     }
-    state = [...state, ...newFriends].sortByName();
+    state = [
+      ...state.where((e) => !updateFriends.any((f) => f == e)),
+      ...updateFriends,
+      ...newFriends
+    ].sortByName();
   }
 
   void addFriend(Friend friend) {
@@ -63,13 +74,20 @@ class HiddenFriendsNotifier extends StateNotifier<List<Friend>> {
   HiddenFriendsNotifier(super.state);
 
   void setHidden(List<Friend> friends) {
+    final List<Friend> updateFriends = [];
     final List<Friend> newFriends = [];
     for (final friend in friends) {
-      if (!state.any((e) => e.id == friend.id)) {
+      if (!state.any((e) => e == friend)) {
         newFriends.add(friend);
+      } else {
+        updateFriends.add(friend);
       }
     }
-    state = [...state, ...newFriends].sortByName();
+    state = [
+      ...state.where((e) => !updateFriends.any((f) => f == e)),
+      ...updateFriends,
+      ...newFriends
+    ].sortByName();
   }
 
   void hide(WidgetRef ref, int id) {
@@ -93,13 +111,20 @@ class BlockFriendsNotifier extends StateNotifier<List<Friend>> {
   BlockFriendsNotifier(super.state);
 
   void setBlocked(List<Friend> friends) {
+    final List<Friend> updateFriends = [];
     final List<Friend> newFriends = [];
     for (final friend in friends) {
-      if (!state.any((e) => e.id == friend.id)) {
+      if (!state.any((e) => e == friend)) {
         newFriends.add(friend);
+      } else {
+        updateFriends.add(friend);
       }
     }
-    state = [...state, ...newFriends].sortByName();
+    state = [
+      ...state.where((e) => !updateFriends.any((f) => f == e)),
+      ...updateFriends,
+      ...newFriends
+    ].sortByName();
   }
 
   void block(WidgetRef ref, int id) {
@@ -129,3 +154,5 @@ final hiddenFriendsProvider = StateNotifierProvider<HiddenFriendsNotifier, List<
 final blockFriendsProvider = StateNotifierProvider<BlockFriendsNotifier, List<Friend>>((ref) {
   return BlockFriendsNotifier([]);
 });
+
+final friendCountProvider = StateProvider<int>((ref) => 0);

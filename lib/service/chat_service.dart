@@ -32,7 +32,7 @@ class ChatService extends SecuredHttpClient {
       final List<Map<String, dynamic>> savedInfo = await DatabaseService.search('ChatRoomInfo');
 
       for (final Map<String, dynamic> chatRoomInfo in savedInfo) {
-        chatRoomInfos.add(await ChatRoomInfo.fromJson(chatRoomInfo));
+        chatRoomInfos.add(await ChatRoomInfo.fromJson(ref, chatRoomInfo));
       }
 
       ref.read(chatRoomInfoProvider.notifier).set(chatRoomInfos);
@@ -61,6 +61,8 @@ class ChatService extends SecuredHttpClient {
         path: '$basePath/$chatRoomId/messages',
         queryParams: {'limit': 40, 'cursor': cursor},
         converter: (result) => result['data']).run(null, (result) async {
+      print(result['updatedMessages']);
+
       final List<Message> notSortedMessages = [
         ...messages.value,
         ...List<Map<String, dynamic>>.from(result['newMessages']).map((e) => Message.fromJson(e))
@@ -91,17 +93,18 @@ class ChatService extends SecuredHttpClient {
     }, errorHandler: (_) {});
   }
 
-  void connectSocket() {
+  void connectSocket(WidgetRef ref) {
     socket = IO.io(
         HttpConfig.webSocketUrl,
         IO.OptionBuilder().setTransports(['websocket']).setExtraHeaders(
             {'authorization': auth!.accessToken}).build());
 
-    socket!.onConnect((_) {
-      socketConnected = true;
-    });
-
     socket!.connect();
+
+    socket!.on('S_JOIN_ROOM', (data) {
+      socketConnected = true;
+      onChatRoomInfo(ref);
+    });
   }
 
   void disposeSocket() {
@@ -137,7 +140,7 @@ class ChatService extends SecuredHttpClient {
   }
 
   void readMessage(int seqId) {
-    socket!.emit('C_MESSAGE_READ', {'lastMessageId': seqId});
+    socket!.emit('C_MESSAGE_READ', {'lastSeqId': seqId});
   }
 
   void onMessageRead(ValueNotifier<List<Message>> messages) {
@@ -150,11 +153,26 @@ class ChatService extends SecuredHttpClient {
         final updateMessage = updatedMessages.where((e) => e['seqId'] == message.seqId).firstOrNull;
 
         if (updateMessage != null) {
+          DatabaseService.update('Message', {'readCount': updateMessage['readCount'] as int},
+              'seqId = ?', [message.seqId]);
+
           return message.copyWith(readCount: updateMessage['readCount'] as int);
         } else {
           return message;
         }
       }).toList();
+
+      socket!.emit('C_READ_SYNC', {'lastSeqId': messages.value.last.seqId});
+    });
+  }
+
+  void onChatRoomInfo(WidgetRef ref) {
+    socket!.on('S_CHAT_ROOM_UPDATE', (data) {
+      DatabaseService.insert('ChatRoomInfo', ChatRoomInfo.toMap(ref, data as Map<String, dynamic>));
+
+      ChatRoomInfo.fromJson(ref, data).then((chatRoomInfo) {
+        ref.read(chatRoomInfoProvider.notifier).update(chatRoomInfo);
+      });
     });
   }
 }

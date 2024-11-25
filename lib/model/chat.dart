@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:equatable/equatable.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../common/cache_manager.dart';
@@ -15,7 +16,7 @@ class ChatRoomHeader {
   });
 }
 
-class ChatRoomInfo {
+class ChatRoomInfo extends Equatable {
   final String id;
   final String name;
   final String lastMessage;
@@ -23,7 +24,7 @@ class ChatRoomInfo {
   final DateTime updatedAt;
   final int unreadCount;
 
-  ChatRoomInfo({
+  const ChatRoomInfo({
     required this.id,
     required this.name,
     required this.lastMessage,
@@ -47,10 +48,18 @@ class ChatRoomInfo {
     };
   }
 
-  static Future<ChatRoomInfo> fromJson(Map<String, dynamic> json) async {
+  static Future<ChatRoomInfo> fromJson(WidgetRef ref, Map<String, dynamic> json) async {
     File? profileImg;
 
-    if (json['profileImg'] != null && json['profileImg'] != null) {
+    if (json['profileImages'] != null) {
+      final opponent = List<dynamic>.from(json['profileImages'])
+          .where((e) => e['userId'] != ref.read(userProvider)!.id)
+          .firstOrNull;
+
+      json['profileImg'] = opponent != null ? opponent['profileImg'] : null;
+    }
+
+    if (json['profileImg'] != null) {
       final File? cachedImage = await CacheManager.getCachedImage(json['profileImg']);
       if (cachedImage != null) {
         profileImg = cachedImage;
@@ -68,4 +77,7 @@ class ChatRoomInfo {
       profileImg: profileImg,
     );
   }
+
+  @override
+  List<Object?> get props => [id];
 }

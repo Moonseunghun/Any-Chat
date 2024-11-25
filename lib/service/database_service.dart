@@ -72,6 +72,11 @@ class DatabaseService {
     return await _database!.query(table, where: where, whereArgs: whereArgs, orderBy: orderBy);
   }
 
+  static Future<void> update(
+      String table, Map<String, dynamic> data, String where, List<dynamic> whereArgs) async {
+    await _database!.update(table, data, where: where, whereArgs: whereArgs);
+  }
+
   static Future<void> close() async {
     await _database!.close();
   }

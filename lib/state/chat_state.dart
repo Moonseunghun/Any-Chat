@@ -7,6 +7,11 @@ class ChatRoomInfoNotifier extends StateNotifier<List<ChatRoomInfo>> {
   void set(List<ChatRoomInfo> chatRoomInfo) {
     state = chatRoomInfo;
   }
+
+  void update(ChatRoomInfo chatRoomInfo) {
+    state = [...state.where((e) => e != chatRoomInfo), chatRoomInfo]
+      ..sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
+  }
 }
 
 final chatRoomInfoProvider = StateNotifierProvider<ChatRoomInfoNotifier, List<ChatRoomInfo>>((ref) {

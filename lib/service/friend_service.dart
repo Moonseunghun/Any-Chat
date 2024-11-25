@@ -1,6 +1,7 @@
 import 'package:anychat/common/error.dart';
 import 'package:anychat/common/http_client.dart';
 import 'package:anychat/common/toast.dart';
+import 'package:anychat/main.dart';
 import 'package:anychat/page/main_layout.dart';
 import 'package:anychat/service/database_service.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -11,10 +12,10 @@ import '../state/friend_state.dart';
 class FriendService extends SecuredHttpClient {
   final String basePath = '/friend/api';
 
-  Future<String?> getFriends(WidgetRef ref) async {
+  Future<String?> getFriends(WidgetRef ref, {bool isInit = false}) async {
     return await get(
         path: basePath,
-        queryParams: {'cursor': friendsCursor},
+        queryParams: {'take': 5, 'cursor': friendsCursor},
         converter: (result) => result['data']).run(null, (data) async {
       List<Friend> friends = [];
 
@@ -28,7 +29,14 @@ class FriendService extends SecuredHttpClient {
         friends.add(await Friend.fromJson(friend as Map<String, dynamic>));
       }
 
-      ref.read(friendsProvider.notifier).setFriends(friends);
+      prefs.setInt('totalCount', data['meta']['totalCount']);
+      ref.read(friendCountProvider.notifier).state = data['meta']['totalCount'];
+
+      if (isInit) {
+        ref.read(friendsProvider.notifier).setFriends(friends);
+      } else {
+        ref.read(friendsProvider.notifier).addFriends(friends);
+      }
 
       return data['meta']['nextCursor'];
     }, errorMessage: '친구 목록을 불러오는 중 오류가 발생했습니다');

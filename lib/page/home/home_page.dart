@@ -111,7 +111,7 @@ class HomePage extends HookConsumerWidget {
                           padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 8.h),
                           child: Row(
                             children: [
-                              Text('친구 ${ref.watch(friendsProvider).length}명',
+                              Text('친구 ${ref.watch(friendCountProvider)}명',
                                   style: TextStyle(fontSize: 12.r, color: const Color(0xFF3B3B3B))),
                               const Spacer(),
                               Icon(

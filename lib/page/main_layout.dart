@@ -49,23 +49,25 @@ class MainLayout extends HookConsumerWidget {
             friends.add(await Friend.fromMap(friend));
           }
 
+          ref.read(friendCountProvider.notifier).state = prefs.getInt('totalCount') ?? 0;
           ref.read(friendsProvider.notifier).setFriends(friends);
         });
 
         DatabaseService.search('ChatRoomInfo').then((savedInfo) async {
           List<ChatRoomInfo> chatRoomInfos = [];
           for (final Map<String, dynamic> chatRoomInfo in savedInfo) {
-            chatRoomInfos.add(await ChatRoomInfo.fromJson(chatRoomInfo));
+            chatRoomInfos.add(await ChatRoomInfo.fromJson(ref, chatRoomInfo));
           }
 
           ref.read(chatRoomInfoProvider.notifier).set(chatRoomInfos);
         });
 
-        FriendService().getFriends(ref).then((value) {
+        FriendService().getFriends(ref, isInit: true).then((value) {
           friendsCursor = value;
         });
         FriendService().getPinned(ref);
         ChatService().getRooms(ref).then((_) {
+          ChatService().connectSocket(ref);
           prefs.setBool('isInitialSync', false);
         });
       });

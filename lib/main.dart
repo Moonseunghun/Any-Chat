@@ -39,11 +39,6 @@ class MyApp extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     useEffect(() {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (auth != null) {
-          ChatService().connectSocket();
-        }
-      });
 
       return () {
         DatabaseService.close();

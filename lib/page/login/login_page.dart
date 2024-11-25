@@ -7,7 +7,6 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
-import '../../service/chat_service.dart';
 import '../main_layout.dart';
 
 class LoginPage extends HookConsumerWidget {
@@ -33,7 +32,6 @@ class LoginPage extends HookConsumerWidget {
                   loginService.registerCheck(ref).then((result) {
                     if (result) {
                       loginService.login(ref).then((_) async {
-                        ChatService().connectSocket();
                         await UserService().getMe(ref).then((_) => router.go(MainLayout.routeName));
                       });
                     } else {
@@ -76,7 +74,6 @@ class LoginPage extends HookConsumerWidget {
                   loginService.registerCheck(ref).then((result) {
                     if (result) {
                       loginService.login(ref).then((_) async {
-                        ChatService().connectSocket();
                         await UserService().getMe(ref).then((_) => router.go(MainLayout.routeName));
                       });
                     } else {
