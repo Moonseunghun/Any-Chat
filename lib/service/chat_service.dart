@@ -55,21 +55,25 @@ class ChatService extends SecuredHttpClient {
     }, errorMessage: '채팅방을 생성하는데 실패했습니다.');
   }
 
-  Future<String?> getMessages(
-      ValueNotifier<List<Message>> messages, String chatRoomId, String? cursor) async {
+  Future<String?> getMessages(ValueNotifier<List<Message>> messages, String chatRoomId,
+      String? cursor,
+      {bool isInit = false}) async {
     return await get(
         path: '$basePath/$chatRoomId/messages',
         queryParams: {'limit': 40, 'cursor': cursor},
         converter: (result) => result['data']).run(null, (result) async {
-      print(result['updatedMessages']);
-
-      final List<Message> notSortedMessages = [
-        ...messages.value,
-        ...List<Map<String, dynamic>>.from(result['newMessages']).map((e) => Message.fromJson(e))
-      ];
-
-      messages.value = notSortedMessages.toSet().toList()
-        ..sort((a, b) => a.seqId.compareTo(b.seqId));
+      if (isInit) {
+        messages.value = List<Map<String, dynamic>>.from(result['newMessages'])
+            .map((e) => Message.fromJson(e))
+            .toList()
+          ..sort((a, b) => b.seqId.compareTo(a.seqId));
+      } else {
+        messages.value = <Message>{
+          ...messages.value,
+          ...List<Map<String, dynamic>>.from(result['newMessages']).map((e) => Message.fromJson(e))
+        }.toList()
+          ..sort((a, b) => b.seqId.compareTo(a.seqId));
+      }
 
       await DatabaseService.batchInsert(
           'Message',
@@ -131,7 +135,7 @@ class ChatService extends SecuredHttpClient {
 
   void onMessageReceived(ValueNotifier<List<Message>> messages) {
     socket!.on('S_SEND_MESSAGE', (result) {
-      messages.value = [...messages.value, Message.fromJson(result)];
+      messages.value = [Message.fromJson(result), ...messages.value];
 
       DatabaseService.insert('Message', Message.toMap(result));
 

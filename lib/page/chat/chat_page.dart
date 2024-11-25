@@ -62,21 +62,21 @@ class ChatPage extends HookConsumerWidget {
         DatabaseService.search('Message',
                 where: 'chatRoomId = ?',
                 whereArgs: [chatRoomHeader.chatRoomId],
-                orderBy: 'seqId ASC')
+                orderBy: 'seqId DESC')
             .then((value) {
           messages.value = value.map((e) => Message.fromJson(e)).toList();
-          _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
         });
 
-        ChatService().getMessages(messages, chatRoomHeader.chatRoomId, cursor.value).then((value) {
+        ChatService()
+            .getMessages(messages, chatRoomHeader.chatRoomId, cursor.value, isInit: true)
+            .then((value) {
           cursor.value = value;
-          _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
         });
         ChatService().onMessageRead(messages);
         ChatService().onMessageReceived(messages);
 
         _scrollController.addListener(() {
-          if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent) {
+          if (_scrollController.position.pixels <= _scrollController.position.minScrollExtent) {
             scrollAtBottom.value = true;
           } else {
             scrollAtBottom.value = false;
@@ -93,8 +93,7 @@ class ChatPage extends HookConsumerWidget {
     useEffect(() {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (scrollAtBottom.value) {
-          _scrollController.animateTo(_scrollController.position.maxScrollExtent,
-              duration: const Duration(milliseconds: 200), curve: Curves.easeOut);
+          _scrollController.jumpTo(_scrollController.position.minScrollExtent);
         }
       });
 
@@ -161,7 +160,7 @@ class ChatPage extends HookConsumerWidget {
                       body: NotificationListener<ScrollNotification>(
                           onNotification: (notification) {
                             if (notification is ScrollEndNotification &&
-                                notification.metrics.extentBefore == 0) {
+                                notification.metrics.extentAfter == 0) {
                               ChatService()
                                   .getMessages(messages, chatRoomHeader.chatRoomId, cursor.value)
                                   .then((value) {
@@ -174,6 +173,7 @@ class ChatPage extends HookConsumerWidget {
                           child: Padding(
                               padding: EdgeInsets.symmetric(horizontal: 16.w),
                               child: ListView(
+                                reverse: true,
                                 controller: _scrollController,
                                 children: [
                                   SizedBox(height: 6.h),
@@ -270,15 +270,8 @@ class ChatPage extends HookConsumerWidget {
                                             maxLines: keyboardHeight == 0 ? 1 : 6,
                                             onTap: () {
                                               FocusScope.of(context).requestFocus(focusNode);
+
                                               showPlusMenu.value = false;
-                                              if (scrollAtBottom.value) {
-                                                WidgetsBinding.instance.addPostFrameCallback((_) {
-                                                  if (scrollAtBottom.value) {
-                                                    _scrollController.jumpTo(
-                                                        _scrollController.position.maxScrollExtent);
-                                                  }
-                                                });
-                                              }
                                             },
                                             decoration: InputDecoration(
                                                 isDense: true,

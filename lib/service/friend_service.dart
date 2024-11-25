@@ -15,7 +15,7 @@ class FriendService extends SecuredHttpClient {
   Future<String?> getFriends(WidgetRef ref, {bool isInit = false}) async {
     return await get(
         path: basePath,
-        queryParams: {'take': 5, 'cursor': friendsCursor},
+        queryParams: {'cursor': friendsCursor},
         converter: (result) => result['data']).run(null, (data) async {
       List<Friend> friends = [];
 
