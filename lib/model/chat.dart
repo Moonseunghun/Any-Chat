@@ -81,3 +81,30 @@ class ChatRoomInfo extends Equatable {
   @override
   List<Object?> get props => [id];
 }
+
+class ChatUserInfo {
+  final String id;
+  final String name;
+  final File? profileImg;
+
+  ChatUserInfo({
+    required this.id,
+    required this.name,
+    this.profileImg,
+  });
+
+  static Future<ChatUserInfo> fromJson(Map<String, dynamic> json) async {
+    File? profileImg;
+
+    if (json['userInfo']['profileImg'] != null) {
+      final File? cachedImage = await CacheManager.getCachedImage(json['userInfo']['profileImg']);
+      if (cachedImage != null) {
+        profileImg = cachedImage;
+      } else {
+        profileImg = await CacheManager.downloadAndCacheImage(json['userInfo']['profileImg']);
+      }
+    }
+
+    return ChatUserInfo(id: json['userId'], name: json['name'], profileImg: profileImg);
+  }
+}

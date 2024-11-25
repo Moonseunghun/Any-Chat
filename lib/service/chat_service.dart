@@ -55,8 +55,8 @@ class ChatService extends SecuredHttpClient {
     }, errorMessage: '채팅방을 생성하는데 실패했습니다.');
   }
 
-  Future<String?> getMessages(ValueNotifier<List<Message>> messages, String chatRoomId,
-      String? cursor,
+  Future<String?> getMessages(
+      ValueNotifier<List<Message>> messages, String chatRoomId, String? cursor,
       {bool isInit = false}) async {
     return await get(
         path: '$basePath/$chatRoomId/messages',
@@ -89,11 +89,18 @@ class ChatService extends SecuredHttpClient {
     }, errorHandler: (_) {});
   }
 
-  /// FIXME: 참가자 조회 500에러
-  Future<int> getParticipants(String chatRoomId) async {
+  Future<void> getParticipants(
+      String chatRoomId, ValueNotifier<List<ChatUserInfo>> participants) async {
     return get(path: '$basePath/$chatRoomId/participants', converter: (result) => result['data'])
-        .run(null, (data) {
-      return 2;
+        .run(null, (data) async {
+      final List<ChatUserInfo> chatUserInfos = [];
+
+      for (final Map<String, dynamic> participant
+          in List<Map<String, dynamic>>.from(data['participants'])) {
+        chatUserInfos.add(await ChatUserInfo.fromJson(participant['user']));
+      }
+
+      participants.value = chatUserInfos;
     }, errorHandler: (_) {});
   }
 

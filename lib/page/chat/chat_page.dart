@@ -1,9 +1,7 @@
 import 'package:anychat/common/datetime_extension.dart';
 import 'package:anychat/model/chat.dart';
-import 'package:anychat/model/friend.dart';
 import 'package:anychat/page/router.dart';
 import 'package:anychat/service/chat_service.dart';
-import 'package:anychat/state/friend_state.dart';
 import 'package:anychat/state/user_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -47,6 +45,7 @@ class ChatPage extends HookConsumerWidget {
     final messages = useState<List<Message>>([]);
     final cursor = useState<String?>(null);
     final scrollAtBottom = useState<bool>(true);
+    final participants = useState<List<ChatUserInfo>>([]);
 
     useEffect(() {
       if (keyboardHeight > plusMenuHeight.value) {
@@ -72,6 +71,7 @@ class ChatPage extends HookConsumerWidget {
             .then((value) {
           cursor.value = value;
         });
+        ChatService().getParticipants(chatRoomHeader.chatRoomId, participants);
         ChatService().onMessageRead(messages);
         ChatService().onMessageReceived(messages);
 
@@ -213,7 +213,8 @@ class ChatPage extends HookConsumerWidget {
                                                 : beforeSenderId == ref.read(userProvider)!.id,
                                             change: afterSenderId == null
                                                 ? true
-                                                : afterSenderId == ref.read(userProvider)!.id);
+                                                : afterSenderId == ref.read(userProvider)!.id,
+                                            participants: participants);
                                   }),
                                   SizedBox(height: 6.h),
                                 ],
@@ -386,12 +387,20 @@ class ChatPage extends HookConsumerWidget {
                           ),
                         ),
                       ))))),
-      ..._showLeftBar(ref, isShow)
+      ..._showLeftBar(ref, isShow, participants)
     ]);
   }
 
-  Widget _opponentChat(
-      {bool first = false, bool optional = false, required Message message, bool change = false}) {
+  Widget _opponentChat({bool first = false,
+    bool optional = false,
+    required Message message,
+    bool change = false,
+    required ValueNotifier<List<ChatUserInfo>> participants}) {
+    final ChatUserInfo? participant =
+        participants.value
+            .where((e) => e.id == message.senderId)
+            .firstOrNull;
+
     return Column(
       children: [
         Row(
@@ -406,9 +415,10 @@ class ChatPage extends HookConsumerWidget {
                     margin: const EdgeInsets.only(top: 4),
                     child: first
                         ? ClipOval(
-                            child:
-                                Image.asset('assets/images/default_profile.png', fit: BoxFit.cover),
-                          )
+                            child: participant?.profileImg == null
+                                ? Image.asset('assets/images/default_profile.png',
+                                    fit: BoxFit.cover)
+                                : Image.file(participant!.profileImg!, fit: BoxFit.fill))
                         : null)),
             Row(
               crossAxisAlignment: CrossAxisAlignment.end,
@@ -496,7 +506,9 @@ class ChatPage extends HookConsumerWidget {
     );
   }
 
-  List<Widget> _showLeftBar(WidgetRef ref, ValueNotifier<bool> isShow) => [
+  List<Widget> _showLeftBar(WidgetRef ref, ValueNotifier<bool> isShow,
+          ValueNotifier<List<ChatUserInfo>> participants) =>
+      [
         if (isShow.value)
           GestureDetector(
               onTap: () {
@@ -572,7 +584,9 @@ class ChatPage extends HookConsumerWidget {
                             child: Column(
                               children: [
                                 _profileWidget(ref),
-                                _profileWidget(ref, friend: ref.watch(friendsProvider).firstOrNull)
+                                ...participants.value
+                                    .where((e) => e.id != ref.watch(userProvider)!.id)
+                                    .map((e) => _profileWidget(ref, participant: e))
                               ],
                             )),
                       ],
@@ -592,16 +606,27 @@ class ChatPage extends HookConsumerWidget {
                 )))
       ];
 
-  Widget _profileWidget(WidgetRef ref, {Friend? friend}) => GestureDetector(
+  Widget _profileWidget(WidgetRef ref, {ChatUserInfo? participant}) => GestureDetector(
       onTap: () {},
       child: Container(
           color: Colors.transparent,
           padding: EdgeInsets.symmetric(vertical: 7.h),
           child: Row(
             children: [
-              Image.asset('assets/images/default_profile.png', width: 44),
+              ClipOval(
+                child: (participant == null
+                        ? ref.read(userProvider)!.userInfo.profileImg == null
+                            ? null
+                            : Image.file(ref.read(userProvider)!.userInfo.profileImg!,
+                                width: 40, height: 40, fit: BoxFit.fill)
+                        : participant.profileImg == null
+                            ? null
+                            : Image.file(participant.profileImg!,
+                                width: 40, height: 40, fit: BoxFit.fill)) ??
+                    Image.asset('assets/images/default_profile.png', width: 40, height: 40),
+              ),
               SizedBox(width: 11.w),
-              if (friend == null)
+              if (participant == null)
                 Expanded(
                     child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -618,7 +643,7 @@ class ChatPage extends HookConsumerWidget {
                         style: TextStyle(fontSize: 12, color: Color(0xFFE0E2E4)), child: Text('나'))
                   ],
                 )),
-              if (friend != null) ...[
+              if (participant != null) ...[
                 Expanded(
                     child: DefaultTextStyle(
                         style: const TextStyle(
@@ -626,7 +651,7 @@ class ChatPage extends HookConsumerWidget {
                             color: Color(0xFF3B3B3B),
                             fontWeight: FontWeight.w500,
                             overflow: TextOverflow.ellipsis),
-                        child: Text(friend.nickname))),
+                        child: Text(participant.name))),
                 SizedBox(width: 4.w),
                 Container(
                   padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4),
