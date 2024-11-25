@@ -12,6 +12,10 @@ class ChatRoomInfoNotifier extends StateNotifier<List<ChatRoomInfo>> {
     state = [...state.where((e) => e != chatRoomInfo), chatRoomInfo]
       ..sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
   }
+
+  void remove(String chatRoomId) {
+    state = state.where((e) => e.id != chatRoomId).toList();
+  }
 }
 
 final chatRoomInfoProvider = StateNotifierProvider<ChatRoomInfoNotifier, List<ChatRoomInfo>>((ref) {

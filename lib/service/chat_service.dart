@@ -130,7 +130,7 @@ class ChatService extends SecuredHttpClient {
     socket!.emit('C_JOIN_ROOM', {'chatRoomId': chatRoomId});
   }
 
-  void leaveRoom() {
+  void outRoom() {
     socket!.emit('C_LEAVE_ROOM');
     socket!.off('S_SEND_MESSAGE');
     socket!.off('S_MESSAGE_READ');
@@ -185,5 +185,12 @@ class ChatService extends SecuredHttpClient {
         ref.read(chatRoomInfoProvider.notifier).update(chatRoomInfo);
       });
     });
+  }
+
+  Future<void> leaveRoom(WidgetRef ref, String chatRoomId) async {
+    await patch(path: '$basePath/$chatRoomId/leave').run(ref, (_) {
+      DatabaseService.delete('ChatRoomInfo', 'id = ?', [chatRoomId]);
+      ref.read(chatRoomInfoProvider.notifier).remove(chatRoomId);
+    }, errorMessage: '채팅방을 나가는데 실패했습니다.');
   }
 }

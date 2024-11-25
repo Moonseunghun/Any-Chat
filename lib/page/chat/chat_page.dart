@@ -86,7 +86,7 @@ class ChatPage extends HookConsumerWidget {
 
       return () {
         _scrollController.dispose();
-        ChatService().leaveRoom();
+        ChatService().outRoom();
       };
     }, []);
 
@@ -391,15 +391,14 @@ class ChatPage extends HookConsumerWidget {
     ]);
   }
 
-  Widget _opponentChat({bool first = false,
-    bool optional = false,
-    required Message message,
-    bool change = false,
-    required ValueNotifier<List<ChatUserInfo>> participants}) {
+  Widget _opponentChat(
+      {bool first = false,
+      bool optional = false,
+      required Message message,
+      bool change = false,
+      required ValueNotifier<List<ChatUserInfo>> participants}) {
     final ChatUserInfo? participant =
-        participants.value
-            .where((e) => e.id == message.senderId)
-            .firstOrNull;
+        participants.value.where((e) => e.id == message.senderId).firstOrNull;
 
     return Column(
       children: [
@@ -597,7 +596,12 @@ class ChatPage extends HookConsumerWidget {
                         padding: EdgeInsets.only(left: 10.w),
                         alignment: Alignment.centerLeft,
                         child: GestureDetector(
-                            onTap: () {},
+                            onTap: () {
+                              isShow.value = false;
+                              ChatService().leaveRoom(ref, chatRoomHeader.chatRoomId).then((_) {
+                                router.pop();
+                              });
+                            },
                             child: Container(
                                 color: Colors.transparent,
                                 padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 10),
