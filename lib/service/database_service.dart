@@ -49,6 +49,16 @@ class DatabaseService {
         profileImg TEXT
       )
     ''');
+
+      await db.execute('''
+      CREATE TABLE ChatUserInfo (
+        chatRoomId TEXT NOT NULL,
+        userId TEXT NOT NULL,
+        name TEXT NOT NULL,
+        profileImg TEXT,
+        PRIMARY KEY (chatRoomId, userId)
+      )
+    ''');
     });
   }
 

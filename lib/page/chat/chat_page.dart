@@ -66,6 +66,17 @@ class ChatPage extends HookConsumerWidget {
           messages.value = value.map((e) => Message.fromJson(e)).toList();
         });
 
+        DatabaseService.search('ChatUserInfo',
+            where: 'chatRoomId = ?', whereArgs: [chatRoomHeader.chatRoomId]).then((value) async {
+          final List<ChatUserInfo> chatUserInfos = [];
+
+          for (final participant in value) {
+            chatUserInfos.add(await ChatUserInfo.fromJson(participant));
+          }
+
+          participants.value = chatUserInfos;
+        });
+
         ChatService()
             .getMessages(messages, chatRoomHeader.chatRoomId, cursor.value, isInit: true)
             .then((value) {
@@ -173,6 +184,7 @@ class ChatPage extends HookConsumerWidget {
                           child: Padding(
                               padding: EdgeInsets.symmetric(horizontal: 16.w),
                               child: ListView(
+                                shrinkWrap: true,
                                 reverse: true,
                                 controller: _scrollController,
                                 children: [
@@ -638,7 +650,7 @@ class ChatPage extends HookConsumerWidget {
                   children: [
                     DefaultTextStyle(
                         style: const TextStyle(
-                            fontSize: 16,
+                            fontSize: 15,
                             color: Color(0xFF3B3B3B),
                             fontWeight: FontWeight.w500,
                             overflow: TextOverflow.ellipsis),
@@ -651,7 +663,7 @@ class ChatPage extends HookConsumerWidget {
                 Expanded(
                     child: DefaultTextStyle(
                         style: const TextStyle(
-                            fontSize: 16,
+                            fontSize: 15,
                             color: Color(0xFF3B3B3B),
                             fontWeight: FontWeight.w500,
                             overflow: TextOverflow.ellipsis),

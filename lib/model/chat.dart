@@ -93,10 +93,27 @@ class ChatUserInfo {
     this.profileImg,
   });
 
+  static Map<String, dynamic> toMap(String chatRoomId, Map<String, dynamic> json) {
+    return {
+      'chatRoomId': chatRoomId,
+      'userId': json['userId'],
+      'name': json['name'],
+      'profileImg': json['userInfo']['profileImg'],
+    };
+  }
+
   static Future<ChatUserInfo> fromJson(Map<String, dynamic> json) async {
     File? profileImg;
 
-    if (json['userInfo']['profileImg'] != null) {
+    if (json['profileImg'] != null) {
+      final File? cachedImage = await CacheManager.getCachedImage(json['profileImg']);
+      if (cachedImage != null) {
+        profileImg = cachedImage;
+      } else {
+        profileImg = await CacheManager.downloadAndCacheImage(json['profileImg']);
+      }
+    }
+    if (json['userInfo'] != null && json['userInfo']['profileImg'] != null) {
       final File? cachedImage = await CacheManager.getCachedImage(json['userInfo']['profileImg']);
       if (cachedImage != null) {
         profileImg = cachedImage;

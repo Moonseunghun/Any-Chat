@@ -100,6 +100,12 @@ class ChatService extends SecuredHttpClient {
         chatUserInfos.add(await ChatUserInfo.fromJson(participant['user']));
       }
 
+      DatabaseService.batchInsert(
+          'ChatUserInfo',
+          List<Map<String, dynamic>>.from(data['participants'])
+              .map((e) => ChatUserInfo.toMap(chatRoomId, e['user']))
+              .toList());
+
       participants.value = chatUserInfos;
     }, errorHandler: (_) {});
   }
@@ -190,6 +196,8 @@ class ChatService extends SecuredHttpClient {
   Future<void> leaveRoom(WidgetRef ref, String chatRoomId) async {
     await patch(path: '$basePath/$chatRoomId/leave').run(ref, (_) {
       DatabaseService.delete('ChatRoomInfo', 'id = ?', [chatRoomId]);
+      DatabaseService.delete('Message', 'chatRoomId = ?', [chatRoomId]);
+      DatabaseService.delete('ChatUserInfo', 'chatRoomId = ?', [chatRoomId]);
       ref.read(chatRoomInfoProvider.notifier).remove(chatRoomId);
     }, errorMessage: '채팅방을 나가는데 실패했습니다.');
   }
