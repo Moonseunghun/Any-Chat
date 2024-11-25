@@ -17,6 +17,7 @@ import 'model/auth.dart';
 
 late final SharedPreferences prefs;
 Socket? socket;
+bool socketConnected = false;
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();

@@ -33,7 +33,6 @@ class LoginPage extends HookConsumerWidget {
                   loginService.registerCheck(ref).then((result) {
                     if (result) {
                       loginService.login(ref).then((_) async {
-                        print('로그인 완료');
                         ChatService().connectSocket();
                         await UserService().getMe(ref).then((_) => router.go(MainLayout.routeName));
                       });
@@ -69,7 +68,24 @@ class LoginPage extends HookConsumerWidget {
                 ))),
         SizedBox(height: 18.h),
         InkWell(
-            onTap: () {},
+            onTap: () {
+              final LoginService loginService = LoginService();
+
+              loginService.signInWithApple(ref).then((value) {
+                if (value) {
+                  loginService.registerCheck(ref).then((result) {
+                    if (result) {
+                      loginService.login(ref).then((_) async {
+                        ChatService().connectSocket();
+                        await UserService().getMe(ref).then((_) => router.go(MainLayout.routeName));
+                      });
+                    } else {
+                      router.go(LanguageSelectPage.routeName, extra: true);
+                    }
+                  });
+                }
+              });
+            },
             child: Container(
                 width: 358.w,
                 height: 50,

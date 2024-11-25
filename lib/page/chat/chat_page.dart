@@ -442,8 +442,9 @@ class ChatPage extends HookConsumerWidget {
                       mainAxisAlignment: MainAxisAlignment.end,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text((participantsCount - message.readCount).toString(),
-                            style: TextStyle(fontSize: 11, color: Colors.black.withOpacity(0.7))),
+                        if (participantsCount - message.readCount > 0)
+                          Text((participantsCount - message.readCount).toString(),
+                              style: TextStyle(fontSize: 11, color: Colors.black.withOpacity(0.7))),
                         Text(message.createdAt.to24HourFormat(),
                             style: const TextStyle(
                                 fontSize: 10,
@@ -471,8 +472,9 @@ class ChatPage extends HookConsumerWidget {
                   mainAxisAlignment: MainAxisAlignment.end,
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                    Text((participantsCount - message.readCount).toString(),
-                        style: TextStyle(fontSize: 11, color: Colors.black.withOpacity(0.7))),
+                    if (participantsCount - message.readCount > 0)
+                      Text((participantsCount - message.readCount).toString(),
+                          style: TextStyle(fontSize: 11, color: Colors.black.withOpacity(0.7))),
                     Text(message.createdAt.to24HourFormat(),
                         style: const TextStyle(
                             fontSize: 10, color: Color(0xFF3B3B3B), fontWeight: FontWeight.w500)),

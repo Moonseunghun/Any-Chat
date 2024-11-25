@@ -5,8 +5,11 @@ import 'package:anychat/common/http_client.dart';
 import 'package:anychat/model/language.dart';
 import 'package:anychat/model/user.dart';
 import 'package:device_info_plus/device_info_plus.dart';
+import 'package:dio/dio.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 
 import '../common/toast.dart';
 import '../main.dart';
@@ -35,6 +38,39 @@ class LoginService extends HttpClient {
       result = true;
     } catch (error) {
       errorToast(message: "구글 계정 로그인에 실패했습니다");
+      result = false;
+    } finally {
+      ref.read(loadingProvider.notifier).off();
+    }
+
+    return result;
+  }
+
+  Future<bool> signInWithApple(WidgetRef ref) async {
+    late final bool result;
+    dio.interceptors.add(LogInterceptor(requestBody: true, responseBody: true));
+    ref.read(loadingProvider.notifier).on();
+    try {
+      final AuthorizationCredentialAppleID appleCredential =
+          await SignInWithApple.getAppleIDCredential(
+        scopes: [
+          AppleIDAuthorizationScopes.email,
+          AppleIDAuthorizationScopes.fullName,
+        ],
+      );
+
+      final OAuthCredential credential = OAuthProvider('apple.com').credential(
+        idToken: appleCredential.identityToken,
+        accessToken: appleCredential.authorizationCode,
+      );
+
+      if (credential.idToken == null) return false;
+      await prefs.setString('login_type', 'apple.com');
+      await prefs.setString('id_token', credential.idToken!);
+
+      result = true;
+    } catch (error) {
+      errorToast(message: "애플 계정 로그인에 실패했습니다");
       result = false;
     } finally {
       ref.read(loadingProvider.notifier).off();

@@ -76,7 +76,7 @@ class ChatService extends SecuredHttpClient {
               .toList());
 
       if (messages.value.isNotEmpty) {
-        readMessage(messages.value.last.id);
+        readMessage(messages.value.last.seqId);
       }
 
       return result['nextCursor'];
@@ -96,6 +96,10 @@ class ChatService extends SecuredHttpClient {
         HttpConfig.webSocketUrl,
         IO.OptionBuilder().setTransports(['websocket']).setExtraHeaders(
             {'authorization': auth!.accessToken}).build());
+
+    socket!.onConnect((_) {
+      socketConnected = true;
+    });
 
     socket!.connect();
   }
@@ -128,15 +132,14 @@ class ChatService extends SecuredHttpClient {
 
       DatabaseService.insert('Message', Message.toMap(result));
 
-      readMessage(messages.value.last.id);
+      readMessage(messages.value.last.seqId);
     });
   }
 
-  void readMessage(String messageId) {
-    socket!.emit('C_MESSAGE_READ', {'lastMessageId': messageId});
+  void readMessage(int seqId) {
+    socket!.emit('C_MESSAGE_READ', {'lastMessageId': seqId});
   }
 
-  /// FIXME: 메세지 읽음 수신 동작 안함
   void onMessageRead(ValueNotifier<List<Message>> messages) {
     socket!.on('S_MESSAGE_READ', (data) {
       final List<Map<String, dynamic>> updatedMessages = List<dynamic>.from(data['updatedMessages'])
@@ -144,8 +147,7 @@ class ChatService extends SecuredHttpClient {
           .toList();
 
       messages.value = messages.value.map((message) {
-        final updateMessage =
-            updatedMessages.where((e) => int.parse(e['seqId']) == message.seqId).firstOrNull;
+        final updateMessage = updatedMessages.where((e) => e['seqId'] == message.seqId).firstOrNull;
 
         if (updateMessage != null) {
           return message.copyWith(readCount: updateMessage['readCount'] as int);

@@ -20,7 +20,7 @@ class LanguageSelectPage extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final selectedLanguage = useState<Language?>(
-        isCreate ? null : Language.fromName(ref.read(userProvider)!.userInfo.lang));
+        isCreate ? null : Language.fromCode(ref.read(userProvider)!.userInfo.lang));
 
     return Scaffold(
       body: SafeArea(
