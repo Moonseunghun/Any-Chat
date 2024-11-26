@@ -34,6 +34,10 @@ class UserNotifier extends StateNotifier<User?> {
     }
   }
 
+  void clear() {
+    state = null;
+  }
+
   void setUser(User user) {
     state = user;
   }

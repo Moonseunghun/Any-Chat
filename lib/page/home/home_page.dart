@@ -152,7 +152,7 @@ class HomePage extends HookConsumerWidget {
               children: [
                 ClipOval(
                     child: (friend == null
-                            ? ref.watch(userProvider)!.userInfo.profileImg == null
+                            ? ref.watch(userProvider)?.userInfo.profileImg == null
                                 ? null
                                 : Image.file(ref.watch(userProvider)!.userInfo.profileImg!,
                                     width: 44.r, height: 44.r, fit: BoxFit.fill)
@@ -162,7 +162,7 @@ class HomePage extends HookConsumerWidget {
                                     width: 44.r, height: 44.r, fit: BoxFit.fill)) ??
                         Image.asset('assets/images/default_profile.png', width: 44.r)),
                 SizedBox(width: 11.w),
-                Text(friend?.nickname ?? ref.watch(userProvider)!.name,
+                Text(friend?.nickname ?? ref.watch(userProvider)?.name ?? '',
                     style: TextStyle(
                         fontSize: 16.r,
                         fontWeight: FontWeight.w500,

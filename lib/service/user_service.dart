@@ -5,12 +5,16 @@ import 'package:anychat/common/error.dart';
 import 'package:anychat/common/http_client.dart';
 import 'package:anychat/model/language.dart';
 import 'package:anychat/model/user.dart';
+import 'package:anychat/page/login/login_page.dart';
 import 'package:anychat/page/router.dart';
+import 'package:anychat/service/database_service.dart';
 import 'package:anychat/state/user_state.dart';
+import 'package:anychat/state/util_state.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../common/toast.dart';
+import '../model/auth.dart';
 
 class UserService extends SecuredHttpClient {
   final String basePath = '/account/api/users';
@@ -90,5 +94,16 @@ class UserService extends SecuredHttpClient {
       router.pop();
       errorToast(message: '언어 설정이 완료되었습니다');
     }, errorMessage: '언어 설정에 실패했습니다');
+  }
+
+  Future<void> logOut(WidgetRef ref) async {
+    await Auth.clear();
+    router.go(LoginPage.routeName);
+    DatabaseService.delete('ChatRoomInfo');
+    DatabaseService.delete('Message');
+    DatabaseService.delete('Friends');
+    DatabaseService.delete('ChatUserInfo');
+    ref.read(userProvider.notifier).clear();
+    ref.read(indexProvider.notifier).state = 0;
   }
 }

@@ -198,9 +198,9 @@ class ChatService extends SecuredHttpClient {
 
   Future<void> leaveRoom(WidgetRef ref, String chatRoomId) async {
     await patch(path: '$basePath/$chatRoomId/leave').run(ref, (_) {
-      DatabaseService.delete('ChatRoomInfo', 'id = ?', [chatRoomId]);
-      DatabaseService.delete('Message', 'chatRoomId = ?', [chatRoomId]);
-      DatabaseService.delete('ChatUserInfo', 'chatRoomId = ?', [chatRoomId]);
+      DatabaseService.delete('ChatRoomInfo', where: 'id = ?', whereArgs: [chatRoomId]);
+      DatabaseService.delete('Message', where: 'chatRoomId = ?', whereArgs: [chatRoomId]);
+      DatabaseService.delete('ChatUserInfo', where: 'chatRoomId = ?', whereArgs: [chatRoomId]);
       ref.read(chatRoomInfoProvider.notifier).remove(chatRoomId);
     }, errorMessage: '채팅방을 나가는데 실패했습니다.');
   }

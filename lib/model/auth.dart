@@ -23,4 +23,12 @@ class Auth {
       refreshToken: refreshToken ?? this.refreshToken,
     );
   }
+
+  static clear() async {
+    auth = null;
+    await prefs.remove('access_token');
+    await prefs.remove('refresh_token');
+    await prefs.remove('totalCount');
+    await prefs.remove('isInitialSync');
+  }
 }
