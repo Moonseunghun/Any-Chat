@@ -5,6 +5,13 @@ extension DateTimeExtension on DateTime {
     return '$hour:$minute';
   }
 
+  String yyyyMMdd() {
+    final year = this.year.toString().padLeft(4, '0');
+    final month = this.month.toString().padLeft(2, '0');
+    final day = this.day.toString().padLeft(2, '0');
+    return '$year.$month.$day';
+  }
+
   String toCustomDateFormat() {
     final now = DateTime.now();
     final difference = now.difference(this).inDays;
@@ -20,5 +27,17 @@ extension DateTimeExtension on DateTime {
       final day = this.day.toString().padLeft(2, '0');
       return '$month월 $day일';
     }
+  }
+}
+
+bool compareDates(DateTime? date1, DateTime date2) {
+  if (date1 == null) {
+    return false;
+  }
+
+  if (date1.year == date2.year && date1.month == date2.month && date1.day == date2.day) {
+    return true;
+  } else {
+    return false;
   }
 }

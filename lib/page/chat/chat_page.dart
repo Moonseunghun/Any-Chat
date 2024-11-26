@@ -192,10 +192,9 @@ class ChatPage extends HookConsumerWidget {
                                   ...messages.value.map((message) {
                                     final bool isMyMessage =
                                         message.senderId == ref.read(userProvider)!.id;
-                                    final String? beforeSenderId = messages.value
+                                    final Message? beforeMessage = messages.value
                                         .where((e) => e.seqId == message.seqId - 1)
-                                        .firstOrNull
-                                        ?.senderId;
+                                        .firstOrNull;
                                     final String? afterSenderId = messages.value
                                         .where((e) => e.seqId == message.seqId + 1)
                                         .firstOrNull
@@ -206,28 +205,36 @@ class ChatPage extends HookConsumerWidget {
                                             .firstOrNull) !=
                                         message.createdAt.to24HourFormat();
 
-                                    return isMyMessage
-                                        ? _myChat(
-                                            message: message,
-                                            optional: optional || afterSenderId == null
-                                                ? true
-                                                : afterSenderId != ref.read(userProvider)!.id,
-                                            change: afterSenderId == null
-                                                ? true
-                                                : afterSenderId != ref.read(userProvider)!.id,
-                                            participants: participants)
-                                        : _opponentChat(
-                                            message: message,
-                                            optional: optional || afterSenderId == null
-                                                ? true
-                                                : afterSenderId == ref.read(userProvider)!.id,
-                                            first: beforeSenderId == null
-                                                ? true
-                                                : beforeSenderId == ref.read(userProvider)!.id,
-                                            change: afterSenderId == null
-                                                ? true
-                                                : afterSenderId == ref.read(userProvider)!.id,
-                                            participants: participants);
+                                    return Column(
+                                      children: [
+                                        if (!compareDates(
+                                            beforeMessage?.createdAt, message.createdAt))
+                                          infoMessage(message.createdAt.yyyyMMdd()),
+                                        isMyMessage
+                                            ? _myChat(
+                                                message: message,
+                                                optional: optional || afterSenderId == null
+                                                    ? true
+                                                    : afterSenderId != ref.read(userProvider)!.id,
+                                                change: afterSenderId == null
+                                                    ? true
+                                                    : afterSenderId != ref.read(userProvider)!.id,
+                                                participants: participants)
+                                            : _opponentChat(
+                                                message: message,
+                                                optional: optional || afterSenderId == null
+                                                    ? true
+                                                    : afterSenderId == ref.read(userProvider)!.id,
+                                                first: beforeMessage?.senderId == null
+                                                    ? true
+                                                    : beforeMessage?.senderId ==
+                                                        ref.read(userProvider)!.id,
+                                                change: afterSenderId == null
+                                                    ? true
+                                                    : afterSenderId == ref.read(userProvider)!.id,
+                                                participants: participants)
+                                      ],
+                                    );
                                   }),
                                   SizedBox(height: 6.h),
                                 ],
@@ -690,4 +697,17 @@ class ChatPage extends HookConsumerWidget {
               ]
             ],
           )));
+
+  Widget infoMessage(String message) => Container(
+        padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 6),
+        margin: const EdgeInsets.symmetric(vertical: 8),
+        decoration: BoxDecoration(
+          color: Colors.black.withOpacity(0.6),
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Text(
+          message,
+          style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w500),
+        ),
+      );
 }
