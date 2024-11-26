@@ -214,7 +214,8 @@ class ChatPage extends HookConsumerWidget {
                                                 : afterSenderId != ref.read(userProvider)!.id,
                                             change: afterSenderId == null
                                                 ? true
-                                                : afterSenderId != ref.read(userProvider)!.id)
+                                                : afterSenderId != ref.read(userProvider)!.id,
+                                            participants: participants)
                                         : _opponentChat(
                                             message: message,
                                             optional: optional || afterSenderId == null
@@ -446,7 +447,7 @@ class ChatPage extends HookConsumerWidget {
                         borderRadius: BorderRadius.circular(16),
                       ),
                     ),
-                    child: Text(message.content,
+                    child: Text(message.showMessage(participants.value),
                         style: const TextStyle(
                             fontWeight: FontWeight.w500, fontSize: 14, color: Color(0xFF3B3B3B)),
                         maxLines: 3)),
@@ -474,7 +475,11 @@ class ChatPage extends HookConsumerWidget {
     );
   }
 
-  Widget _myChat({required Message message, bool optional = false, bool change = false}) {
+  Widget _myChat(
+      {required Message message,
+      bool optional = false,
+      bool change = false,
+      required ValueNotifier<List<ChatUserInfo>> participants}) {
     return Column(
       children: [
         Row(
@@ -506,7 +511,7 @@ class ChatPage extends HookConsumerWidget {
                     borderRadius: BorderRadius.circular(16),
                   ),
                 ),
-                child: Text(message.content,
+                child: Text(message.showMessage(participants.value),
                     style: const TextStyle(
                         fontWeight: FontWeight.w500, fontSize: 14, color: Color(0xFF3B3B3B)),
                     maxLines: 3))

@@ -58,7 +58,10 @@ class InviteFriendPage extends HookConsumerWidget {
                                   router.pop();
                                   router.push(ChatPage.routeName, extra: chatRoomHeader);
                                 });
-                              } else {}
+                              } else {
+                                ChatService().inviteUsers(
+                                    selectedFriends.value.map((e) => e.friend.id).toList());
+                              }
                             },
                             child: Container(
                                 padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 10),

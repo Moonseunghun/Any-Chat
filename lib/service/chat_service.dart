@@ -62,6 +62,7 @@ class ChatService extends SecuredHttpClient {
         path: '$basePath/$chatRoomId/messages',
         queryParams: {'limit': 40, 'cursor': cursor},
         converter: (result) => result['data']).run(null, (result) async {
+      print(result);
       if (isInit) {
         messages.value = List<Map<String, dynamic>>.from(result['newMessages'])
             .map((e) => Message.fromJson(e))
@@ -121,6 +122,7 @@ class ChatService extends SecuredHttpClient {
     socket!.on('S_JOIN_ROOM', (data) {
       socketConnected = true;
       onChatRoomInfo(ref);
+      onInviteUsers();
     });
   }
 
@@ -148,6 +150,7 @@ class ChatService extends SecuredHttpClient {
 
   void onMessageReceived(ValueNotifier<List<Message>> messages) {
     socket!.on('S_SEND_MESSAGE', (result) {
+      print('S_SEND_MESSAGE: $result');
       messages.value = [Message.fromJson(result), ...messages.value];
 
       DatabaseService.insert('Message', Message.toMap(result));
@@ -200,5 +203,15 @@ class ChatService extends SecuredHttpClient {
       DatabaseService.delete('ChatUserInfo', 'chatRoomId = ?', [chatRoomId]);
       ref.read(chatRoomInfoProvider.notifier).remove(chatRoomId);
     }, errorMessage: '채팅방을 나가는데 실패했습니다.');
+  }
+
+  void inviteUsers(List<String> ids) {
+    socket!.emit('C_INVITE_USER', {'inviteeIds': ids});
+  }
+
+  void onInviteUsers() {
+    socket!.on('S_CREATE_GROUP_CHAT_ROOM', (data) {
+      print(data);
+    });
   }
 }
