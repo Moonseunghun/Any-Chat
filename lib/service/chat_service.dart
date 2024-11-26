@@ -62,7 +62,6 @@ class ChatService extends SecuredHttpClient {
         path: '$basePath/$chatRoomId/messages',
         queryParams: {'limit': 40, 'cursor': cursor},
         converter: (result) => result['data']).run(null, (result) async {
-      print(result);
       if (isInit) {
         messages.value = List<Map<String, dynamic>>.from(result['newMessages'])
             .map((e) => Message.fromJson(e))
@@ -150,7 +149,6 @@ class ChatService extends SecuredHttpClient {
 
   void onMessageReceived(ValueNotifier<List<Message>> messages) {
     socket!.on('S_SEND_MESSAGE', (result) {
-      print('S_SEND_MESSAGE: $result');
       messages.value = [Message.fromJson(result), ...messages.value];
 
       DatabaseService.insert('Message', Message.toMap(result));

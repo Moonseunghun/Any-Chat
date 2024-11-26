@@ -25,7 +25,6 @@ class InviteFriendPage extends HookConsumerWidget {
 
     return GestureDetector(
         onTap: () {
-          print(arguments);
           FocusScope.of(context).unfocus();
         },
         onPanStart: (details) {
