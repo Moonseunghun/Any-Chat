@@ -46,7 +46,9 @@
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
 	<key>NSPhotoLibraryUsageDescription</key>
-    <string>Permission is required to use photos in the app</string>
+    <string>Permission is required to get photos in the app</string>
+    <key>NSCameraUsageDescription</key>
+    <string>Permission is required to scan a qrcode and take a picture in the app</string>
     <key>NSAppTransportSecurity</key>
     <dict>
         <key>NSAllowsArbitraryLoads</key>

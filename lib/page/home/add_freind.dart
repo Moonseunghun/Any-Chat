@@ -1,6 +1,7 @@
 import 'dart:ui';
 
 import 'package:anychat/common/overlay.dart';
+import 'package:anychat/page/home/qr_view_page.dart';
 import 'package:anychat/state/user_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -69,7 +70,10 @@ addFriendPopup(BuildContext context, WidgetRef ref) {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       GestureDetector(
-                          onTap: () {},
+                          onTap: () {
+                            OverlayComponent.hideOverlay();
+                            router.push(QrViewPage.routeName);
+                          },
                           child: Container(
                               color: Colors.transparent,
                               padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 10.h),

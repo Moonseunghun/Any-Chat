@@ -7,6 +7,7 @@ import 'package:anychat/page/home/add_friend_by_id_page.dart';
 import 'package:anychat/page/home/block_friend_page.dart';
 import 'package:anychat/page/home/edit_friend_page.dart';
 import 'package:anychat/page/home/hide_friend_page.dart';
+import 'package:anychat/page/home/qr_view_page.dart';
 import 'package:anychat/page/login/consent_page.dart';
 import 'package:anychat/page/login/language_select_page.dart';
 import 'package:anychat/page/login/login_page.dart';
@@ -53,6 +54,7 @@ final router = GoRouter(
             transitionDuration: const Duration(milliseconds: 300))),
     GoRoute(
         path: AddFriendByIdPage.routeName, builder: (context, state) => const AddFriendByIdPage()),
+    GoRoute(path: QrViewPage.routeName, builder: (context, state) => QrViewPage()),
     GoRoute(
         path: ChatPage.routeName,
         builder: (context, state) => ChatPage(state.extra as ChatRoomHeader)),
