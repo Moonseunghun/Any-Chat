@@ -29,7 +29,6 @@ class ChatPage extends HookConsumerWidget {
   };
 
   final ScrollController _scrollController = ScrollController();
-  final int participantsCount = 2;
 
   final ChatRoomHeader chatRoomHeader;
 
@@ -464,8 +463,8 @@ class ChatPage extends HookConsumerWidget {
                       mainAxisAlignment: MainAxisAlignment.end,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        if (participantsCount - message.readCount > 0)
-                          Text((participantsCount - message.readCount).toString(),
+                        if (participants.value.length - message.readCount > 0)
+                          Text((participants.value.length - message.readCount).toString(),
                               style: TextStyle(fontSize: 11, color: Colors.black.withOpacity(0.7))),
                         Text(message.createdAt.to24HourFormat(),
                             style: const TextStyle(
@@ -498,8 +497,8 @@ class ChatPage extends HookConsumerWidget {
                   mainAxisAlignment: MainAxisAlignment.end,
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                    if (participantsCount - message.readCount > 0)
-                      Text((participantsCount - message.readCount).toString(),
+                    if (participants.value.length - message.readCount > 0)
+                      Text((participants.value.length - message.readCount).toString(),
                           style: TextStyle(fontSize: 11, color: Colors.black.withOpacity(0.7))),
                     Text(message.createdAt.to24HourFormat(),
                         style: const TextStyle(
@@ -609,10 +608,11 @@ class ChatPage extends HookConsumerWidget {
                             padding: EdgeInsets.only(left: 20.w, right: 14.w, top: 10.h),
                             child: Column(
                               children: [
-                                _profileWidget(ref),
+                                _profileWidget(ref, participants.value.length),
                                 ...participants.value
                                     .where((e) => e.id != ref.watch(userProvider)!.id)
-                                    .map((e) => _profileWidget(ref, participant: e))
+                                    .map((e) => _profileWidget(ref, participants.value.length,
+                                        participant: e))
                               ],
                             )),
                       ],
@@ -637,66 +637,69 @@ class ChatPage extends HookConsumerWidget {
                 )))
       ];
 
-  Widget _profileWidget(WidgetRef ref, {ChatUserInfo? participant}) => GestureDetector(
-      onTap: () {},
-      child: Container(
-          color: Colors.transparent,
-          padding: EdgeInsets.symmetric(vertical: 7.h),
-          child: Row(
-            children: [
-              ClipOval(
-                child: (participant == null
-                        ? ref.read(userProvider)!.userInfo.profileImg == null
-                            ? null
-                            : Image.file(ref.read(userProvider)!.userInfo.profileImg!,
-                                width: 40, height: 40, fit: BoxFit.fill)
-                        : participant.profileImg == null
-                            ? null
-                            : Image.file(participant.profileImg!,
-                                width: 40, height: 40, fit: BoxFit.fill)) ??
-                    Image.asset('assets/images/default_profile.png', width: 40, height: 40),
-              ),
-              SizedBox(width: 11.w),
-              if (participant == null)
-                Expanded(
-                    child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    DefaultTextStyle(
-                        style: const TextStyle(
-                            fontSize: 15,
-                            color: Color(0xFF3B3B3B),
-                            fontWeight: FontWeight.w500,
-                            overflow: TextOverflow.ellipsis),
-                        child: Text(ref.watch(userProvider)!.name)),
-                    const DefaultTextStyle(
-                        style: TextStyle(fontSize: 12, color: Color(0xFFE0E2E4)), child: Text('나'))
-                  ],
-                )),
-              if (participant != null) ...[
-                Expanded(
-                    child: DefaultTextStyle(
-                        style: const TextStyle(
-                            fontSize: 15,
-                            color: Color(0xFF3B3B3B),
-                            fontWeight: FontWeight.w500,
-                            overflow: TextOverflow.ellipsis),
-                        child: Text(participant.name))),
-                SizedBox(width: 4.w),
-                Container(
-                  padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4),
-                  decoration: BoxDecoration(
-                      color: Colors.white,
-                      border: Border.all(color: const Color(0xFF7C4DFF), width: 1),
-                      borderRadius: BorderRadius.circular(20)),
-                  child: const DefaultTextStyle(
-                      style: TextStyle(fontSize: 12, color: Color(0xFF7C4DFF)),
-                      child: Text('내보내기')),
-                )
-              ]
-            ],
-          )));
+  Widget _profileWidget(WidgetRef ref, int participantCount, {ChatUserInfo? participant}) =>
+      GestureDetector(
+          onTap: () {},
+          child: Container(
+              color: Colors.transparent,
+              padding: EdgeInsets.symmetric(vertical: 7.h),
+              child: Row(
+                children: [
+                  ClipOval(
+                    child: (participant == null
+                            ? ref.read(userProvider)!.userInfo.profileImg == null
+                                ? null
+                                : Image.file(ref.read(userProvider)!.userInfo.profileImg!,
+                                    width: 40, height: 40, fit: BoxFit.fill)
+                            : participant.profileImg == null
+                                ? null
+                                : Image.file(participant.profileImg!,
+                                    width: 40, height: 40, fit: BoxFit.fill)) ??
+                        Image.asset('assets/images/default_profile.png', width: 40, height: 40),
+                  ),
+                  SizedBox(width: 11.w),
+                  if (participant == null)
+                    Expanded(
+                        child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        DefaultTextStyle(
+                            style: const TextStyle(
+                                fontSize: 15,
+                                color: Color(0xFF3B3B3B),
+                                fontWeight: FontWeight.w500,
+                                overflow: TextOverflow.ellipsis),
+                            child: Text(ref.watch(userProvider)!.name)),
+                        const DefaultTextStyle(
+                            style: TextStyle(fontSize: 12, color: Color(0xFFE0E2E4)),
+                            child: Text('나'))
+                      ],
+                    )),
+                  if (participant != null) ...[
+                    Expanded(
+                        child: DefaultTextStyle(
+                            style: const TextStyle(
+                                fontSize: 15,
+                                color: Color(0xFF3B3B3B),
+                                fontWeight: FontWeight.w500,
+                                overflow: TextOverflow.ellipsis),
+                            child: Text(participant.name))),
+                    SizedBox(width: 4.w),
+                    if (participantCount > 2)
+                      Container(
+                        padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4),
+                        decoration: BoxDecoration(
+                            color: Colors.white,
+                            border: Border.all(color: const Color(0xFF7C4DFF), width: 1),
+                            borderRadius: BorderRadius.circular(20)),
+                        child: const DefaultTextStyle(
+                            style: TextStyle(fontSize: 12, color: Color(0xFF7C4DFF)),
+                            child: Text('내보내기')),
+                      )
+                  ]
+                ],
+              )));
 
   Widget infoMessage(String message) => Container(
         padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 6),

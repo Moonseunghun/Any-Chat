@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../common/overlay.dart';
+import '../../state/chat_state.dart';
 
-showSortMenu(BuildContext context) {
+showSortMenu(BuildContext context, WidgetRef ref) {
   OverlayComponent.showOverlay(
       context: context,
       child: Stack(children: [
@@ -33,8 +35,12 @@ showSortMenu(BuildContext context) {
                     ]),
                 child: Column(
                   children: [
-                    _menuItem('최신 메세지 순', () {}),
-                    _menuItem('안 읽은 메세지 순', () {}),
+                    _menuItem('최신 메세지 순', () {
+                      ref.read(chatRoomInfoProvider.notifier).sortByUpdatedAt();
+                    }),
+                    _menuItem('안 읽은 메세지 순', () {
+                      ref.read(chatRoomInfoProvider.notifier).sortByUnreadCount();
+                    }),
                     _menuItem('즐겨찾기 순', () {}, showBorder: false),
                   ],
                 )))

@@ -18,6 +18,7 @@ class ChatListPage extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final newChat = useState<bool>(false);
+    final searchController = useTextEditingController();
     final isSearching = useState<bool>(false);
 
     return GestureDetector(
@@ -50,7 +51,7 @@ class ChatListPage extends HookConsumerWidget {
                     SizedBox(width: 7.w),
                     GestureDetector(
                         onTap: () {
-                          showSortMenu(context);
+                          showSortMenu(context, ref);
                         },
                         child: SvgPicture.asset('assets/images/settings.svg', width: 24)),
                     SizedBox(width: 20.w),
@@ -70,7 +71,7 @@ class ChatListPage extends HookConsumerWidget {
                     ))))
           ]),
           if (newChat.value) _newChat(newChat),
-          if (isSearching.value) _searchWidget(isSearching)
+          if (isSearching.value) _searchWidget(ref, isSearching, searchController)
         ]));
   }
 
@@ -199,30 +200,34 @@ class ChatListPage extends HookConsumerWidget {
         ],
       ));
 
-  Widget _searchWidget(ValueNotifier<bool> isSearching) => Container(
-      color: Colors.white,
-      height: 50,
-      padding: EdgeInsets.symmetric(horizontal: 20.w),
-      child: Row(
-        children: [
-          SvgPicture.asset('assets/images/search.svg', width: 24),
-          SizedBox(width: 28.w),
-          Expanded(
-              child: TextField(
-            style: const TextStyle(
-                fontSize: 20, color: Color(0xFF3B3B3B), fontWeight: FontWeight.bold),
-            decoration: InputDecoration(
-              hintText: '검색',
-              hintStyle: TextStyle(
-                  fontSize: 20,
-                  color: const Color(0xFF3B3B3B).withOpacity(0.5),
-                  fontWeight: FontWeight.bold),
-              border: InputBorder.none,
-            ),
-            onEditingComplete: () {
-              isSearching.value = false;
-            },
-          ))
-        ],
-      ));
+  Widget _searchWidget(
+          WidgetRef ref, ValueNotifier<bool> isSearching, TextEditingController searchController) =>
+      Container(
+          color: Colors.white,
+          height: 50,
+          padding: EdgeInsets.symmetric(horizontal: 20.w),
+          child: Row(
+            children: [
+              SvgPicture.asset('assets/images/search.svg', width: 24),
+              SizedBox(width: 28.w),
+              Expanded(
+                  child: TextField(
+                controller: searchController,
+                style: const TextStyle(
+                    fontSize: 20, color: Color(0xFF3B3B3B), fontWeight: FontWeight.bold),
+                decoration: InputDecoration(
+                  hintText: '검색',
+                  hintStyle: TextStyle(
+                      fontSize: 20,
+                      color: const Color(0xFF3B3B3B).withOpacity(0.5),
+                      fontWeight: FontWeight.bold),
+                  border: InputBorder.none,
+                ),
+                onEditingComplete: () {
+                  isSearching.value = false;
+                  ref.read(chatRoomInfoProvider.notifier).search(searchController.text.trim());
+                },
+              ))
+            ],
+          ));
 }
