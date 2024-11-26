@@ -7,10 +7,17 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
+import '../../service/chat_service.dart';
+import '../../service/friend_service.dart';
+import '../main_layout.dart';
+import 'chat_page.dart';
+
 class InviteFriendPage extends HookConsumerWidget {
   static const String routeName = '/chat/invite';
 
-  const InviteFriendPage({super.key});
+  const InviteFriendPage({this.arguments, super.key});
+
+  final Map<String, dynamic>? arguments;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -18,6 +25,7 @@ class InviteFriendPage extends HookConsumerWidget {
 
     return GestureDetector(
         onTap: () {
+          print(arguments);
           FocusScope.of(context).unfocus();
         },
         onPanStart: (details) {
@@ -42,7 +50,16 @@ class InviteFriendPage extends HookConsumerWidget {
                                 child: SvgPicture.asset('assets/images/qr_code.svg', width: 24))),
                         SizedBox(width: 4.w),
                         GestureDetector(
-                            onTap: () {},
+                            onTap: () {
+                              if (arguments == null) {
+                                ChatService()
+                                    .makeRoom(ref, selectedFriends.value)
+                                    .then((chatRoomHeader) {
+                                  router.pop();
+                                  router.push(ChatPage.routeName, extra: chatRoomHeader);
+                                });
+                              } else {}
+                            },
                             child: Container(
                                 padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 10),
                                 child: const Text('확인',
@@ -66,11 +83,11 @@ class InviteFriendPage extends HookConsumerWidget {
                                     color: Colors.transparent,
                                     child: const Icon(Icons.close,
                                         color: Color(0xFF3B3B3B), size: 24))))),
-                    const Positioned(
+                    Positioned(
                         child: Align(
                       alignment: Alignment.center,
-                      child: Text('대화상대초대',
-                          style: TextStyle(
+                      child: Text(arguments == null ? '대화상대선택' : '대화상대초대',
+                          style: const TextStyle(
                               fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black)),
                     )),
                   ],
@@ -93,13 +110,27 @@ class InviteFriendPage extends HookConsumerWidget {
                 )),
             const SizedBox(height: 18),
             Expanded(
-                child: SingleChildScrollView(
-                    child: Column(
-              children: ref
-                  .watch(friendsProvider)
-                  .map((friend) => _profileWidget(selectedFriends, friend))
-                  .toList(),
-            )))
+                child: NotificationListener<ScrollNotification>(
+                    onNotification: (notification) {
+                      if (notification is ScrollEndNotification &&
+                          notification.metrics.extentAfter == 0) {
+                        FriendService().getFriends(ref).then((value) {
+                          friendsCursor = value;
+                        });
+                      }
+
+                      return false;
+                    },
+                    child: SingleChildScrollView(
+                        child: Column(
+                      children: ref
+                          .watch(friendsProvider)
+                          .where((e) => arguments == null
+                              ? true
+                              : !arguments!['participants'].contains(e.friend.id))
+                          .map((friend) => _profileWidget(selectedFriends, friend))
+                          .toList(),
+                    ))))
           ],
         ))));
   }
@@ -127,7 +158,10 @@ class InviteFriendPage extends HookConsumerWidget {
               SizedBox(
                   width: 44,
                   height: 44,
-                  child: ClipOval(child: Image.asset('assets/images/default_profile.png'))),
+                  child: ClipOval(
+                      child: friend.friend.profileImg == null
+                          ? Image.asset('assets/images/default_profile.png')
+                          : Image.file(friend.friend.profileImg!, fit: BoxFit.fill))),
               SizedBox(width: 11.w),
               Expanded(
                   child: Text(friend.nickname,

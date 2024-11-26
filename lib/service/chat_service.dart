@@ -36,7 +36,7 @@ class ChatService extends SecuredHttpClient {
       }
 
       ref.read(chatRoomInfoProvider.notifier).set(chatRoomInfos);
-    }, errorMessage: '채팅방 목록을 불러오는데 실패했습니다.');
+    }, errorHandler: (_) {});
   }
 
   Future<ChatRoomHeader> makeRoom(WidgetRef ref, List<Friend> friends) async {

@@ -559,7 +559,10 @@ class ChatPage extends HookConsumerWidget {
                         GestureDetector(
                             onTap: () {
                               isShow.value = false;
-                              router.push(InviteFriendPage.routeName);
+                              router.push(InviteFriendPage.routeName, extra: {
+                                'chatRoomId': chatRoomHeader.chatRoomId,
+                                'participants': participants.value.map((e) => e.id).toList()
+                              });
                             },
                             child: Container(
                                 color: Colors.transparent,

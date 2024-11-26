@@ -10,6 +10,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
+import 'invite_friend_page.dart';
+
 class ChatListPage extends HookConsumerWidget {
   const ChatListPage({super.key});
 
@@ -176,18 +178,23 @@ class ChatListPage extends HookConsumerWidget {
                 ],
               )),
           const Expanded(flex: 23, child: SizedBox()),
-          Container(
-              color: Colors.transparent,
-              padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 10),
-              child: Column(
-                children: [
-                  SvgPicture.asset('assets/images/chat_unselected.svg', width: 36),
-                  const SizedBox(height: 5),
-                  const Text('일반채팅',
-                      style: TextStyle(
-                          fontSize: 12, color: Color(0xFF3B3B3B), fontWeight: FontWeight.w500))
-                ],
-              )),
+          GestureDetector(
+              onTap: () {
+                newChat.value = false;
+                router.push(InviteFriendPage.routeName);
+              },
+              child: Container(
+                  color: Colors.transparent,
+                  padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 10),
+                  child: Column(
+                    children: [
+                      SvgPicture.asset('assets/images/chat_unselected.svg', width: 36),
+                      const SizedBox(height: 5),
+                      const Text('일반채팅',
+                          style: TextStyle(
+                              fontSize: 12, color: Color(0xFF3B3B3B), fontWeight: FontWeight.w500))
+                    ],
+                  ))),
           const Expanded(flex: 25, child: SizedBox()),
         ],
       ));

@@ -59,7 +59,9 @@ final router = GoRouter(
     GoRoute(path: HideFriendPage.routeName, builder: (context, state) => const HideFriendPage()),
     GoRoute(path: BlockFriendPage.routeName, builder: (context, state) => const BlockFriendPage()),
     GoRoute(
-        path: InviteFriendPage.routeName, builder: (context, state) => const InviteFriendPage()),
+        path: InviteFriendPage.routeName,
+        builder: (context, state) =>
+            InviteFriendPage(arguments: state.extra as Map<String, dynamic>?)),
     GoRoute(path: AnychatIdPage.routeName, builder: (context, state) => const AnychatIdPage()),
     GoRoute(
         path: SetAnychatIdPage.routeName, builder: (context, state) => const SetAnychatIdPage()),

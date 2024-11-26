@@ -39,7 +39,7 @@ class FriendService extends SecuredHttpClient {
       }
 
       return data['meta']['nextCursor'];
-    }, errorMessage: '친구 목록을 불러오는 중 오류가 발생했습니다');
+    }, errorHandler: (_) {});
   }
 
   Future<void> getPinned(WidgetRef ref) async {
@@ -58,7 +58,7 @@ class FriendService extends SecuredHttpClient {
       }
 
       ref.read(pinnedFriendsProvider.notifier).setPinned(friends);
-    }, errorMessage: '친구 목록을 불러오는 중 오류가 발생했습니다');
+    }, errorHandler: (_) {});
   }
 
   Future<String?> getHidden(WidgetRef ref, String? cursor) async {
