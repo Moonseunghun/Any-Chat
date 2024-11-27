@@ -2,9 +2,11 @@ import 'dart:io';
 
 import 'package:anychat/common/datetime_extension.dart';
 import 'package:anychat/model/chat.dart';
+import 'package:anychat/page/image_close_page.dart';
 import 'package:anychat/page/router.dart';
 import 'package:anychat/service/chat_service.dart';
 import 'package:anychat/state/user_state.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -214,7 +216,8 @@ class ChatPage extends HookConsumerWidget {
                                         if (!compareDates(
                                             beforeMessage?.createdAt, message.createdAt))
                                           infoMessage(message.createdAt.yyyyMMdd()),
-                                        if (message.messageType == MessageType.text)
+                                        if (message.messageType == MessageType.text ||
+                                            message.messageType == MessageType.image)
                                           isMyMessage
                                               ? _myChat(
                                                   message: message,
@@ -481,17 +484,30 @@ class ChatPage extends HookConsumerWidget {
                       maxWidth: 243.w,
                     ),
                     margin: EdgeInsets.only(left: 7.w, top: 6),
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                    padding: message.messageType == MessageType.text
+                        ? const EdgeInsets.symmetric(horizontal: 12, vertical: 10)
+                        : EdgeInsets.zero,
                     decoration: ShapeDecoration(
-                      color: Colors.white,
+                      color: message.messageType == MessageType.text ? Colors.white : Colors.black,
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
+                        borderRadius: message.messageType == MessageType.text
+                            ? BorderRadius.circular(16)
+                            : BorderRadius.zero,
                       ),
                     ),
-                    child: Text(message.showMessage(),
-                        style: const TextStyle(
-                            fontWeight: FontWeight.w500, fontSize: 14, color: Color(0xFF3B3B3B)),
-                        maxLines: 3)),
+                    child: message.messageType == MessageType.text
+                        ? Text(message.showMessage(),
+                            style: const TextStyle(
+                                fontWeight: FontWeight.w500,
+                                fontSize: 14,
+                                color: Color(0xFF3B3B3B)))
+                        : GestureDetector(
+                            onTap: () {
+                              router.push(ImageClosePage.routeName,
+                                  extra: {'imageUrl': message.showMessage()});
+                            },
+                            child: CachedNetworkImage(
+                                imageUrl: message.showMessage(), fit: BoxFit.cover))),
                 SizedBox(width: 4.w),
                 if (optional)
                   Column(
@@ -541,17 +557,30 @@ class ChatPage extends HookConsumerWidget {
                   maxWidth: 243.w,
                 ),
                 margin: const EdgeInsets.only(top: 6),
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                padding: message.messageType == MessageType.text
+                    ? const EdgeInsets.symmetric(horizontal: 12, vertical: 10)
+                    : EdgeInsets.zero,
                 decoration: ShapeDecoration(
-                  color: const Color(0xFFECE5FF),
+                  color: message.messageType == MessageType.text
+                      ? const Color(0xFFECE5FF)
+                      : Colors.black,
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
+                    borderRadius: message.messageType == MessageType.text
+                        ? BorderRadius.circular(16)
+                        : BorderRadius.zero,
                   ),
                 ),
-                child: Text(message.showMessage(),
-                    style: const TextStyle(
-                        fontWeight: FontWeight.w500, fontSize: 14, color: Color(0xFF3B3B3B)),
-                    maxLines: 3))
+                child: message.messageType == MessageType.text
+                    ? Text(message.showMessage(),
+                        style: const TextStyle(
+                            fontWeight: FontWeight.w500, fontSize: 14, color: Color(0xFF3B3B3B)))
+                    : GestureDetector(
+                        onTap: () {
+                          router.push(ImageClosePage.routeName,
+                              extra: {'imageUrl': message.showMessage()});
+                        },
+                        child: CachedNetworkImage(
+                            imageUrl: message.showMessage(), fit: BoxFit.cover))),
           ],
         ),
         if (change) const SizedBox(height: 14)

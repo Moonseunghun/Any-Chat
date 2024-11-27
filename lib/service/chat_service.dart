@@ -14,6 +14,8 @@ import '../common/config.dart';
 import '../model/auth.dart';
 import '../model/friend.dart';
 import '../model/message.dart';
+import '../page/chat/chat_page.dart';
+import '../page/router.dart';
 
 class ChatService extends SecuredHttpClient {
   final String basePath = '/chat/api';
@@ -64,8 +66,6 @@ class ChatService extends SecuredHttpClient {
         path: '$basePath/$chatRoomId/messages',
         queryParams: {'limit': 40, 'cursor': cursor},
         converter: (result) => result['data']).run(null, (result) async {
-      // print(auth!.accessToken);
-      // print(chatRoomId);
       if (isInit) {
         messages.value = List<Map<String, dynamic>>.from(result['newMessages'])
             .map((e) => Message.fromJson(e))
@@ -97,7 +97,6 @@ class ChatService extends SecuredHttpClient {
       String chatRoomId, ValueNotifier<List<ChatUserInfo>> participants) async {
     return get(path: '$basePath/$chatRoomId/participants', converter: (result) => result['data'])
         .run(null, (data) async {
-      // print(data);
       final List<ChatUserInfo> chatUserInfos = [];
 
       for (final Map<String, dynamic> participant
@@ -123,8 +122,9 @@ class ChatService extends SecuredHttpClient {
 
     socket!.connect();
 
-    socket!.on('S_JOIN_ROOM', (data) {
+    socket!.on('S_CONNECTION', (data) {
       socketConnected = true;
+      catchError();
       onChatRoomInfo(ref);
       onInviteUsers();
     });
@@ -153,11 +153,13 @@ class ChatService extends SecuredHttpClient {
   }
 
   void sendFile(File file) {
-    socket!.emit('C_SEND_FILE', {'fileBuffer': file.readAsBytesSync()});
+    socket!.emit('C_SEND_FILE',
+        {'fileBuffer': file.readAsBytesSync(), 'fileName': file.path.split('/').last});
   }
 
   void onMessageReceived(ValueNotifier<List<Message>> messages) {
     socket!.on('S_SEND_MESSAGE', (result) {
+      print(result);
       messages.value = [Message.fromJson(result), ...messages.value];
 
       DatabaseService.insert('Message', Message.toMap(result));
@@ -218,7 +220,15 @@ class ChatService extends SecuredHttpClient {
 
   void onInviteUsers() {
     socket!.on('S_CREATE_GROUP_CHAT_ROOM', (data) {
-      print(data);
+      router.pop();
+      router.push(ChatPage.routeName,
+          extra: ChatRoomHeader(chatRoomId: data['chatRoomId'], chatRoomName: data['name']));
+    });
+  }
+
+  void catchError() {
+    socket!.on('S_ERROR', (data) {
+      print('에러: $data');
     });
   }
 }

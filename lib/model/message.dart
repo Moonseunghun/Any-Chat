@@ -74,14 +74,21 @@ class Message<T> extends Equatable {
   factory Message.fromJson(Map<String, dynamic> json) {
     final MessageType messageType = MessageType.fromValue(json['messageType'] as int);
 
+    late final dynamic content;
+
+    if (messageType == MessageType.text) {
+      content = json['content'] as String;
+    } else {
+      content = (json['content'] is String ? jsonDecode(json['content']) : json['content'])
+          as Map<String, dynamic>;
+    }
+
     return Message(
       id: json['id'] as String? ?? json['messageId'] as String,
       chatRoomId: json['chatRoomId'] as String,
       seqId: json['seqId'] as int,
       senderId: json['senderId'] as String,
-      content: messageType != MessageType.text
-          ? (json['content'] is String ? jsonDecode(json['content']) : json['content']) as T
-          : json['content'] as T,
+      content: content as T,
       messageType: messageType,
       totalParticipants:
           json['totalParticipants'] == null ? null : json['totalParticipants'] as int,
@@ -91,14 +98,12 @@ class Message<T> extends Equatable {
   }
 
   static Map<String, dynamic> toMap(Map<String, dynamic> json) {
-    final MessageType messageType = MessageType.fromValue(json['messageType'] as int);
-
     return {
       'id': json['id'] as String? ?? json['messageId'] as String,
       'chatRoomId': json['chatRoomId'],
       'seqId': json['seqId'],
       'senderId': json['senderId'],
-      'content': messageType != MessageType.text ? jsonEncode(json['content']) : json['content'],
+      'content': json['content'] is String ? json['content'] : jsonEncode(json['content']),
       'messageType': json['messageType'],
       'totalParticipants': json['totalParticipants'],
       'readCount': json['readCount'],

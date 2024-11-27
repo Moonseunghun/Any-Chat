@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:anychat/main.dart';
 import 'package:anychat/model/chat.dart';
 import 'package:anychat/model/friend.dart';
@@ -8,6 +10,7 @@ import 'package:anychat/page/home/block_friend_page.dart';
 import 'package:anychat/page/home/edit_friend_page.dart';
 import 'package:anychat/page/home/hide_friend_page.dart';
 import 'package:anychat/page/home/qr_view_page.dart';
+import 'package:anychat/page/image_close_page.dart';
 import 'package:anychat/page/login/consent_page.dart';
 import 'package:anychat/page/login/language_select_page.dart';
 import 'package:anychat/page/login/login_page.dart';
@@ -64,6 +67,11 @@ final router = GoRouter(
         path: InviteFriendPage.routeName,
         builder: (context, state) =>
             InviteFriendPage(arguments: state.extra as Map<String, dynamic>?)),
+    GoRoute(
+        path: ImageClosePage.routeName,
+        builder: (context, state) => ImageClosePage(
+            file: (state.extra as Map<String, dynamic>?)?['file'],
+            imageUrl: (state.extra as Map<String, dynamic>?)?['imageUrl'])),
     GoRoute(path: AnychatIdPage.routeName, builder: (context, state) => const AnychatIdPage()),
     GoRoute(
         path: SetAnychatIdPage.routeName, builder: (context, state) => const SetAnychatIdPage()),
