@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:anychat/common/error.dart';
 import 'package:anychat/common/http_client.dart';
 import 'package:anychat/main.dart';
@@ -62,6 +64,8 @@ class ChatService extends SecuredHttpClient {
         path: '$basePath/$chatRoomId/messages',
         queryParams: {'limit': 40, 'cursor': cursor},
         converter: (result) => result['data']).run(null, (result) async {
+      // print(auth!.accessToken);
+      // print(chatRoomId);
       if (isInit) {
         messages.value = List<Map<String, dynamic>>.from(result['newMessages'])
             .map((e) => Message.fromJson(e))
@@ -93,6 +97,7 @@ class ChatService extends SecuredHttpClient {
       String chatRoomId, ValueNotifier<List<ChatUserInfo>> participants) async {
     return get(path: '$basePath/$chatRoomId/participants', converter: (result) => result['data'])
         .run(null, (data) async {
+      // print(data);
       final List<ChatUserInfo> chatUserInfos = [];
 
       for (final Map<String, dynamic> participant
@@ -145,6 +150,10 @@ class ChatService extends SecuredHttpClient {
 
   void sendMessage(String message) {
     socket!.emit('C_SEND_MESSAGE', {'message': message});
+  }
+
+  void sendFile(File file) {
+    socket!.emit('C_SEND_FILE', {'fileBuffer': file.readAsBytesSync()});
   }
 
   void onMessageReceived(ValueNotifier<List<Message>> messages) {

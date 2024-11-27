@@ -33,6 +33,7 @@ class DatabaseService {
         senderId TEXT,
         content TEXT,
         messageType INTEGER,
+        totalParticipants INTEGER,
         readCount INTEGER,
         createdAt TEXT
       )

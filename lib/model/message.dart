@@ -29,7 +29,8 @@ class Message<T> extends Equatable {
   final String senderId;
   final T content;
   final MessageType messageType;
-  final int readCount;
+  final int? totalParticipants;
+  final int? readCount;
   final DateTime createdAt;
 
   const Message({
@@ -39,16 +40,17 @@ class Message<T> extends Equatable {
     required this.senderId,
     required this.content,
     required this.messageType,
-    required this.readCount,
+    this.totalParticipants,
+    this.readCount,
     required this.createdAt,
   });
 
-  String showMessage(List<ChatUserInfo> participants) {
+  String showMessage({List<ChatUserInfo>? participants}) {
     switch (messageType) {
       case MessageType.text:
         return content as String;
       case MessageType.image:
-        return 'Image';
+        return (content as Map<String, dynamic>)['fileUrl'];
       case MessageType.video:
         return 'Video';
       case MessageType.audio:
@@ -57,7 +59,7 @@ class Message<T> extends Equatable {
         return 'File';
       case MessageType.invite:
         final ChatUserInfo inviter =
-            participants.firstWhere((e) => e.id == (content as Map<String, dynamic>)['inviterId']);
+            participants!.firstWhere((e) => e.id == (content as Map<String, dynamic>)['inviterId']);
         final List<ChatUserInfo> invitee = participants
             .where((e) => (content as Map<String, dynamic>)['inviteeIds'].contains(e.id))
             .toList();
@@ -77,10 +79,13 @@ class Message<T> extends Equatable {
       chatRoomId: json['chatRoomId'] as String,
       seqId: json['seqId'] as int,
       senderId: json['senderId'] as String,
-      content:
-          (messageType != MessageType.text ? jsonDecode(json['content']) : json['content']) as T,
+      content: messageType != MessageType.text
+          ? (json['content'] is String ? jsonDecode(json['content']) : json['content']) as T
+          : json['content'] as T,
       messageType: messageType,
-      readCount: json['readCount'] as int? ?? 1,
+      totalParticipants:
+          json['totalParticipants'] == null ? null : json['totalParticipants'] as int,
+      readCount: json['readCount'] == null ? 1 : json['readCount'] as int,
       createdAt: DateTime.parse(json['createdAt'] as String).toLocal(),
     );
   }
@@ -95,6 +100,7 @@ class Message<T> extends Equatable {
       'senderId': json['senderId'],
       'content': messageType != MessageType.text ? jsonEncode(json['content']) : json['content'],
       'messageType': json['messageType'],
+      'totalParticipants': json['totalParticipants'],
       'readCount': json['readCount'],
       'createdAt': json['createdAt'],
     };
@@ -108,6 +114,7 @@ class Message<T> extends Equatable {
         senderId: senderId,
         content: content,
         messageType: messageType,
+        totalParticipants: totalParticipants,
         readCount: readCount ?? this.readCount,
         createdAt: createdAt);
   }

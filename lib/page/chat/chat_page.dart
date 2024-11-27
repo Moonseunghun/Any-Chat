@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:anychat/common/datetime_extension.dart';
 import 'package:anychat/model/chat.dart';
 import 'package:anychat/page/router.dart';
@@ -9,6 +11,7 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:image_picker/image_picker.dart';
 
 import '../../model/message.dart';
 import '../../service/database_service.dart';
@@ -45,6 +48,7 @@ class ChatPage extends HookConsumerWidget {
     final cursor = useState<String?>(null);
     final scrollAtBottom = useState<bool>(true);
     final participants = useState<List<ChatUserInfo>>([]);
+    final selectedImage = useState<File?>(null);
 
     useEffect(() {
       if (keyboardHeight > plusMenuHeight.value) {
@@ -116,6 +120,7 @@ class ChatPage extends HookConsumerWidget {
             FocusScope.of(context).unfocus();
             isShow.value = false;
             showPlusMenu.value = false;
+            selectedImage.value = null;
           },
           child: Container(
               color: Colors.white,
@@ -209,29 +214,33 @@ class ChatPage extends HookConsumerWidget {
                                         if (!compareDates(
                                             beforeMessage?.createdAt, message.createdAt))
                                           infoMessage(message.createdAt.yyyyMMdd()),
-                                        isMyMessage
-                                            ? _myChat(
-                                                message: message,
-                                                optional: optional || afterSenderId == null
-                                                    ? true
-                                                    : afterSenderId != ref.read(userProvider)!.id,
-                                                change: afterSenderId == null
-                                                    ? true
-                                                    : afterSenderId != ref.read(userProvider)!.id,
-                                                participants: participants)
-                                            : _opponentChat(
-                                                message: message,
-                                                optional: optional || afterSenderId == null
-                                                    ? true
-                                                    : afterSenderId == ref.read(userProvider)!.id,
-                                                first: beforeMessage?.senderId == null
-                                                    ? true
-                                                    : beforeMessage?.senderId ==
-                                                        ref.read(userProvider)!.id,
-                                                change: afterSenderId == null
-                                                    ? true
-                                                    : afterSenderId == ref.read(userProvider)!.id,
-                                                participants: participants)
+                                        if (message.messageType == MessageType.text)
+                                          isMyMessage
+                                              ? _myChat(
+                                                  message: message,
+                                                  optional: optional || afterSenderId == null
+                                                      ? true
+                                                      : afterSenderId != ref.read(userProvider)!.id,
+                                                  change: afterSenderId == null
+                                                      ? true
+                                                      : afterSenderId != ref.read(userProvider)!.id,
+                                                )
+                                              : _opponentChat(
+                                                  message: message,
+                                                  optional: optional || afterSenderId == null
+                                                      ? true
+                                                      : afterSenderId == ref.read(userProvider)!.id,
+                                                  first: beforeMessage?.senderId == null
+                                                      ? true
+                                                      : beforeMessage?.senderId ==
+                                                          ref.read(userProvider)!.id,
+                                                  change: afterSenderId == null
+                                                      ? true
+                                                      : afterSenderId == ref.read(userProvider)!.id,
+                                                  participants: participants),
+                                        if (message.messageType == MessageType.invite)
+                                          infoMessage(
+                                              message.showMessage(participants: participants.value))
                                       ],
                                     );
                                   }),
@@ -251,13 +260,17 @@ class ChatPage extends HookConsumerWidget {
                                   SizedBox(width: 8.w),
                                   GestureDetector(
                                       onTap: () {
-                                        if (showPlusMenu.value) {
-                                          FocusScope.of(context).requestFocus(focusNode);
-                                        } else {
-                                          FocusScope.of(context).unfocus();
-                                        }
+                                        if (selectedImage.value == null) {
+                                          if (showPlusMenu.value) {
+                                            FocusScope.of(context).requestFocus(focusNode);
+                                          } else {
+                                            FocusScope.of(context).unfocus();
+                                          }
 
-                                        showPlusMenu.value = !showPlusMenu.value;
+                                          showPlusMenu.value = !showPlusMenu.value;
+                                        } else {
+                                          selectedImage.value = null;
+                                        }
                                       },
                                       child: Container(
                                           color: Colors.transparent,
@@ -274,50 +287,59 @@ class ChatPage extends HookConsumerWidget {
                                                   child: const Icon(Icons.add_rounded,
                                                       color: Color(0xFF7C4DFF), size: 24))))),
                                   SizedBox(width: 7.w),
-                                  Expanded(
-                                      child: Container(
-                                          decoration: ShapeDecoration(
-                                            color: const Color(0xFFF5F5F5),
-                                            shape: RoundedRectangleBorder(
-                                              borderRadius: BorderRadius.circular(100),
+                                  if (selectedImage.value == null) ...[
+                                    Expanded(
+                                        child: Container(
+                                            decoration: ShapeDecoration(
+                                              color: const Color(0xFFF5F5F5),
+                                              shape: RoundedRectangleBorder(
+                                                borderRadius: BorderRadius.circular(100),
+                                              ),
                                             ),
-                                          ),
-                                          child: TextField(
-                                            controller: messageController,
-                                            focusNode: focusNode,
-                                            keyboardType: TextInputType.multiline,
-                                            minLines: 1,
-                                            maxLines: keyboardHeight == 0 ? 1 : 6,
-                                            onTap: () {
-                                              FocusScope.of(context).requestFocus(focusNode);
+                                            child: TextField(
+                                              controller: messageController,
+                                              focusNode: focusNode,
+                                              keyboardType: TextInputType.multiline,
+                                              minLines: 1,
+                                              maxLines: keyboardHeight == 0 ? 1 : 6,
+                                              onTap: () {
+                                                FocusScope.of(context).requestFocus(focusNode);
 
-                                              showPlusMenu.value = false;
-                                            },
-                                            decoration: InputDecoration(
-                                                isDense: true,
-                                                border: InputBorder.none,
-                                                contentPadding: EdgeInsets.symmetric(
-                                                    horizontal: 16.w, vertical: 10),
-                                                hintText: '메세지를 입력해주세요',
-                                                hintStyle: const TextStyle(
-                                                    fontSize: 14,
-                                                    fontWeight: FontWeight.w500,
-                                                    color: Color(0xFFAEAEAE))),
-                                            style: const TextStyle(
-                                                fontSize: 14,
-                                                fontWeight: FontWeight.w500,
-                                                color: Colors.black),
-                                          ))),
-                                  SizedBox(width: 2.w),
-                                  Container(
-                                      color: Colors.transparent,
-                                      padding: EdgeInsets.symmetric(horizontal: 5.w, vertical: 7),
-                                      child: SvgPicture.asset('assets/images/emoticon.svg',
-                                          height: 24)),
+                                                showPlusMenu.value = false;
+                                              },
+                                              decoration: InputDecoration(
+                                                  isDense: true,
+                                                  border: InputBorder.none,
+                                                  contentPadding: EdgeInsets.symmetric(
+                                                      horizontal: 16.w, vertical: 10),
+                                                  hintText: '메세지를 입력해주세요',
+                                                  hintStyle: const TextStyle(
+                                                      fontSize: 14,
+                                                      fontWeight: FontWeight.w500,
+                                                      color: Color(0xFFAEAEAE))),
+                                              style: const TextStyle(
+                                                  fontSize: 14,
+                                                  fontWeight: FontWeight.w500,
+                                                  color: Colors.black),
+                                            ))),
+                                    SizedBox(width: 2.w),
+                                    Container(
+                                        color: Colors.transparent,
+                                        padding: EdgeInsets.symmetric(horizontal: 5.w, vertical: 7),
+                                        child: SvgPicture.asset('assets/images/emoticon.svg',
+                                            height: 24))
+                                  ],
+                                  if (selectedImage.value != null) const Spacer(),
                                   GestureDetector(
                                       onTap: () {
-                                        ChatService().sendMessage(messageController.text);
-                                        messageController.clear();
+                                        if (selectedImage.value == null) {
+                                          ChatService().sendMessage(messageController.text);
+                                          messageController.clear();
+                                        } else {
+                                          ChatService().sendFile(selectedImage.value!);
+                                          FocusScope.of(context).unfocus();
+                                          selectedImage.value = null;
+                                        }
                                       },
                                       child: Container(
                                           color: Colors.transparent,
@@ -346,60 +368,73 @@ class ChatPage extends HookConsumerWidget {
                                 color: const Color(0xFFF5F5F5),
                                 alignment: Alignment.center,
                                 child: showPlusMenu.value
-                                    ? Column(
-                                        children: [
-                                          SizedBox(height: 12.h),
-                                          Expanded(
-                                              child: Row(
-                                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                            crossAxisAlignment: CrossAxisAlignment.center,
+                                    ? selectedImage.value != null
+                                        ? Padding(
+                                            padding: EdgeInsets.symmetric(
+                                              horizontal: 40.w,
+                                              vertical: 24,
+                                            ),
+                                            child: Image.file(selectedImage.value!,
+                                                fit: BoxFit.contain))
+                                        : Column(
                                             children: [
-                                              ...[0, 1, 2].map((index) => GestureDetector(
-                                                  onTap: () {},
-                                                  child: IntrinsicHeight(
-                                                      child: Column(
-                                                    mainAxisSize: MainAxisSize.min,
-                                                    children: [
-                                                      SvgPicture.asset(
-                                                          'assets/images/${plusMenu.keys.elementAt(index)}.svg',
-                                                          height: 60),
-                                                      const SizedBox(height: 8),
-                                                      Text(plusMenu.values.elementAt(index),
-                                                          style: const TextStyle(
-                                                              fontSize: 14,
-                                                              fontWeight: FontWeight.w500,
-                                                              color: Color(0xFF3B3B3B))),
-                                                    ],
-                                                  ))))
+                                              SizedBox(height: 12.h),
+                                              Expanded(
+                                                  child: Row(
+                                                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                                crossAxisAlignment: CrossAxisAlignment.center,
+                                                children: [
+                                                  ...[0, 1, 2].map((index) => GestureDetector(
+                                                      onTap: () async {
+                                                        if (index == 0) {
+                                                          await _loadImage(
+                                                              selectedImage, messageController);
+                                                        }
+                                                      },
+                                                      child: IntrinsicHeight(
+                                                          child: Column(
+                                                        mainAxisSize: MainAxisSize.min,
+                                                        children: [
+                                                          SvgPicture.asset(
+                                                              'assets/images/${plusMenu.keys.elementAt(index)}.svg',
+                                                              height: 60),
+                                                          const SizedBox(height: 8),
+                                                          Text(plusMenu.values.elementAt(index),
+                                                              style: const TextStyle(
+                                                                  fontSize: 14,
+                                                                  fontWeight: FontWeight.w500,
+                                                                  color: Color(0xFF3B3B3B))),
+                                                        ],
+                                                      ))))
+                                                ],
+                                              )),
+                                              Expanded(
+                                                  child: Row(
+                                                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                                crossAxisAlignment: CrossAxisAlignment.center,
+                                                children: [
+                                                  ...[3, 4, 5].map((index) => GestureDetector(
+                                                      onTap: () {},
+                                                      child: IntrinsicHeight(
+                                                          child: Column(
+                                                        mainAxisSize: MainAxisSize.min,
+                                                        children: [
+                                                          SvgPicture.asset(
+                                                              'assets/images/${plusMenu.keys.elementAt(index)}.svg',
+                                                              height: 60),
+                                                          const SizedBox(height: 10),
+                                                          Text(plusMenu.values.elementAt(index),
+                                                              style: const TextStyle(
+                                                                  fontSize: 14,
+                                                                  fontWeight: FontWeight.w500,
+                                                                  color: Color(0xFF3B3B3B))),
+                                                        ],
+                                                      ))))
+                                                ],
+                                              )),
+                                              SizedBox(height: 50.h)
                                             ],
-                                          )),
-                                          Expanded(
-                                              child: Row(
-                                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                            crossAxisAlignment: CrossAxisAlignment.center,
-                                            children: [
-                                              ...[3, 4, 5].map((index) => GestureDetector(
-                                                  onTap: () {},
-                                                  child: IntrinsicHeight(
-                                                      child: Column(
-                                                    mainAxisSize: MainAxisSize.min,
-                                                    children: [
-                                                      SvgPicture.asset(
-                                                          'assets/images/${plusMenu.keys.elementAt(index)}.svg',
-                                                          height: 60),
-                                                      const SizedBox(height: 10),
-                                                      Text(plusMenu.values.elementAt(index),
-                                                          style: const TextStyle(
-                                                              fontSize: 14,
-                                                              fontWeight: FontWeight.w500,
-                                                              color: Color(0xFF3B3B3B))),
-                                                    ],
-                                                  ))))
-                                            ],
-                                          )),
-                                          SizedBox(height: 50.h)
-                                        ],
-                                      )
+                                          )
                                     : null,
                               )
                             ],
@@ -453,7 +488,7 @@ class ChatPage extends HookConsumerWidget {
                         borderRadius: BorderRadius.circular(16),
                       ),
                     ),
-                    child: Text(message.showMessage(participants.value),
+                    child: Text(message.showMessage(),
                         style: const TextStyle(
                             fontWeight: FontWeight.w500, fontSize: 14, color: Color(0xFF3B3B3B)),
                         maxLines: 3)),
@@ -463,8 +498,8 @@ class ChatPage extends HookConsumerWidget {
                       mainAxisAlignment: MainAxisAlignment.end,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        if (participants.value.length - message.readCount > 0)
-                          Text((participants.value.length - message.readCount).toString(),
+                        if ((message.totalParticipants ?? 0) - message.readCount! > 0)
+                          Text(((message.totalParticipants ?? 0) - message.readCount!).toString(),
                               style: TextStyle(fontSize: 11, color: Colors.black.withOpacity(0.7))),
                         Text(message.createdAt.to24HourFormat(),
                             style: const TextStyle(
@@ -481,11 +516,7 @@ class ChatPage extends HookConsumerWidget {
     );
   }
 
-  Widget _myChat(
-      {required Message message,
-      bool optional = false,
-      bool change = false,
-      required ValueNotifier<List<ChatUserInfo>> participants}) {
+  Widget _myChat({required Message message, bool optional = false, bool change = false}) {
     return Column(
       children: [
         Row(
@@ -497,8 +528,8 @@ class ChatPage extends HookConsumerWidget {
                   mainAxisAlignment: MainAxisAlignment.end,
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                    if (participants.value.length - message.readCount > 0)
-                      Text((participants.value.length - message.readCount).toString(),
+                    if ((message.totalParticipants ?? 0) - message.readCount! > 0)
+                      Text(((message.totalParticipants ?? 0) - message.readCount!).toString(),
                           style: TextStyle(fontSize: 11, color: Colors.black.withOpacity(0.7))),
                     Text(message.createdAt.to24HourFormat(),
                         style: const TextStyle(
@@ -517,7 +548,7 @@ class ChatPage extends HookConsumerWidget {
                     borderRadius: BorderRadius.circular(16),
                   ),
                 ),
-                child: Text(message.showMessage(participants.value),
+                child: Text(message.showMessage(),
                     style: const TextStyle(
                         fontWeight: FontWeight.w500, fontSize: 14, color: Color(0xFF3B3B3B)),
                     maxLines: 3))
@@ -713,4 +744,14 @@ class ChatPage extends HookConsumerWidget {
           style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w500),
         ),
       );
+
+  Future<void> _loadImage(
+      ValueNotifier<File?> selectedImage, TextEditingController textController) async {
+    await ImagePicker().pickImage(source: ImageSource.gallery, imageQuality: 10).then((value) {
+      if (value != null) {
+        selectedImage.value = File(value.path);
+        textController.clear();
+      }
+    });
+  }
 }
