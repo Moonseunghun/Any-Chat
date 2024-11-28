@@ -60,19 +60,23 @@ class ChatService extends SecuredHttpClient {
     }, errorMessage: '채팅방을 생성하는데 실패했습니다.');
   }
 
-  Future<String?> getMessages(ValueNotifier<List<Message>> messages, String chatRoomId,
-      String? cursor) async {
+  Future<String?> getMessages(
+      ValueNotifier<List<Message>> messages, String chatRoomId, String? cursor) async {
     return await get(
         path: '$basePath/$chatRoomId/messages',
         queryParams: {'limit': 40, 'cursor': cursor},
         converter: (result) => result['data']).run(null, (result) async {
-      messages.value = <Message>{
-        ...messages.value,
-        ...List<Map<String, dynamic>>.from(result['newMessages']).map((e) => Message.fromJson(e))
-      }.toList()
+      final List<Message> tmp = [];
+
+      for (final Map<String, dynamic> message
+          in List<Map<String, dynamic>>.from(result['newMessages'])) {
+        tmp.add(await Message.fromJson(message));
+      }
+
+      messages.value = <Message>{...messages.value, ...tmp}.toList()
         ..sort((a, b) => b.seqId.compareTo(a.seqId));
 
-      await DatabaseService.batchInsert(
+      DatabaseService.batchInsert(
           'Message',
           List<dynamic>.from(result['newMessages'])
               .map((e) => Message.toMap(e as Map<String, dynamic>))
@@ -134,12 +138,18 @@ class ChatService extends SecuredHttpClient {
   void joinRoom(
       String chatRoomId, ValueNotifier<List<Message>> messages, ValueNotifier<String?> cursor) {
     socket!.emit('C_JOIN_ROOM', {'chatRoomId': chatRoomId});
-    socket!.on('S_JOIN_ROOM', (data) {
+    socket!.on('S_JOIN_ROOM', (data) async {
       final result = jsonDecode(data);
-      messages.value = messages.value = List<Map<String, dynamic>>.from(result['messages'])
-          .map((e) => Message.fromJson(e))
-          .toList()
-        ..sort((a, b) => b.seqId.compareTo(a.seqId));
+
+      final List<Message> tmp = [];
+
+      for (final Map<String, dynamic> message
+          in List<Map<String, dynamic>>.from(result['messages'])) {
+        tmp.add(await Message.fromJson(message));
+      }
+
+      messages.value = tmp..sort((a, b) => b.seqId.compareTo(a.seqId));
+
       cursor.value = result['nextCursor'];
 
       DatabaseService.batchInsert(
@@ -167,16 +177,13 @@ class ChatService extends SecuredHttpClient {
   }
 
   void sendFile(File file) {
-    print({'fileBuffer': file.readAsBytesSync(), 'fileName': file.path.split('/').last});
-
     socket!.emit('C_SEND_FILE',
         {'fileBuffer': file.readAsBytesSync(), 'fileName': file.path.split('/').last});
   }
 
   void onMessageReceived(ValueNotifier<List<Message>> messages) {
-    socket!.on('S_SEND_MESSAGE', (result) {
-      print(result);
-      messages.value = [Message.fromJson(result), ...messages.value];
+    socket!.on('S_SEND_MESSAGE', (result) async {
+      messages.value = [await Message.fromJson(result), ...messages.value];
 
       DatabaseService.insert('Message', Message.toMap(result));
 

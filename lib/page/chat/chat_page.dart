@@ -6,7 +6,6 @@ import 'package:anychat/page/image_close_page.dart';
 import 'package:anychat/page/router.dart';
 import 'package:anychat/service/chat_service.dart';
 import 'package:anychat/state/user_state.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:chewie/chewie.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -19,6 +18,7 @@ import 'package:video_player/video_player.dart';
 
 import '../../model/message.dart';
 import '../../service/database_service.dart';
+import '../video_player_page.dart';
 import 'invite_friend_page.dart';
 
 class ChatPage extends HookConsumerWidget {
@@ -72,8 +72,14 @@ class ChatPage extends HookConsumerWidget {
                 where: 'chatRoomId = ?',
                 whereArgs: [chatRoomHeader.chatRoomId],
                 orderBy: 'seqId DESC')
-            .then((value) {
-          messages.value = value.map((e) => Message.fromJson(e)).toList();
+            .then((value) async {
+          final List<Message> tmp = [];
+
+          for (final message in value) {
+            tmp.add(await Message.fromJson(message));
+          }
+
+          messages.value = tmp;
         });
 
         DatabaseService.search('ChatUserInfo',
@@ -222,7 +228,8 @@ class ChatPage extends HookConsumerWidget {
                                             beforeMessage?.createdAt, message.createdAt))
                                           infoMessage(message.createdAt.yyyyMMdd()),
                                         if (message.messageType == MessageType.text ||
-                                            message.messageType == MessageType.image)
+                                            message.messageType == MessageType.image ||
+                                            message.messageType == MessageType.video)
                                           isMyMessage
                                               ? _myChat(
                                                   message: message,
@@ -533,13 +540,14 @@ class ChatPage extends HookConsumerWidget {
                                 fontWeight: FontWeight.w500,
                                 fontSize: 14,
                                 color: Color(0xFF3B3B3B)))
-                        : GestureDetector(
-                            onTap: () {
-                              router.push(ImageClosePage.routeName,
-                                  extra: {'imageUrl': message.showMessage()});
-                            },
-                            child: CachedNetworkImage(
-                                imageUrl: message.showMessage(), fit: BoxFit.cover))),
+                        : message.messageType == MessageType.image
+                            ? GestureDetector(
+                                onTap: () {
+                                  router.push(ImageClosePage.routeName,
+                                      extra: message.content as File);
+                                },
+                                child: Image.file(message.content as File, fit: BoxFit.cover))
+                            : VideoPlayer(VideoPlayerController.file(message.content as File))),
                 SizedBox(width: 4.w),
                 if (optional)
                   Column(
@@ -606,13 +614,27 @@ class ChatPage extends HookConsumerWidget {
                     ? Text(message.showMessage(),
                         style: const TextStyle(
                             fontWeight: FontWeight.w500, fontSize: 14, color: Color(0xFF3B3B3B)))
-                    : GestureDetector(
-                        onTap: () {
-                          router.push(ImageClosePage.routeName,
-                              extra: {'imageUrl': message.showMessage()});
-                        },
-                        child: CachedNetworkImage(
-                            imageUrl: message.showMessage(), fit: BoxFit.cover))),
+                    : message.messageType == MessageType.image
+                        ? GestureDetector(
+                            onTap: () {
+                              router.push(ImageClosePage.routeName, extra: message.content as File);
+                            },
+                            child: Image.file(message.content as File, fit: BoxFit.cover))
+                        : GestureDetector(
+                            onTap: () {
+                              router.push(VideoPlayerPage.routeName,
+                                  extra: message.content['file'] as File);
+                            },
+                            child: Stack(
+                              children: [
+                                Image.file(message.content['thumbnail'] as File, fit: BoxFit.cover),
+                                Positioned.fill(
+                                    child: Align(
+                                        alignment: Alignment.center,
+                                        child: Icon(Icons.play_circle_fill,
+                                            color: Colors.white, size: 50.r)))
+                              ],
+                            ))),
           ],
         ),
         if (change) const SizedBox(height: 14)
@@ -806,19 +828,23 @@ class ChatPage extends HookConsumerWidget {
         ),
       );
 
-  Future<void> _loadImage(ValueNotifier<File?> selectedImage,
+  Future<void> _loadImage(
+      ValueNotifier<File?> selectedImage,
       ValueNotifier<File?> selectedVideo,
       ValueNotifier<ChewieController?> chewieController,
       ValueNotifier<VideoPlayerController?> videoPlayerController,
       TextEditingController textController) async {
     await ImagePicker().pickMedia(imageQuality: 10).then((value) {
       if (value != null) {
-        print(value.path);
         if (['mov', 'mp4'].contains(value.path.split('.').last)) {
           selectedVideo.value = File(value.path);
           videoPlayerController.value = VideoPlayerController.file(selectedVideo.value!);
           chewieController.value = ChewieController(
-              videoPlayerController: videoPlayerController.value!, autoPlay: true, looping: true);
+              videoPlayerController: videoPlayerController.value!,
+              autoPlay: true,
+              looping: true,
+              allowFullScreen: false,
+              allowPlaybackSpeedChanging: false);
         } else {
           selectedImage.value = File(value.path);
         }

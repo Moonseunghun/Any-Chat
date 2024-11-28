@@ -1,7 +1,10 @@
 import 'dart:convert';
+import 'dart:io';
 
+import 'package:anychat/common/cache_manager.dart';
 import 'package:anychat/model/chat.dart';
 import 'package:equatable/equatable.dart';
+import 'package:video_compress/video_compress.dart';
 
 enum MessageType {
   text(1000),
@@ -22,12 +25,12 @@ enum MessageType {
   }
 }
 
-class Message<T> extends Equatable {
+class Message extends Equatable {
   final String id;
   final String chatRoomId;
   final int seqId;
   final String senderId;
-  final T content;
+  final dynamic content;
   final MessageType messageType;
   final int? totalParticipants;
   final int? readCount;
@@ -45,14 +48,14 @@ class Message<T> extends Equatable {
     required this.createdAt,
   });
 
-  String showMessage({List<ChatUserInfo>? participants}) {
+  dynamic showMessage({List<ChatUserInfo>? participants}) {
     switch (messageType) {
       case MessageType.text:
         return content as String;
       case MessageType.image:
-        return (content as Map<String, dynamic>)['fileUrl'];
+        return content as File;
       case MessageType.video:
-        return 'Video';
+        return content as File;
       case MessageType.audio:
         return 'Audio';
       case MessageType.file:
@@ -74,16 +77,28 @@ class Message<T> extends Equatable {
     }
   }
 
-  factory Message.fromJson(Map<String, dynamic> json) {
+  static Future<Message> fromJson(Map<String, dynamic> json) async {
     final MessageType messageType = MessageType.fromValue(json['messageType'] as int);
 
     late final dynamic content;
 
     if (messageType == MessageType.text) {
       content = json['content'] as String;
-    } else {
+    } else if (messageType == MessageType.invite) {
       content = (json['content'] is String ? jsonDecode(json['content']) : json['content'])
           as Map<String, dynamic>;
+    } else if (messageType == MessageType.image) {
+      final Map<String, dynamic> map =
+          (json['content'] is String ? jsonDecode(json['content']) : json['content']);
+
+      content = await CacheManager.getCachedFile(map['fileUrl']);
+    } else if (messageType == MessageType.video) {
+      final Map<String, dynamic> map =
+          (json['content'] is String ? jsonDecode(json['content']) : json['content']);
+
+      final File file = await CacheManager.getCachedFile(map['fileUrl']);
+      final File thumbnail = await VideoCompress.getFileThumbnail(file.path, quality: 50);
+      content = {'file': file, 'thumbnail': thumbnail};
     }
 
     return Message(
@@ -91,7 +106,7 @@ class Message<T> extends Equatable {
       chatRoomId: json['chatRoomId'] as String,
       seqId: json['seqId'] as int,
       senderId: json['senderId'] as String,
-      content: content as T,
+      content: content,
       messageType: messageType,
       totalParticipants:
           json['totalParticipants'] == null ? null : json['totalParticipants'] as int,

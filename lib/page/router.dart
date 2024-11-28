@@ -18,6 +18,7 @@ import 'package:anychat/page/login/set_profile_id_page.dart';
 import 'package:anychat/page/setting/anychat_id_page.dart';
 import 'package:anychat/page/setting/set_anychat_id_page.dart';
 import 'package:anychat/page/user/profile_page.dart';
+import 'package:anychat/page/video_player_page.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:go_router/go_router.dart';
 
@@ -69,9 +70,10 @@ final router = GoRouter(
             InviteFriendPage(arguments: state.extra as Map<String, dynamic>?)),
     GoRoute(
         path: ImageClosePage.routeName,
-        builder: (context, state) => ImageClosePage(
-            file: (state.extra as Map<String, dynamic>?)?['file'],
-            imageUrl: (state.extra as Map<String, dynamic>?)?['imageUrl'])),
+        builder: (context, state) => ImageClosePage(file: state.extra as File)),
+    GoRoute(
+        path: VideoPlayerPage.routeName,
+        builder: (context, state) => VideoPlayerPage(state.extra as File)),
     GoRoute(path: AnychatIdPage.routeName, builder: (context, state) => const AnychatIdPage()),
     GoRoute(
         path: SetAnychatIdPage.routeName, builder: (context, state) => const SetAnychatIdPage()),
