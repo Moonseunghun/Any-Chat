@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:anychat/common/error.dart';
@@ -59,25 +60,17 @@ class ChatService extends SecuredHttpClient {
     }, errorMessage: '채팅방을 생성하는데 실패했습니다.');
   }
 
-  Future<String?> getMessages(
-      ValueNotifier<List<Message>> messages, String chatRoomId, String? cursor,
-      {bool isInit = false}) async {
+  Future<String?> getMessages(ValueNotifier<List<Message>> messages, String chatRoomId,
+      String? cursor) async {
     return await get(
         path: '$basePath/$chatRoomId/messages',
         queryParams: {'limit': 40, 'cursor': cursor},
         converter: (result) => result['data']).run(null, (result) async {
-      if (isInit) {
-        messages.value = List<Map<String, dynamic>>.from(result['newMessages'])
-            .map((e) => Message.fromJson(e))
-            .toList()
-          ..sort((a, b) => b.seqId.compareTo(a.seqId));
-      } else {
-        messages.value = <Message>{
-          ...messages.value,
-          ...List<Map<String, dynamic>>.from(result['newMessages']).map((e) => Message.fromJson(e))
-        }.toList()
-          ..sort((a, b) => b.seqId.compareTo(a.seqId));
-      }
+      messages.value = <Message>{
+        ...messages.value,
+        ...List<Map<String, dynamic>>.from(result['newMessages']).map((e) => Message.fromJson(e))
+      }.toList()
+        ..sort((a, b) => b.seqId.compareTo(a.seqId));
 
       await DatabaseService.batchInsert(
           'Message',
@@ -138,12 +131,33 @@ class ChatService extends SecuredHttpClient {
     });
   }
 
-  void joinRoom(String chatRoomId) {
+  void joinRoom(
+      String chatRoomId, ValueNotifier<List<Message>> messages, ValueNotifier<String?> cursor) {
     socket!.emit('C_JOIN_ROOM', {'chatRoomId': chatRoomId});
+    socket!.on('S_JOIN_ROOM', (data) {
+      final result = jsonDecode(data);
+      messages.value = messages.value = List<Map<String, dynamic>>.from(result['messages'])
+          .map((e) => Message.fromJson(e))
+          .toList()
+        ..sort((a, b) => b.seqId.compareTo(a.seqId));
+      cursor.value = result['nextCursor'];
+
+      DatabaseService.batchInsert(
+          'Message',
+          List<dynamic>.from(result['messages'])
+              .map((e) => Message.toMap(e as Map<String, dynamic>))
+              .toList());
+
+      if (messages.value.isNotEmpty) {
+        readMessage(messages.value.last.seqId);
+      }
+    });
   }
 
   void outRoom() {
     socket!.emit('C_LEAVE_ROOM');
+
+    socket!.off('S_JOIN_ROOM');
     socket!.off('S_SEND_MESSAGE');
     socket!.off('S_MESSAGE_READ');
   }
@@ -153,6 +167,8 @@ class ChatService extends SecuredHttpClient {
   }
 
   void sendFile(File file) {
+    print({'fileBuffer': file.readAsBytesSync(), 'fileName': file.path.split('/').last});
+
     socket!.emit('C_SEND_FILE',
         {'fileBuffer': file.readAsBytesSync(), 'fileName': file.path.split('/').last});
   }
@@ -206,7 +222,7 @@ class ChatService extends SecuredHttpClient {
   }
 
   Future<void> leaveRoom(WidgetRef ref, String chatRoomId) async {
-    await patch(path: '$basePath/$chatRoomId/leave').run(ref, (_) {
+    await put(path: '$basePath/$chatRoomId/leave').run(ref, (_) {
       DatabaseService.delete('ChatRoomInfo', where: 'id = ?', whereArgs: [chatRoomId]);
       DatabaseService.delete('Message', where: 'chatRoomId = ?', whereArgs: [chatRoomId]);
       DatabaseService.delete('ChatUserInfo', where: 'chatRoomId = ?', whereArgs: [chatRoomId]);
@@ -221,8 +237,11 @@ class ChatService extends SecuredHttpClient {
   void onInviteUsers() {
     socket!.on('S_CREATE_GROUP_CHAT_ROOM', (data) {
       router.pop();
-      router.push(ChatPage.routeName,
-          extra: ChatRoomHeader(chatRoomId: data['chatRoomId'], chatRoomName: data['name']));
+      socket!.on('S_LEAVE_ROOM', (_) {
+        socket!.off('S_LEAVE_ROOM');
+        router.push(ChatPage.routeName,
+            extra: ChatRoomHeader(chatRoomId: data['chatRoomId'], chatRoomName: data['name']));
+      });
     });
   }
 

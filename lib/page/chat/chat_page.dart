@@ -7,6 +7,7 @@ import 'package:anychat/page/router.dart';
 import 'package:anychat/service/chat_service.dart';
 import 'package:anychat/state/user_state.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:chewie/chewie.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -14,6 +15,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:video_player/video_player.dart';
 
 import '../../model/message.dart';
 import '../../service/database_service.dart';
@@ -51,6 +53,9 @@ class ChatPage extends HookConsumerWidget {
     final scrollAtBottom = useState<bool>(true);
     final participants = useState<List<ChatUserInfo>>([]);
     final selectedImage = useState<File?>(null);
+    final selectedVideo = useState<File?>(null);
+    final chewieController = useState<ChewieController?>(null);
+    final videoPlayerController = useState<VideoPlayerController?>(null);
 
     useEffect(() {
       if (keyboardHeight > plusMenuHeight.value) {
@@ -61,7 +66,7 @@ class ChatPage extends HookConsumerWidget {
 
     useEffect(() {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        ChatService().joinRoom(chatRoomHeader.chatRoomId);
+        ChatService().joinRoom(chatRoomHeader.chatRoomId, messages, cursor);
 
         DatabaseService.search('Message',
                 where: 'chatRoomId = ?',
@@ -82,11 +87,6 @@ class ChatPage extends HookConsumerWidget {
           participants.value = chatUserInfos;
         });
 
-        ChatService()
-            .getMessages(messages, chatRoomHeader.chatRoomId, cursor.value, isInit: true)
-            .then((value) {
-          cursor.value = value;
-        });
         ChatService().getParticipants(chatRoomHeader.chatRoomId, participants);
         ChatService().onMessageRead(messages);
         ChatService().onMessageReceived(messages);
@@ -123,6 +123,11 @@ class ChatPage extends HookConsumerWidget {
             isShow.value = false;
             showPlusMenu.value = false;
             selectedImage.value = null;
+            selectedVideo.value = null;
+            chewieController.value?.dispose();
+            chewieController.value = null;
+            videoPlayerController.value?.dispose();
+            videoPlayerController.value = null;
           },
           child: Container(
               color: Colors.white,
@@ -263,7 +268,8 @@ class ChatPage extends HookConsumerWidget {
                                   SizedBox(width: 8.w),
                                   GestureDetector(
                                       onTap: () {
-                                        if (selectedImage.value == null) {
+                                        if (selectedImage.value == null &&
+                                            selectedVideo.value == null) {
                                           if (showPlusMenu.value) {
                                             FocusScope.of(context).requestFocus(focusNode);
                                           } else {
@@ -273,6 +279,11 @@ class ChatPage extends HookConsumerWidget {
                                           showPlusMenu.value = !showPlusMenu.value;
                                         } else {
                                           selectedImage.value = null;
+                                          selectedVideo.value = null;
+                                          chewieController.value?.dispose();
+                                          chewieController.value = null;
+                                          videoPlayerController.value?.dispose();
+                                          videoPlayerController.value = null;
                                         }
                                       },
                                       child: Container(
@@ -290,7 +301,8 @@ class ChatPage extends HookConsumerWidget {
                                                   child: const Icon(Icons.add_rounded,
                                                       color: Color(0xFF7C4DFF), size: 24))))),
                                   SizedBox(width: 7.w),
-                                  if (selectedImage.value == null) ...[
+                                  if (selectedImage.value == null &&
+                                      selectedVideo.value == null) ...[
                                     Expanded(
                                         child: Container(
                                             decoration: ShapeDecoration(
@@ -332,16 +344,25 @@ class ChatPage extends HookConsumerWidget {
                                         child: SvgPicture.asset('assets/images/emoticon.svg',
                                             height: 24))
                                   ],
-                                  if (selectedImage.value != null) const Spacer(),
+                                  if (selectedImage.value != null || selectedVideo.value != null)
+                                    const Spacer(),
                                   GestureDetector(
                                       onTap: () {
-                                        if (selectedImage.value == null) {
+                                        if (messageController.text.trim().isNotEmpty) {
                                           ChatService().sendMessage(messageController.text);
                                           messageController.clear();
-                                        } else {
+                                        } else if (selectedImage.value != null) {
                                           ChatService().sendFile(selectedImage.value!);
                                           FocusScope.of(context).unfocus();
                                           selectedImage.value = null;
+                                        } else if (selectedVideo.value != null) {
+                                          ChatService().sendFile(selectedVideo.value!);
+                                          FocusScope.of(context).unfocus();
+                                          selectedVideo.value = null;
+                                          chewieController.value?.dispose();
+                                          chewieController.value = null;
+                                          videoPlayerController.value?.dispose();
+                                          videoPlayerController.value = null;
                                         }
                                       },
                                       child: Container(
@@ -379,65 +400,76 @@ class ChatPage extends HookConsumerWidget {
                                             ),
                                             child: Image.file(selectedImage.value!,
                                                 fit: BoxFit.contain))
-                                        : Column(
-                                            children: [
-                                              SizedBox(height: 12.h),
-                                              Expanded(
-                                                  child: Row(
-                                                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                                crossAxisAlignment: CrossAxisAlignment.center,
+                                        : chewieController.value != null
+                                            ? Padding(
+                                                padding: EdgeInsets.symmetric(
+                                                    horizontal: 24.w, vertical: 12),
+                                                child: Chewie(controller: chewieController.value!))
+                                            : Column(
                                                 children: [
-                                                  ...[0, 1, 2].map((index) => GestureDetector(
-                                                      onTap: () async {
-                                                        if (index == 0) {
-                                                          await _loadImage(
-                                                              selectedImage, messageController);
-                                                        }
-                                                      },
-                                                      child: IntrinsicHeight(
-                                                          child: Column(
-                                                        mainAxisSize: MainAxisSize.min,
-                                                        children: [
-                                                          SvgPicture.asset(
-                                                              'assets/images/${plusMenu.keys.elementAt(index)}.svg',
-                                                              height: 60),
-                                                          const SizedBox(height: 8),
-                                                          Text(plusMenu.values.elementAt(index),
-                                                              style: const TextStyle(
-                                                                  fontSize: 14,
-                                                                  fontWeight: FontWeight.w500,
-                                                                  color: Color(0xFF3B3B3B))),
-                                                        ],
-                                                      ))))
+                                                  SizedBox(height: 12.h),
+                                                  Expanded(
+                                                      child: Row(
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment.spaceEvenly,
+                                                    crossAxisAlignment: CrossAxisAlignment.center,
+                                                    children: [
+                                                      ...[0, 1, 2].map((index) => GestureDetector(
+                                                          onTap: () async {
+                                                            if (index == 0) {
+                                                              await _loadImage(
+                                                                  selectedImage,
+                                                                  selectedVideo,
+                                                                  chewieController,
+                                                                  videoPlayerController,
+                                                                  messageController);
+                                                            }
+                                                          },
+                                                          child: IntrinsicHeight(
+                                                              child: Column(
+                                                            mainAxisSize: MainAxisSize.min,
+                                                            children: [
+                                                              SvgPicture.asset(
+                                                                  'assets/images/${plusMenu.keys.elementAt(index)}.svg',
+                                                                  height: 60),
+                                                              const SizedBox(height: 8),
+                                                              Text(plusMenu.values.elementAt(index),
+                                                                  style: const TextStyle(
+                                                                      fontSize: 14,
+                                                                      fontWeight: FontWeight.w500,
+                                                                      color: Color(0xFF3B3B3B))),
+                                                            ],
+                                                          ))))
+                                                    ],
+                                                  )),
+                                                  Expanded(
+                                                      child: Row(
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment.spaceEvenly,
+                                                    crossAxisAlignment: CrossAxisAlignment.center,
+                                                    children: [
+                                                      ...[3, 4, 5].map((index) => GestureDetector(
+                                                          onTap: () {},
+                                                          child: IntrinsicHeight(
+                                                              child: Column(
+                                                            mainAxisSize: MainAxisSize.min,
+                                                            children: [
+                                                              SvgPicture.asset(
+                                                                  'assets/images/${plusMenu.keys.elementAt(index)}.svg',
+                                                                  height: 60),
+                                                              const SizedBox(height: 10),
+                                                              Text(plusMenu.values.elementAt(index),
+                                                                  style: const TextStyle(
+                                                                      fontSize: 14,
+                                                                      fontWeight: FontWeight.w500,
+                                                                      color: Color(0xFF3B3B3B))),
+                                                            ],
+                                                          ))))
+                                                    ],
+                                                  )),
+                                                  SizedBox(height: 50.h)
                                                 ],
-                                              )),
-                                              Expanded(
-                                                  child: Row(
-                                                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                                crossAxisAlignment: CrossAxisAlignment.center,
-                                                children: [
-                                                  ...[3, 4, 5].map((index) => GestureDetector(
-                                                      onTap: () {},
-                                                      child: IntrinsicHeight(
-                                                          child: Column(
-                                                        mainAxisSize: MainAxisSize.min,
-                                                        children: [
-                                                          SvgPicture.asset(
-                                                              'assets/images/${plusMenu.keys.elementAt(index)}.svg',
-                                                              height: 60),
-                                                          const SizedBox(height: 10),
-                                                          Text(plusMenu.values.elementAt(index),
-                                                              style: const TextStyle(
-                                                                  fontSize: 14,
-                                                                  fontWeight: FontWeight.w500,
-                                                                  color: Color(0xFF3B3B3B))),
-                                                        ],
-                                                      ))))
-                                                ],
-                                              )),
-                                              SizedBox(height: 50.h)
-                                            ],
-                                          )
+                                              )
                                     : null,
                               )
                             ],
@@ -774,11 +806,22 @@ class ChatPage extends HookConsumerWidget {
         ),
       );
 
-  Future<void> _loadImage(
-      ValueNotifier<File?> selectedImage, TextEditingController textController) async {
-    await ImagePicker().pickImage(source: ImageSource.gallery, imageQuality: 10).then((value) {
+  Future<void> _loadImage(ValueNotifier<File?> selectedImage,
+      ValueNotifier<File?> selectedVideo,
+      ValueNotifier<ChewieController?> chewieController,
+      ValueNotifier<VideoPlayerController?> videoPlayerController,
+      TextEditingController textController) async {
+    await ImagePicker().pickMedia(imageQuality: 10).then((value) {
       if (value != null) {
-        selectedImage.value = File(value.path);
+        print(value.path);
+        if (['mov', 'mp4'].contains(value.path.split('.').last)) {
+          selectedVideo.value = File(value.path);
+          videoPlayerController.value = VideoPlayerController.file(selectedVideo.value!);
+          chewieController.value = ChewieController(
+              videoPlayerController: videoPlayerController.value!, autoPlay: true, looping: true);
+        } else {
+          selectedImage.value = File(value.path);
+        }
         textController.clear();
       }
     });

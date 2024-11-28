@@ -58,12 +58,15 @@ class Message<T> extends Equatable {
       case MessageType.file:
         return 'File';
       case MessageType.invite:
-        final ChatUserInfo inviter =
-            participants!.firstWhere((e) => e.id == (content as Map<String, dynamic>)['inviterId']);
+        final ChatUserInfo? inviter = participants!
+            .where((e) => e.id == (content as Map<String, dynamic>)['inviterId'])
+            .firstOrNull;
         final List<ChatUserInfo> invitee = participants
             .where((e) => (content as Map<String, dynamic>)['inviteeIds'].contains(e.id))
             .toList();
-        return '${inviter.name}님께서 ${invitee.map((e) => e.name).join(', ')}님을 초대했습니다.';
+        return inviter == null
+            ? ''
+            : '${inviter.name}님께서 ${invitee.map((e) => e.name).join(', ')}님을 초대했습니다.';
       case MessageType.leave:
         return 'Leave';
       case MessageType.kick:
