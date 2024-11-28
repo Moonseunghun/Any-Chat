@@ -63,21 +63,11 @@ class UserService extends SecuredHttpClient {
       File? profileImg;
       File? backgroundImg;
       if (profileImage != null) {
-        final File? cachedImage = await CacheManager.getCachedImage(data['profileImg']);
-        if (cachedImage != null) {
-          profileImg = cachedImage;
-        } else {
-          profileImg = await CacheManager.downloadAndCacheImage(data['profileImg']);
-        }
+        profileImage = await CacheManager.getCachedImage(data['profileImg']);
       }
 
       if (backgroundImage != null) {
-        final File? cachedImage = await CacheManager.getCachedImage(data['backgroundImg']);
-        if (cachedImage != null) {
-          backgroundImg = cachedImage;
-        } else {
-          backgroundImg = await CacheManager.downloadAndCacheImage(data['backgroundImg']);
-        }
+        backgroundImg = await CacheManager.getCachedImage(data['backgroundImg']);
       }
 
       ref.read(userProvider.notifier).updateProfile(

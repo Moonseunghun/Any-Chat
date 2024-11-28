@@ -11,25 +11,13 @@ class UserNotifier extends StateNotifier<User?> {
   UserNotifier(super.state) {
     if (prefs.getString('profileImg') != null) {
       CacheManager.getCachedImage(prefs.getString('profileImg')!).then((cachedImage) {
-        if (cachedImage != null) {
-          state = state!.copyWith(userInfo: state!.userInfo.copyWith(profileImg: cachedImage));
-        } else {
-          CacheManager.downloadAndCacheImage(prefs.getString('profileImg')!).then((image) {
-            state = state!.copyWith(userInfo: state!.userInfo.copyWith(profileImg: image));
-          });
-        }
+        state = state!.copyWith(userInfo: state!.userInfo.copyWith(profileImg: cachedImage));
       });
     }
 
     if (prefs.getString('backgroundImg') != null) {
       CacheManager.getCachedImage(prefs.getString('backgroundImg')!).then((cachedImage) {
-        if (cachedImage != null) {
-          state = state!.copyWith(userInfo: state!.userInfo.copyWith(backgroundImg: cachedImage));
-        } else {
-          CacheManager.downloadAndCacheImage(prefs.getString('backgroundImg')!).then((image) {
-            state = state!.copyWith(userInfo: state!.userInfo.copyWith(backgroundImg: image));
-          });
-        }
+        state = state!.copyWith(userInfo: state!.userInfo.copyWith(backgroundImg: cachedImage));
       });
     }
   }

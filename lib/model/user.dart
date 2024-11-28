@@ -100,21 +100,11 @@ class UserInfo {
     File? profileImg;
     File? backgroundImg;
     if (json['profileImg'] != null) {
-      final File? cachedImage = await CacheManager.getCachedImage(json['profileImg']);
-      if (cachedImage != null) {
-        profileImg = cachedImage;
-      } else {
-        profileImg = await CacheManager.downloadAndCacheImage(json['profileImg']);
-      }
+      profileImg = await CacheManager.getCachedImage(json['profileImg']);
     }
 
     if (json['backgroundImg'] != null) {
-      final File? cachedImage = await CacheManager.getCachedImage(json['backgroundImg']);
-      if (cachedImage != null) {
-        backgroundImg = cachedImage;
-      } else {
-        backgroundImg = await CacheManager.downloadAndCacheImage(json['backgroundImg']);
-      }
+      backgroundImg = await CacheManager.getCachedImage(json['backgroundImg']);
     }
 
     prefs.setString('userId', json['userId']);

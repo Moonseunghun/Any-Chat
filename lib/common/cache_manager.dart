@@ -1,7 +1,6 @@
 import 'dart:io';
 
 import 'package:dio/dio.dart';
-import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 
 class CacheManager {
@@ -10,15 +9,16 @@ class CacheManager {
     return dir.path;
   }
 
-  static Future<File?> getCachedImage(String imageUrl) async {
+  static Future<File> getCachedImage(String imageUrl) async {
     final cacheDir = await _getCacheDirectory();
     final filePath = "$cacheDir/$imageUrl";
     final file = File(filePath);
 
     if (file.existsSync()) {
       return file;
+    } else {
+      return await downloadAndCacheImage(imageUrl);
     }
-    return null;
   }
 
   static Future<File> downloadAndCacheImage(String imageUrl) async {
@@ -70,10 +70,5 @@ class CacheManager {
         break;
       }
     }
-  }
-
-  Future<ImageProvider> getImageProvider(String url) async {
-    final file = await downloadAndCacheImage(url);
-    return FileImage(file);
   }
 }

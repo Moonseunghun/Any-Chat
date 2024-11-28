@@ -60,12 +60,7 @@ class ChatRoomInfo extends Equatable {
     }
 
     if (json['profileImg'] != null) {
-      final File? cachedImage = await CacheManager.getCachedImage(json['profileImg']);
-      if (cachedImage != null) {
-        profileImg = cachedImage;
-      } else {
-        profileImg = await CacheManager.downloadAndCacheImage(json['profileImg']);
-      }
+      profileImg = await CacheManager.getCachedImage(json['profileImg']);
     }
 
     return ChatRoomInfo(
@@ -106,20 +101,10 @@ class ChatUserInfo {
     File? profileImg;
 
     if (json['profileImg'] != null) {
-      final File? cachedImage = await CacheManager.getCachedImage(json['profileImg']);
-      if (cachedImage != null) {
-        profileImg = cachedImage;
-      } else {
-        profileImg = await CacheManager.downloadAndCacheImage(json['profileImg']);
-      }
+      profileImg = await CacheManager.getCachedImage(json['profileImg']);
     }
     if (json['userInfo'] != null && json['userInfo']['profileImg'] != null) {
-      final File? cachedImage = await CacheManager.getCachedImage(json['userInfo']['profileImg']);
-      if (cachedImage != null) {
-        profileImg = cachedImage;
-      } else {
-        profileImg = await CacheManager.downloadAndCacheImage(json['userInfo']['profileImg']);
-      }
+      profileImg = await CacheManager.getCachedImage(json['userInfo']['profileImg']);
     }
 
     return ChatUserInfo(id: json['userId'], name: json['name'], profileImg: profileImg);
