@@ -9,25 +9,25 @@ class CacheManager {
     return dir.path;
   }
 
-  static Future<File> getCachedImage(String imageUrl) async {
+  static Future<File> getCachedFile(String fileUrl) async {
     final cacheDir = await _getCacheDirectory();
-    final filePath = "$cacheDir/$imageUrl";
+    final filePath = "$cacheDir/$fileUrl";
     final file = File(filePath);
 
     if (file.existsSync()) {
       return file;
     } else {
-      return await downloadAndCacheImage(imageUrl);
+      return await downloadAndCacheFile(fileUrl);
     }
   }
 
-  static Future<File> downloadAndCacheImage(String imageUrl) async {
+  static Future<File> downloadAndCacheFile(String fileUrl) async {
     final Dio dio = Dio();
     final cacheDir = await _getCacheDirectory();
-    final filePath = "$cacheDir/$imageUrl";
+    final filePath = "$cacheDir/$fileUrl";
 
-    await dio.download(imageUrl, filePath);
-    manageCacheSize(200 * 1024 * 1024);
+    await dio.download(fileUrl, filePath);
+    manageCacheSize(2000 * 1024 * 1024);
     return File(filePath);
   }
 
@@ -62,6 +62,10 @@ class CacheManager {
       ..sort((a, b) => a.lastModifiedSync().compareTo(b.lastModifiedSync()));
 
     for (var file in files) {
+      if (file.path.split('/').last == 'anychat.db') {
+        continue;
+      }
+
       final fileSize = await file.length();
       await file.delete();
 
@@ -69,6 +73,22 @@ class CacheManager {
       if (currentSize <= maxSizeInBytes) {
         break;
       }
+    }
+  }
+
+  static Future<void> clear() async {
+    final cacheDir = await _getCacheDirectory();
+    final directory = Directory(cacheDir);
+
+    if (!directory.existsSync()) return;
+
+    final files = directory.listSync().whereType<File>().toList();
+    for (var file in files) {
+      if (['anychat.db', 'anychat.db-journal'].contains(file.path.split('/').last)) {
+        continue;
+      }
+
+      await file.delete();
     }
   }
 }

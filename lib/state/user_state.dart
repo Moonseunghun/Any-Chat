@@ -10,13 +10,13 @@ import '../main.dart';
 class UserNotifier extends StateNotifier<User?> {
   UserNotifier(super.state) {
     if (prefs.getString('profileImg') != null) {
-      CacheManager.getCachedImage(prefs.getString('profileImg')!).then((cachedImage) {
+      CacheManager.getCachedFile(prefs.getString('profileImg')!).then((cachedImage) {
         state = state!.copyWith(userInfo: state!.userInfo.copyWith(profileImg: cachedImage));
       });
     }
 
     if (prefs.getString('backgroundImg') != null) {
-      CacheManager.getCachedImage(prefs.getString('backgroundImg')!).then((cachedImage) {
+      CacheManager.getCachedFile(prefs.getString('backgroundImg')!).then((cachedImage) {
         state = state!.copyWith(userInfo: state!.userInfo.copyWith(backgroundImg: cachedImage));
       });
     }

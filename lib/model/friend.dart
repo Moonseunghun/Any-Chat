@@ -89,11 +89,11 @@ class ProfileInfo {
     File? profileImg;
     File? backgroundImg;
     if (json['profileImg'] != null) {
-      profileImg = await CacheManager.getCachedImage(json['profileImg']);
+      profileImg = await CacheManager.getCachedFile(json['profileImg']);
     }
 
     if (json['backgroundImg'] != null) {
-      backgroundImg = await CacheManager.getCachedImage(json['backgroundImg']);
+      backgroundImg = await CacheManager.getCachedFile(json['backgroundImg']);
     }
 
     return ProfileInfo(

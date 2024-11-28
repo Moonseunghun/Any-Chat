@@ -63,11 +63,11 @@ class UserService extends SecuredHttpClient {
       File? profileImg;
       File? backgroundImg;
       if (profileImage != null) {
-        profileImage = await CacheManager.getCachedImage(data['profileImg']);
+        profileImage = await CacheManager.getCachedFile(data['profileImg']);
       }
 
       if (backgroundImage != null) {
-        backgroundImg = await CacheManager.getCachedImage(data['backgroundImg']);
+        backgroundImg = await CacheManager.getCachedFile(data['backgroundImg']);
       }
 
       ref.read(userProvider.notifier).updateProfile(
@@ -95,5 +95,6 @@ class UserService extends SecuredHttpClient {
     DatabaseService.delete('ChatUserInfo');
     ref.read(userProvider.notifier).clear();
     ref.read(indexProvider.notifier).state = 0;
+    CacheManager.clear();
   }
 }

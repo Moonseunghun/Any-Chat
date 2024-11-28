@@ -60,7 +60,7 @@ class ChatRoomInfo extends Equatable {
     }
 
     if (json['profileImg'] != null) {
-      profileImg = await CacheManager.getCachedImage(json['profileImg']);
+      profileImg = await CacheManager.getCachedFile(json['profileImg']);
     }
 
     return ChatRoomInfo(
@@ -101,10 +101,10 @@ class ChatUserInfo {
     File? profileImg;
 
     if (json['profileImg'] != null) {
-      profileImg = await CacheManager.getCachedImage(json['profileImg']);
+      profileImg = await CacheManager.getCachedFile(json['profileImg']);
     }
     if (json['userInfo'] != null && json['userInfo']['profileImg'] != null) {
-      profileImg = await CacheManager.getCachedImage(json['userInfo']['profileImg']);
+      profileImg = await CacheManager.getCachedFile(json['userInfo']['profileImg']);
     }
 
     return ChatUserInfo(id: json['userId'], name: json['name'], profileImg: profileImg);
