@@ -44,6 +44,7 @@ class ChatPage extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     double keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
+    final owner = useState<ChatUserInfo?>(null);
     final isShow = useState<bool>(false);
     final showPlusMenu = useState<bool>(false);
     final plusMenuHeight = useState<double>(300.h);
@@ -95,9 +96,14 @@ class ChatPage extends HookConsumerWidget {
           participants.value = chatUserInfos;
         });
 
-        ChatService().getParticipants(chatRoomHeader.chatRoomId, participants);
+        ChatService().getParticipants(chatRoomHeader.chatRoomId, participants).then((_) {
+          ChatService().getRoomInfo(chatRoomHeader.chatRoomId).then((value) {
+            owner.value = participants.value.where((e) => e.id == value).firstOrNull;
+          });
+        });
         ChatService().onMessageRead(messages);
-        ChatService().onMessageReceived(messages);
+        ChatService().onMessageReceived(chatRoomHeader.chatRoomId, messages, participants);
+        ChatService().onKickUser();
 
         _scrollController.addListener(() {
           if (_scrollController.position.pixels <= _scrollController.position.minScrollExtent) {
@@ -250,13 +256,21 @@ class ChatPage extends HookConsumerWidget {
                                                       : afterSenderId == ref.read(userProvider)!.id,
                                                   first: beforeMessage?.senderId == null
                                                       ? true
-                                                      : beforeMessage?.senderId ==
-                                                          ref.read(userProvider)!.id,
+                                                      : beforeMessage?.messageType ==
+                                                              MessageType.invite ||
+                                                          beforeMessage?.messageType ==
+                                                              MessageType.kick ||
+                                                          beforeMessage?.messageType ==
+                                                              MessageType.leave ||
+                                                          beforeMessage?.senderId ==
+                                                              ref.read(userProvider)!.id,
                                                   change: afterSenderId == null
                                                       ? true
                                                       : afterSenderId == ref.read(userProvider)!.id,
                                                   participants: participants),
-                                        if (message.messageType == MessageType.invite)
+                                        if (message.messageType == MessageType.invite ||
+                                            message.messageType == MessageType.kick ||
+                                            message.messageType == MessageType.leave)
                                           infoMessage(
                                               message.showMessage(participants: participants.value))
                                       ],
@@ -502,7 +516,7 @@ class ChatPage extends HookConsumerWidget {
                           ),
                         ),
                       ))))),
-      ..._showLeftBar(ref, isShow, participants)
+      ..._showLeftBar(ref, isShow, participants, owner.value)
     ]);
   }
 
@@ -727,7 +741,7 @@ class ChatPage extends HookConsumerWidget {
   }
 
   List<Widget> _showLeftBar(WidgetRef ref, ValueNotifier<bool> isShow,
-          ValueNotifier<List<ChatUserInfo>> participants) =>
+          ValueNotifier<List<ChatUserInfo>> participants, ChatUserInfo? owner) =>
       [
         if (isShow.value)
           GestureDetector(
@@ -806,10 +820,11 @@ class ChatPage extends HookConsumerWidget {
                             padding: EdgeInsets.only(left: 20.w, right: 14.w, top: 10.h),
                             child: Column(
                               children: [
-                                _profileWidget(ref, participants.value.length),
+                                _profileWidget(ref, participants.value.length, owner),
                                 ...participants.value
                                     .where((e) => e.id != ref.watch(userProvider)!.id)
-                                    .map((e) => _profileWidget(ref, participants.value.length,
+                                    .map((e) => _profileWidget(
+                                        ref, participants.value.length, owner,
                                         participant: e))
                               ],
                             )),
@@ -835,7 +850,8 @@ class ChatPage extends HookConsumerWidget {
                 )))
       ];
 
-  Widget _profileWidget(WidgetRef ref, int participantCount, {ChatUserInfo? participant}) =>
+  Widget _profileWidget(WidgetRef ref, int participantCount, ChatUserInfo? owner,
+          {ChatUserInfo? participant}) =>
       GestureDetector(
           onTap: () {},
           child: Container(
@@ -884,17 +900,22 @@ class ChatPage extends HookConsumerWidget {
                                 overflow: TextOverflow.ellipsis),
                             child: Text(participant.name))),
                     SizedBox(width: 4.w),
-                    if (participantCount > 2)
-                      Container(
-                        padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4),
-                        decoration: BoxDecoration(
-                            color: Colors.white,
-                            border: Border.all(color: const Color(0xFF7C4DFF), width: 1),
-                            borderRadius: BorderRadius.circular(20)),
-                        child: const DefaultTextStyle(
-                            style: TextStyle(fontSize: 12, color: Color(0xFF7C4DFF)),
-                            child: Text('내보내기')),
-                      )
+                    if (participantCount > 2 && owner?.id == ref.read(userProvider)!.id)
+                      GestureDetector(
+                          onTap: () {
+                            ChatService().kickUser(participant.id);
+                            print('kick');
+                          },
+                          child: Container(
+                            padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4),
+                            decoration: BoxDecoration(
+                                color: Colors.white,
+                                border: Border.all(color: const Color(0xFF7C4DFF), width: 1),
+                                borderRadius: BorderRadius.circular(20)),
+                            child: const DefaultTextStyle(
+                                style: TextStyle(fontSize: 12, color: Color(0xFF7C4DFF)),
+                                child: Text('내보내기')),
+                          ))
                   ]
                 ],
               )));
@@ -960,24 +981,6 @@ class ChatPage extends HookConsumerWidget {
       }
       textController.clear();
     }
-    //
-    // await ImagePicker().pickImage(source: ImageSource.camera).then((value) {
-    //   if (value != null) {
-    //     if (['mov', 'mp4'].contains(value.path.split('.').last)) {
-    //       selectedVideo.value = File(value.path);
-    //       videoPlayerController.value = VideoPlayerController.file(selectedVideo.value!);
-    //       chewieController.value = ChewieController(
-    //           videoPlayerController: videoPlayerController.value!,
-    //           autoPlay: true,
-    //           looping: true,
-    //           allowFullScreen: false,
-    //           allowPlaybackSpeedChanging: false);
-    //     } else {
-    //       selectedImage.value = File(value.path);
-    //     }
-    //     textController.clear();
-    //   }
-    // });
   }
 
   Future<File?> _pickFile() async {

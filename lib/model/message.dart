@@ -68,9 +68,18 @@ class Message extends Equatable {
             ? ''
             : '${inviter.name}님께서 ${invitee.map((e) => e.name).join(', ')}님을 초대했습니다.';
       case MessageType.leave:
-        return 'Leave';
+        final ChatUserInfo? exitUser = participants!
+            .where((e) => e.id == (content as Map<String, dynamic>)['exitUserId'])
+            .firstOrNull;
+        return exitUser == null ? '' : '${exitUser.name}님께서 퇴장하였습니다.';
       case MessageType.kick:
-        return 'Kick';
+        final ChatUserInfo? kicker = participants!
+            .where((e) => e.id == (content as Map<String, dynamic>)['kickedById'])
+            .firstOrNull;
+        final ChatUserInfo? kicked = participants
+            .where((e) => (content as Map<String, dynamic>)['kickedOutId'] == e.id)
+            .firstOrNull;
+        return kicker == null || kicked == null ? '' : '${kicker.name}님께서 ${kicked.name}님을 강퇴했습니다.';
     }
   }
 
@@ -81,7 +90,9 @@ class Message extends Equatable {
 
     if (messageType == MessageType.text) {
       content = json['content'] as String;
-    } else if (messageType == MessageType.invite) {
+    } else if (messageType == MessageType.invite ||
+        messageType == MessageType.kick ||
+        messageType == MessageType.leave) {
       content = (json['content'] is String ? jsonDecode(json['content']) : json['content'])
           as Map<String, dynamic>;
     } else if (messageType == MessageType.image || messageType == MessageType.file) {

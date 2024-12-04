@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:anychat/common/error.dart';
 import 'package:anychat/common/http_client.dart';
+import 'package:anychat/common/toast.dart';
 import 'package:anychat/main.dart';
 import 'package:anychat/model/chat.dart';
 import 'package:anychat/service/database_service.dart';
@@ -92,8 +93,9 @@ class ChatService extends SecuredHttpClient {
 
   Future<void> getParticipants(
       String chatRoomId, ValueNotifier<List<ChatUserInfo>> participants) async {
-    return get(path: '$basePath/$chatRoomId/participants', converter: (result) => result['data'])
-        .run(null, (data) async {
+    return await get(
+        path: '$basePath/$chatRoomId/participants',
+        converter: (result) => result['data']).run(null, (data) async {
       final List<ChatUserInfo> chatUserInfos = [];
 
       for (final Map<String, dynamic> participant
@@ -170,21 +172,37 @@ class ChatService extends SecuredHttpClient {
     socket!.off('S_JOIN_ROOM');
     socket!.off('S_SEND_MESSAGE');
     socket!.off('S_MESSAGE_READ');
+    socket!.off('S_KICKED');
   }
 
   void sendMessage(String message) {
     socket!.emit('C_SEND_MESSAGE', {'message': message});
   }
 
+  Future<String> getRoomInfo(String chatRoomId) async {
+    return await get(path: '$basePath/$chatRoomId', converter: (result) => result['data']).run(null,
+        (data) {
+      return data['ownerId'] as String;
+    }, errorHandler: (_) {});
+  }
+
   void sendFile(File file) {
-    print(file.path);
-    print(file.path.split('/').last);
     socket!.emit('C_SEND_FILE',
         {'fileBuffer': file.readAsBytesSync(), 'fileName': file.path.split('/').last});
   }
 
-  void onMessageReceived(ValueNotifier<List<Message>> messages) {
+  void onMessageReceived(String chatRoomId, ValueNotifier<List<Message>> messages,
+      ValueNotifier<List<ChatUserInfo>> participants) {
     socket!.on('S_SEND_MESSAGE', (result) async {
+      print('메시지 받음: $result');
+      if (result['messageType'] == MessageType.invite.value) {
+        await getParticipants(chatRoomId, participants);
+      } else if (result['messageType'] == MessageType.kick.value) {
+        participants.value = participants.value
+            .where((e) => e.id != (result['content'] as Map<String, dynamic>)['kickedOutId'])
+            .toList();
+      }
+
       messages.value = [await Message.fromJson(result), ...messages.value];
 
       DatabaseService.insert('Message', Message.toMap(result));
@@ -199,6 +217,7 @@ class ChatService extends SecuredHttpClient {
 
   void onMessageRead(ValueNotifier<List<Message>> messages) {
     socket!.on('S_MESSAGE_READ', (data) {
+      print(data['updatedMessages']);
       final List<Map<String, dynamic>> updatedMessages = List<dynamic>.from(data['updatedMessages'])
           .map((e) => e as Map<String, dynamic>)
           .toList();
@@ -231,7 +250,7 @@ class ChatService extends SecuredHttpClient {
   }
 
   Future<void> leaveRoom(WidgetRef ref, String chatRoomId) async {
-    await put(path: '$basePath/$chatRoomId/leave').run(ref, (_) {
+    await post(path: '$basePath/exit', queryParams: {'chatRoomId': chatRoomId}).run(ref, (_) {
       DatabaseService.delete('ChatRoomInfo', where: 'id = ?', whereArgs: [chatRoomId]);
       DatabaseService.delete('Message', where: 'chatRoomId = ?', whereArgs: [chatRoomId]);
       DatabaseService.delete('ChatUserInfo', where: 'chatRoomId = ?', whereArgs: [chatRoomId]);
@@ -251,6 +270,17 @@ class ChatService extends SecuredHttpClient {
         router.push(ChatPage.routeName,
             extra: ChatRoomHeader(chatRoomId: data['chatRoomId'], chatRoomName: data['name']));
       });
+    });
+  }
+
+  void kickUser(String userId) {
+    socket!.emit('C_KICK_USER', {'targetUserId': userId});
+  }
+
+  void onKickUser() {
+    socket!.on('S_KICKED', (_) {
+      router.pop();
+      errorToast(message: '강퇴되었습니다.');
     });
   }
 
