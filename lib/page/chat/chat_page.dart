@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:anychat/common/datetime_extension.dart';
 import 'package:anychat/model/chat.dart';
+import 'package:anychat/page/chat/camera_page.dart';
 import 'package:anychat/page/image_close_page.dart';
 import 'package:anychat/page/router.dart';
 import 'package:anychat/service/chat_service.dart';
@@ -942,23 +943,41 @@ class ChatPage extends HookConsumerWidget {
       ValueNotifier<ChewieController?> chewieController,
       ValueNotifier<VideoPlayerController?> videoPlayerController,
       TextEditingController textController) async {
-    await ImagePicker().pickImage(source: ImageSource.camera).then((value) {
-      if (value != null) {
-        if (['mov', 'mp4'].contains(value.path.split('.').last)) {
-          selectedVideo.value = File(value.path);
-          videoPlayerController.value = VideoPlayerController.file(selectedVideo.value!);
-          chewieController.value = ChewieController(
-              videoPlayerController: videoPlayerController.value!,
-              autoPlay: true,
-              looping: true,
-              allowFullScreen: false,
-              allowPlaybackSpeedChanging: false);
-        } else {
-          selectedImage.value = File(value.path);
-        }
-        textController.clear();
+    final XFile? xFile = await router.push(CameraPage.routeName);
+
+    if (xFile != null) {
+      if (['mov', 'mp4'].contains(xFile.path.split('.').last)) {
+        selectedVideo.value = File(xFile.path);
+        videoPlayerController.value = VideoPlayerController.file(selectedVideo.value!);
+        chewieController.value = ChewieController(
+            videoPlayerController: videoPlayerController.value!,
+            autoPlay: true,
+            looping: true,
+            allowFullScreen: false,
+            allowPlaybackSpeedChanging: false);
+      } else {
+        selectedImage.value = File(xFile.path);
       }
-    });
+      textController.clear();
+    }
+    //
+    // await ImagePicker().pickImage(source: ImageSource.camera).then((value) {
+    //   if (value != null) {
+    //     if (['mov', 'mp4'].contains(value.path.split('.').last)) {
+    //       selectedVideo.value = File(value.path);
+    //       videoPlayerController.value = VideoPlayerController.file(selectedVideo.value!);
+    //       chewieController.value = ChewieController(
+    //           videoPlayerController: videoPlayerController.value!,
+    //           autoPlay: true,
+    //           looping: true,
+    //           allowFullScreen: false,
+    //           allowPlaybackSpeedChanging: false);
+    //     } else {
+    //       selectedImage.value = File(value.path);
+    //     }
+    //     textController.clear();
+    //   }
+    // });
   }
 
   Future<File?> _pickFile() async {

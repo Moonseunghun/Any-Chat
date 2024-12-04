@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:anychat/main.dart';
 import 'package:anychat/model/chat.dart';
 import 'package:anychat/model/friend.dart';
+import 'package:anychat/page/chat/camera_page.dart';
 import 'package:anychat/page/chat/chat_page.dart';
 import 'package:anychat/page/chat/invite_friend_page.dart';
 import 'package:anychat/page/home/add_friend_by_id_page.dart';
@@ -30,6 +31,7 @@ final router = GoRouter(
   initialLocation: MainLayout.routeName,
   routes: [
     GoRoute(path: LoginPage.routeName, builder: (context, state) => const LoginPage()),
+    GoRoute(path: CameraPage.routeName, builder: (context, state) => const CameraPage()),
     GoRoute(
         path: LanguageSelectPage.routeName,
         builder: (context, state) => LanguageSelectPage(isCreate: (state.extra ?? false) as bool)),
