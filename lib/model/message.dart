@@ -10,8 +10,7 @@ enum MessageType {
   text(1000),
   image(1002),
   video(1003),
-  audio(1004),
-  file(1005),
+  file(1006),
   invite(2000),
   leave(2001),
   kick(2002);
@@ -56,10 +55,8 @@ class Message extends Equatable {
         return content as File;
       case MessageType.video:
         return content as File;
-      case MessageType.audio:
-        return 'Audio';
       case MessageType.file:
-        return 'File';
+        return content as File;
       case MessageType.invite:
         final ChatUserInfo? inviter = participants!
             .where((e) => e.id == (content as Map<String, dynamic>)['inviterId'])
@@ -87,7 +84,7 @@ class Message extends Equatable {
     } else if (messageType == MessageType.invite) {
       content = (json['content'] is String ? jsonDecode(json['content']) : json['content'])
           as Map<String, dynamic>;
-    } else if (messageType == MessageType.image) {
+    } else if (messageType == MessageType.image || messageType == MessageType.file) {
       final Map<String, dynamic> map =
           (json['content'] is String ? jsonDecode(json['content']) : json['content']);
 

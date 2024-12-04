@@ -177,6 +177,8 @@ class ChatService extends SecuredHttpClient {
   }
 
   void sendFile(File file) {
+    print(file.path);
+    print(file.path.split('/').last);
     socket!.emit('C_SEND_FILE',
         {'fileBuffer': file.readAsBytesSync(), 'fileName': file.path.split('/').last});
   }

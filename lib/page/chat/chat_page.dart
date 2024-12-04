@@ -7,6 +7,7 @@ import 'package:anychat/page/router.dart';
 import 'package:anychat/service/chat_service.dart';
 import 'package:anychat/state/user_state.dart';
 import 'package:chewie/chewie.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -229,7 +230,8 @@ class ChatPage extends HookConsumerWidget {
                                           infoMessage(message.createdAt.yyyyMMdd()),
                                         if (message.messageType == MessageType.text ||
                                             message.messageType == MessageType.image ||
-                                            message.messageType == MessageType.video)
+                                            message.messageType == MessageType.video ||
+                                            message.messageType == MessageType.file)
                                           isMyMessage
                                               ? _myChat(
                                                   message: message,
@@ -424,13 +426,29 @@ class ChatPage extends HookConsumerWidget {
                                                       ...[0, 1, 2].map((index) => GestureDetector(
                                                           onTap: () async {
                                                             if (index == 0) {
-                                                              await _loadImage(
+                                                              await _loadMedia(
                                                                   selectedImage,
                                                                   selectedVideo,
                                                                   chewieController,
                                                                   videoPlayerController,
                                                                   messageController);
-                                                            }
+                                                            } else if (index == 1) {
+                                                              await _loadMediaByCamera(
+                                                                  selectedImage,
+                                                                  selectedVideo,
+                                                                  chewieController,
+                                                                  videoPlayerController,
+                                                                  messageController);
+                                                            } else if (index == 2) {
+                                                              _pickFile().then((file) {
+                                                                if (file != null) {
+                                                                  ChatService().sendFile(file);
+                                                                  if (!context.mounted) return;
+                                                                  FocusScope.of(context).unfocus();
+                                                                  showPlusMenu.value = false;
+                                                                }
+                                                              });
+                                                            } else if (index == 3) {}
                                                           },
                                                           child: IntrinsicHeight(
                                                               child: Column(
@@ -529,7 +547,8 @@ class ChatPage extends HookConsumerWidget {
                     decoration: ShapeDecoration(
                       color: message.messageType == MessageType.text ? Colors.white : Colors.black,
                       shape: RoundedRectangleBorder(
-                        borderRadius: message.messageType == MessageType.text
+                        borderRadius: message.messageType == MessageType.text ||
+                                message.messageType == MessageType.file
                             ? BorderRadius.circular(16)
                             : BorderRadius.zero,
                       ),
@@ -547,7 +566,39 @@ class ChatPage extends HookConsumerWidget {
                                       extra: message.content as File);
                                 },
                                 child: Image.file(message.content as File, fit: BoxFit.cover))
-                            : VideoPlayer(VideoPlayerController.file(message.content as File))),
+                            : message.messageType == MessageType.video
+                                ? VideoPlayer(VideoPlayerController.file(message.content as File))
+                                : Container(
+                                    height: 60,
+                                    padding: EdgeInsets.symmetric(vertical: 6, horizontal: 8.w),
+                                    decoration: BoxDecoration(
+                                        color: Colors.white,
+                                        borderRadius: BorderRadius.circular(8)),
+                                    child: Row(
+                                      children: [
+                                        Expanded(
+                                            child: Text(message.showMessage().path.split('/').last,
+                                                maxLines: 2,
+                                                overflow: TextOverflow.ellipsis,
+                                                style: const TextStyle(
+                                                    fontWeight: FontWeight.w500,
+                                                    fontSize: 14,
+                                                    color: Color(0xFF3B3B3B)))),
+                                        SizedBox(width: 4.w),
+                                        GestureDetector(
+                                            onTap: () {},
+                                            child: Container(
+                                                padding: const EdgeInsets.all(4),
+                                                decoration: BoxDecoration(
+                                                    border: const Border.fromBorderSide(
+                                                        BorderSide(color: Colors.grey, width: 1)),
+                                                    borderRadius: BorderRadius.circular(4),
+                                                    color: Colors.white),
+                                                child: Icon(Icons.file_download,
+                                                    size: 22,
+                                                    color: Colors.green.withOpacity(0.9))))
+                                      ],
+                                    ))),
                 SizedBox(width: 4.w),
                 if (optional)
                   Column(
@@ -605,7 +656,8 @@ class ChatPage extends HookConsumerWidget {
                       ? const Color(0xFFECE5FF)
                       : Colors.black,
                   shape: RoundedRectangleBorder(
-                    borderRadius: message.messageType == MessageType.text
+                    borderRadius: message.messageType == MessageType.text ||
+                            message.messageType == MessageType.file
                         ? BorderRadius.circular(16)
                         : BorderRadius.zero,
                   ),
@@ -620,21 +672,52 @@ class ChatPage extends HookConsumerWidget {
                               router.push(ImageClosePage.routeName, extra: message.content as File);
                             },
                             child: Image.file(message.content as File, fit: BoxFit.cover))
-                        : GestureDetector(
-                            onTap: () {
-                              router.push(VideoPlayerPage.routeName,
-                                  extra: message.content['file'] as File);
-                            },
-                            child: Stack(
-                              children: [
-                                Image.file(message.content['thumbnail'] as File, fit: BoxFit.cover),
-                                Positioned.fill(
-                                    child: Align(
-                                        alignment: Alignment.center,
-                                        child: Icon(Icons.play_circle_fill,
-                                            color: Colors.white, size: 50.r)))
-                              ],
-                            ))),
+                        : message.messageType == MessageType.video
+                            ? GestureDetector(
+                                onTap: () {
+                                  router.push(VideoPlayerPage.routeName,
+                                      extra: message.content['file'] as File);
+                                },
+                                child: Stack(
+                                  children: [
+                                    Image.file(message.content['thumbnail'] as File,
+                                        fit: BoxFit.cover),
+                                    Positioned.fill(
+                                        child: Align(
+                                            alignment: Alignment.center,
+                                            child: Icon(Icons.play_circle_fill,
+                                                color: Colors.white, size: 50.r)))
+                                  ],
+                                ))
+                            : Container(
+                                height: 60,
+                                padding: EdgeInsets.symmetric(vertical: 6, horizontal: 8.w),
+                                decoration: BoxDecoration(
+                                    color: Colors.white, borderRadius: BorderRadius.circular(8)),
+                                child: Row(
+                                  children: [
+                                    Expanded(
+                                        child: Text(message.showMessage().path.split('/').last,
+                                            maxLines: 2,
+                                            overflow: TextOverflow.ellipsis,
+                                            style: const TextStyle(
+                                                fontWeight: FontWeight.w500,
+                                                fontSize: 14,
+                                                color: Color(0xFF3B3B3B)))),
+                                    SizedBox(width: 4.w),
+                                    GestureDetector(
+                                        onTap: () {},
+                                        child: Container(
+                                            padding: const EdgeInsets.all(4),
+                                            decoration: BoxDecoration(
+                                                border: const Border.fromBorderSide(
+                                                    BorderSide(color: Colors.grey, width: 1)),
+                                                borderRadius: BorderRadius.circular(4),
+                                                color: Colors.white),
+                                            child: Icon(Icons.file_download,
+                                                size: 22, color: Colors.green.withOpacity(0.9))))
+                                  ],
+                                ))),
           ],
         ),
         if (change) const SizedBox(height: 14)
@@ -828,7 +911,7 @@ class ChatPage extends HookConsumerWidget {
         ),
       );
 
-  Future<void> _loadImage(
+  Future<void> _loadMedia(
       ValueNotifier<File?> selectedImage,
       ValueNotifier<File?> selectedVideo,
       ValueNotifier<ChewieController?> chewieController,
@@ -851,5 +934,40 @@ class ChatPage extends HookConsumerWidget {
         textController.clear();
       }
     });
+  }
+
+  Future<void> _loadMediaByCamera(
+      ValueNotifier<File?> selectedImage,
+      ValueNotifier<File?> selectedVideo,
+      ValueNotifier<ChewieController?> chewieController,
+      ValueNotifier<VideoPlayerController?> videoPlayerController,
+      TextEditingController textController) async {
+    await ImagePicker().pickImage(source: ImageSource.camera).then((value) {
+      if (value != null) {
+        if (['mov', 'mp4'].contains(value.path.split('.').last)) {
+          selectedVideo.value = File(value.path);
+          videoPlayerController.value = VideoPlayerController.file(selectedVideo.value!);
+          chewieController.value = ChewieController(
+              videoPlayerController: videoPlayerController.value!,
+              autoPlay: true,
+              looping: true,
+              allowFullScreen: false,
+              allowPlaybackSpeedChanging: false);
+        } else {
+          selectedImage.value = File(value.path);
+        }
+        textController.clear();
+      }
+    });
+  }
+
+  Future<File?> _pickFile() async {
+    FilePickerResult? result = await FilePicker.platform.pickFiles();
+
+    if (result != null) {
+      return File(result.files.single.path!);
+    } else {
+      return null;
+    }
   }
 }
