@@ -7,7 +7,7 @@ import 'config.dart';
 
 class HttpClient {
   final Dio dio = Dio();
-  final String baseUrl = HttpConfig.devUrl;
+  final String baseUrl = HttpConfig.url;
 
   HttpClient();
 

@@ -20,6 +20,8 @@ class UserService extends SecuredHttpClient {
   final String basePath = '/account/api/users';
 
   Future<void> getMe(WidgetRef ref) async {
+    // dio.interceptors.add(LogInterceptor(requestBody: true, responseBody: true));
+
     await get(path: '$basePath/get-me', converter: (result) => result['data']).run(
       ref,
       (data) async {

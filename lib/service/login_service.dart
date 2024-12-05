@@ -5,7 +5,6 @@ import 'package:anychat/common/http_client.dart';
 import 'package:anychat/model/language.dart';
 import 'package:anychat/model/user.dart';
 import 'package:device_info_plus/device_info_plus.dart';
-import 'package:dio/dio.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -48,7 +47,6 @@ class LoginService extends HttpClient {
 
   Future<bool> signInWithApple(WidgetRef ref) async {
     late final bool result;
-    dio.interceptors.add(LogInterceptor(requestBody: true, responseBody: true));
     ref.read(loadingProvider.notifier).on();
     try {
       final AuthorizationCredentialAppleID appleCredential =

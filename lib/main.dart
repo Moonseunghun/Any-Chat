@@ -1,6 +1,7 @@
 import 'package:anychat/page/router.dart';
 import 'package:anychat/service/chat_service.dart';
 import 'package:anychat/service/database_service.dart';
+import 'package:anychat/service/gateway_service.dart';
 import 'package:anychat/state/util_state.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -13,7 +14,6 @@ import 'package:socket_io_client/socket_io_client.dart';
 import 'package:toastification/toastification.dart';
 
 import 'firebase_options.dart';
-import 'model/auth.dart';
 
 late final SharedPreferences prefs;
 Socket? socket;
@@ -30,6 +30,8 @@ Future<void> main() async {
 
   await DatabaseService.getDatabase();
 
+  GatewayService().gateway();
+
   runApp(const ProviderScope(child: MyApp()));
 }
 
@@ -39,7 +41,6 @@ class MyApp extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     useEffect(() {
-
       return () {
         DatabaseService.close();
         if (socket != null) {
