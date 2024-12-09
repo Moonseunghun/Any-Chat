@@ -30,5 +30,6 @@ class Auth {
     await prefs.remove('refresh_token');
     await prefs.remove('totalCount');
     await prefs.remove('isInitialSync');
+    await prefs.remove('uuid');
   }
 }

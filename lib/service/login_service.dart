@@ -9,6 +9,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
+import 'package:uuid/uuid.dart';
 
 import '../common/toast.dart';
 import '../main.dart';
@@ -99,6 +100,7 @@ class LoginService extends HttpClient {
       'lang': language.code,
       'fcmToken': 'tmp',
       'deviceId': await _getDeviceId(),
+      'deviceUUID': _getUUID()
     };
 
     await post(
@@ -121,6 +123,7 @@ class LoginService extends HttpClient {
       'providerTypeId': LoginType.getByProviderId(prefs.getString('login_type')!).value,
       'fcmToken': 'tmp',
       'deviceId': await _getDeviceId(),
+      'deviceUUID': _getUUID()
     };
 
     await post(
@@ -143,5 +146,18 @@ class LoginService extends HttpClient {
       final iosInfo = await DeviceInfoPlugin().iosInfo;
       return iosInfo.identifierForVendor ?? '';
     }
+  }
+
+  String _getUUID() {
+    late final String uuid;
+
+    if (prefs.getString('uuid') != null) {
+      uuid = prefs.getString('uuid')!;
+    } else {
+      uuid = const Uuid().v1();
+      prefs.setString('uuid', uuid);
+    }
+
+    return uuid;
   }
 }
