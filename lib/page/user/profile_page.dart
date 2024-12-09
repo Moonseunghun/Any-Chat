@@ -178,13 +178,25 @@ class ProfilePage extends HookConsumerWidget {
                             }
                           },
                           child: Container(
-                              color: Colors.transparent,
+                              padding: EdgeInsets.only(bottom: 6.h, top: 4.h),
+                              margin: EdgeInsets.only(left: 30.w, right: 22.w),
+                              decoration: BoxDecoration(
+                                color: Colors.transparent,
+                                border: Border(
+                                  bottom: BorderSide(
+                                    color: isEditMode.value
+                                        ? const Color(0xFFE0E2E4)
+                                        : Colors.transparent,
+                                    width: 1.0,
+                                  ),
+                                ),
+                              ),
                               child: Row(
-                                mainAxisSize: MainAxisSize.min,
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
+                                  const Spacer(),
                                   SizedBox(
-                                    width: 38.w,
+                                    width: 48.w,
                                     height: 18,
                                   ),
                                   Text(
@@ -194,9 +206,11 @@ class ProfilePage extends HookConsumerWidget {
                                         color: Color(0xFFF5F5F5),
                                         fontWeight: FontWeight.bold),
                                   ),
+                                  const Spacer(),
                                   Container(
                                       width: 38.w,
                                       height: 18,
+                                      margin: EdgeInsets.only(right: 10.w),
                                       alignment: Alignment.centerRight,
                                       child: isEditMode.value
                                           ? SvgPicture.asset('assets/images/pen.svg', height: 18)
@@ -213,12 +227,24 @@ class ProfilePage extends HookConsumerWidget {
                             }
                           },
                           child: Container(
-                              color: Colors.transparent,
+                              padding: EdgeInsets.only(bottom: 6.h, top: 4.h),
+                              margin: EdgeInsets.only(left: 30.w, right: 22.w),
+                              decoration: BoxDecoration(
+                                color: Colors.transparent,
+                                border: Border(
+                                  bottom: BorderSide(
+                                    color: isEditMode.value
+                                        ? const Color(0xFFE0E2E4)
+                                        : Colors.transparent,
+                                    width: 1.0,
+                                  ),
+                                ),
+                              ),
                               child: Row(
-                                mainAxisSize: MainAxisSize.min,
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  SizedBox(width: 38.w),
+                                  SizedBox(width: 48.w),
+                                  const Spacer(),
                                   Text(
                                     friend == null
                                         ? user.userInfo.stateMessage ?? '여기에 상태메세지를 입력해주세요'
@@ -229,9 +255,11 @@ class ProfilePage extends HookConsumerWidget {
                                         color: Color(0xFFF5F5F5)),
                                     textAlign: TextAlign.center,
                                   ),
+                                  const Spacer(),
                                   Container(
                                       width: 38.w,
                                       height: 18,
+                                      margin: EdgeInsets.only(right: 10.w),
                                       alignment: Alignment.centerRight,
                                       child: isEditMode.value
                                           ? SvgPicture.asset('assets/images/pen.svg', height: 18)
@@ -239,7 +267,9 @@ class ProfilePage extends HookConsumerWidget {
                                 ],
                               ))),
                       SizedBox(height: 28.h),
-                      const Divider(color: Color(0xFFE0E2E4), thickness: 1),
+                      Divider(
+                          color: isEditMode.value ? Colors.transparent : const Color(0xFFE0E2E4),
+                          thickness: 1),
                       SizedBox(height: 10.h),
                       SizedBox(
                           height: 74 + 32.h,

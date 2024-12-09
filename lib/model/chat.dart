@@ -73,6 +73,24 @@ class ChatRoomInfo extends Equatable {
     );
   }
 
+  ChatRoomInfo copyWith({
+    String? id,
+    String? name,
+    String? lastMessage,
+    File? profileImg,
+    DateTime? lastMessageUpdatedAt,
+    int? unreadCount,
+  }) {
+    return ChatRoomInfo(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      lastMessage: lastMessage ?? this.lastMessage,
+      profileImg: profileImg ?? this.profileImg,
+      lastMessageUpdatedAt: lastMessageUpdatedAt ?? this.lastMessageUpdatedAt,
+      unreadCount: unreadCount ?? this.unreadCount,
+    );
+  }
+
   @override
   List<Object?> get props => [id];
 }

@@ -6,6 +6,7 @@ import 'package:anychat/page/chat/camera_page.dart';
 import 'package:anychat/page/image_close_page.dart';
 import 'package:anychat/page/router.dart';
 import 'package:anychat/service/chat_service.dart';
+import 'package:anychat/state/chat_state.dart';
 import 'package:anychat/state/user_state.dart';
 import 'package:chewie/chewie.dart';
 import 'package:file_picker/file_picker.dart';
@@ -125,6 +126,8 @@ class ChatPage extends HookConsumerWidget {
 
     useEffect(() {
       WidgetsBinding.instance.addPostFrameCallback((_) {
+        ref.read(chatRoomInfoProvider.notifier).allRead(chatRoomHeader.chatRoomId);
+
         if (scrollAtBottom.value) {
           _scrollController.jumpTo(_scrollController.position.minScrollExtent);
         }
@@ -238,7 +241,7 @@ class ChatPage extends HookConsumerWidget {
                                       children: [
                                         if (!compareDates(
                                             beforeMessage?.createdAt, message.createdAt))
-                                          infoMessage(message.createdAt.yyyyMMdd()),
+                                          dateMessage(message.createdAt),
                                         if (message.messageType == MessageType.text ||
                                             message.messageType == MessageType.image ||
                                             message.messageType == MessageType.video ||
@@ -1029,6 +1032,21 @@ class ChatPage extends HookConsumerWidget {
           message,
           style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w500),
         ),
+      );
+
+  Widget dateMessage(DateTime dateTime) => Row(
+        children: [
+          Expanded(
+              child: Divider(
+                  color: const Color(0xFFA1A1A1), height: 20, thickness: 1, endIndent: 14.w)),
+          Text(
+            dateTime.yyyyMMdd(),
+            style: const TextStyle(fontSize: 10, color: Color(0xFFA1A1A1)),
+          ),
+          Expanded(
+              child:
+                  Divider(color: const Color(0xFFA1A1A1), height: 20, thickness: 1, indent: 14.w)),
+        ],
       );
 
   Future<void> _loadMedia(

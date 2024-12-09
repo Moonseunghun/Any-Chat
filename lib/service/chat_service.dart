@@ -205,8 +205,6 @@ class ChatService extends SecuredHttpClient {
 
       final Message message = await Message.fromJson(result);
 
-      print(message.content);
-
       final List<LoadingMessage> tmp = List.from(loadingMessages.value);
       final index = tmp.indexWhere((e) =>
           e.messageType == message.messageType &&
@@ -283,10 +281,12 @@ class ChatService extends SecuredHttpClient {
   void onInviteUsers() {
     socket!.on('S_CREATE_GROUP_CHAT_ROOM', (data) {
       router.pop();
+      print(data);
       socket!.on('S_LEAVE_ROOM', (_) {
         socket!.off('S_LEAVE_ROOM');
         router.push(ChatPage.routeName,
-            extra: ChatRoomHeader(chatRoomId: data['chatRoomId'], chatRoomName: data['name']));
+            extra:
+                ChatRoomHeader(chatRoomId: data['chatRoomId'], chatRoomName: data['chatRoomName']));
       });
     });
   }

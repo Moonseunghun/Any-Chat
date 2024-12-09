@@ -11,6 +11,12 @@ class ChatRoomInfoNotifier extends StateNotifier<List<ChatRoomInfo>> {
     save = chatRoomInfo..sort((a, b) => b.lastMessageUpdatedAt.compareTo(a.lastMessageUpdatedAt));
   }
 
+  void allRead(String chatRoomId) {
+    final tmp = state.map((e) => e.id == chatRoomId ? e.copyWith(unreadCount: 0) : e).toList();
+    state = tmp;
+    save = tmp;
+  }
+
   void update(ChatRoomInfo chatRoomInfo) {
     state = [...state.where((e) => e != chatRoomInfo), chatRoomInfo]
       ..sort((a, b) => b.lastMessageUpdatedAt.compareTo(a.lastMessageUpdatedAt));

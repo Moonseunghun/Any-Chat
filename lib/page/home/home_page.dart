@@ -64,10 +64,14 @@ class HomePage extends HookConsumerWidget {
                     child: Column(children: [
                   Container(
                     width: double.infinity,
-                    color: const Color(0xFFC74DFF).withOpacity(0.1),
                     padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 8.h),
+                    decoration: const BoxDecoration(
+                        border: Border(bottom: BorderSide(color: Color(0xFFE0E2E4), width: 1))),
                     child: Text('프로필',
-                        style: TextStyle(fontSize: 12.r, color: const Color(0xFF3B3B3B))),
+                        style: TextStyle(
+                            fontSize: 12.r,
+                            color: const Color(0xFF7C4DFF),
+                            fontWeight: FontWeight.w500)),
                   ),
                   SizedBox(height: 8.h),
                   _profileWidget(ref),
@@ -78,12 +82,17 @@ class HomePage extends HookConsumerWidget {
                       },
                       child: Container(
                           width: double.infinity,
-                          color: const Color(0xFFC74DFF).withOpacity(0.1),
                           padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 8.h),
+                          decoration: const BoxDecoration(
+                              border:
+                                  Border(bottom: BorderSide(color: Color(0xFFE0E2E4), width: 1))),
                           child: Row(
                             children: [
                               Text('즐겨찾기',
-                                  style: TextStyle(fontSize: 12.r, color: const Color(0xFF3B3B3B))),
+                                  style: TextStyle(
+                                      fontSize: 12.r,
+                                      color: const Color(0xFF7C4DFF),
+                                      fontWeight: FontWeight.w500)),
                               const Spacer(),
                               Icon(
                                   foldFavorites.value
@@ -107,12 +116,17 @@ class HomePage extends HookConsumerWidget {
                       },
                       child: Container(
                           width: double.infinity,
-                          color: const Color(0xFFC74DFF).withOpacity(0.1),
                           padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 8.h),
+                          decoration: const BoxDecoration(
+                              border:
+                                  Border(bottom: BorderSide(color: Color(0xFFE0E2E4), width: 1))),
                           child: Row(
                             children: [
                               Text('친구 ${ref.watch(friendCountProvider)}명',
-                                  style: TextStyle(fontSize: 12.r, color: const Color(0xFF3B3B3B))),
+                                  style: TextStyle(
+                                      fontSize: 12.r,
+                                      color: const Color(0xFF7C4DFF),
+                                      fontWeight: FontWeight.w500)),
                               const Spacer(),
                               Icon(
                                   foldFriends.value

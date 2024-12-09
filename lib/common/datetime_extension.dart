@@ -9,7 +9,10 @@ extension DateTimeExtension on DateTime {
     final year = this.year.toString().padLeft(4, '0');
     final month = this.month.toString().padLeft(2, '0');
     final day = this.day.toString().padLeft(2, '0');
-    return '$year.$month.$day';
+
+    const days = ['월', '화', '수', '목', '금', '토', '일'];
+    final weekday = days[this.weekday - 1];
+    return '$year. $month. $day $weekday요일';
   }
 
   String toCustomDateFormat() {
