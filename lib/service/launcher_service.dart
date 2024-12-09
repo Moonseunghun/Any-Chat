@@ -4,9 +4,9 @@ import 'package:anychat/common/config.dart';
 import 'package:anychat/common/error.dart';
 import 'package:dio/dio.dart';
 
-class GatewayService {
-  Future<void> gateway() async {
-    await Dio().get('${HttpConfig.prodUrl}/gateway/api', queryParameters: {
+class LauncherService {
+  Future<void> launcher() async {
+    await Dio().get('${HttpConfig.prodUrl}/launcher/api', queryParameters: {
       'appVersion': HttpConfig.appVersion,
       'osTypeId': Platform.isIOS ? 2 : 1,
     }).run(null, (result) {

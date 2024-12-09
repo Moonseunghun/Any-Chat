@@ -69,7 +69,6 @@ class MainLayout extends HookConsumerWidget {
         });
         FriendService().getPinned(ref);
         ChatService().getRooms(ref).then((_) {
-          ChatService().connectSocket(ref);
           prefs.setBool('isInitialSync', false);
         });
       });

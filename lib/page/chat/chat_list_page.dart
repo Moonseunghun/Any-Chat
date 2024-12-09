@@ -119,7 +119,7 @@ class ChatListPage extends HookConsumerWidget {
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.end,
                           children: [
-                            Text(chatRoomInfo.updatedAt.toCustomDateFormat(),
+                            Text(chatRoomInfo.lastMessageUpdatedAt.toCustomDateFormat(),
                                 style: const TextStyle(
                                     fontSize: 12,
                                     color: Color(0xFF3B3B3B),

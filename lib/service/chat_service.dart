@@ -10,6 +10,7 @@ import 'package:anychat/service/database_service.dart';
 import 'package:anychat/state/chat_state.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:path/path.dart' as p;
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 
 import '../common/config.dart';
@@ -131,10 +132,7 @@ class ChatService extends SecuredHttpClient {
 
   void disposeSocket() {
     socket!.disconnect();
-
-    socket!.onDisconnect((_) {
-      socket = null;
-    });
+    socket = null;
   }
 
   void joinRoom(
@@ -179,10 +177,10 @@ class ChatService extends SecuredHttpClient {
     socket!.emit('C_SEND_MESSAGE', {'message': message});
   }
 
-  Future<String> getRoomInfo(String chatRoomId) async {
+  Future<String?> getRoomInfo(String chatRoomId) async {
     return await get(path: '$basePath/$chatRoomId', converter: (result) => result['data']).run(null,
         (data) {
-      return data['ownerId'] as String;
+      return data['ownerId'] as String?;
     }, errorHandler: (_) {});
   }
 
@@ -191,10 +189,12 @@ class ChatService extends SecuredHttpClient {
         {'fileBuffer': file.readAsBytesSync(), 'fileName': file.path.split('/').last});
   }
 
-  void onMessageReceived(String chatRoomId, ValueNotifier<List<Message>> messages,
-      ValueNotifier<List<ChatUserInfo>> participants) {
+  void onMessageReceived(
+      String chatRoomId,
+      ValueNotifier<List<Message>> messages,
+      ValueNotifier<List<ChatUserInfo>> participants,
+      ValueNotifier<List<LoadingMessage>> loadingMessages) {
     socket!.on('S_SEND_MESSAGE', (result) async {
-      print('메시지 받음: $result');
       if (result['messageType'] == MessageType.invite.value) {
         await getParticipants(chatRoomId, participants);
       } else if (result['messageType'] == MessageType.kick.value) {
@@ -203,7 +203,26 @@ class ChatService extends SecuredHttpClient {
             .toList();
       }
 
-      messages.value = [await Message.fromJson(result), ...messages.value];
+      final Message message = await Message.fromJson(result);
+
+      print(message.content);
+
+      final List<LoadingMessage> tmp = List.from(loadingMessages.value);
+      final index = tmp.indexWhere((e) =>
+          e.messageType == message.messageType &&
+          e.status == MessageStatus.loading &&
+          (e.messageType == MessageType.text
+              ? e.content == message.content
+              : e.messageType == MessageType.video
+                  ? p.basename(e.content['file'].path) == message.content['fileName']
+                  : p.basename(e.content.path) == message.content['fileName']));
+
+      if (index != -1) {
+        tmp.removeAt(index);
+        loadingMessages.value = tmp;
+      }
+
+      messages.value = [message, ...messages.value];
 
       DatabaseService.insert('Message', Message.toMap(result));
 
@@ -217,7 +236,6 @@ class ChatService extends SecuredHttpClient {
 
   void onMessageRead(ValueNotifier<List<Message>> messages) {
     socket!.on('S_MESSAGE_READ', (data) {
-      print(data['updatedMessages']);
       final List<Map<String, dynamic>> updatedMessages = List<dynamic>.from(data['updatedMessages'])
           .map((e) => e as Map<String, dynamic>)
           .toList();

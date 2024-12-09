@@ -7,15 +7,15 @@ class ChatRoomInfoNotifier extends StateNotifier<List<ChatRoomInfo>> {
   List<ChatRoomInfo> save = [];
 
   void set(List<ChatRoomInfo> chatRoomInfo) {
-    state = chatRoomInfo..sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
-    save = chatRoomInfo..sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
+    state = chatRoomInfo..sort((a, b) => b.lastMessageUpdatedAt.compareTo(a.lastMessageUpdatedAt));
+    save = chatRoomInfo..sort((a, b) => b.lastMessageUpdatedAt.compareTo(a.lastMessageUpdatedAt));
   }
 
   void update(ChatRoomInfo chatRoomInfo) {
     state = [...state.where((e) => e != chatRoomInfo), chatRoomInfo]
-      ..sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
+      ..sort((a, b) => b.lastMessageUpdatedAt.compareTo(a.lastMessageUpdatedAt));
     save = [...save.where((e) => e != chatRoomInfo), chatRoomInfo]
-      ..sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
+      ..sort((a, b) => b.lastMessageUpdatedAt.compareTo(a.lastMessageUpdatedAt));
   }
 
   void remove(String chatRoomId) {
@@ -24,32 +24,32 @@ class ChatRoomInfoNotifier extends StateNotifier<List<ChatRoomInfo>> {
   }
 
   void sortByUpdatedAt() {
-    state = [...state]..sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
-    save = [...save]..sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
+    state = [...state]..sort((a, b) => b.lastMessageUpdatedAt.compareTo(a.lastMessageUpdatedAt));
+    save = [...save]..sort((a, b) => b.lastMessageUpdatedAt.compareTo(a.lastMessageUpdatedAt));
   }
 
   void sortByUnreadCount() {
     state = [...state]..sort((a, b) {
         if (a.unreadCount == 0 && b.unreadCount == 0) {
-          return b.updatedAt.compareTo(a.updatedAt);
+          return b.lastMessageUpdatedAt.compareTo(a.lastMessageUpdatedAt);
         } else if (a.unreadCount == 0) {
           return 1;
         } else if (b.unreadCount == 0) {
           return -1;
         } else {
-          return b.updatedAt.compareTo(a.updatedAt);
+          return b.lastMessageUpdatedAt.compareTo(a.lastMessageUpdatedAt);
         }
       });
 
     save = [...save]..sort((a, b) {
         if (a.unreadCount == 0 && b.unreadCount == 0) {
-          return b.updatedAt.compareTo(a.updatedAt);
+          return b.lastMessageUpdatedAt.compareTo(a.lastMessageUpdatedAt);
         } else if (a.unreadCount == 0) {
           return 1;
         } else if (b.unreadCount == 0) {
           return -1;
         } else {
-          return b.updatedAt.compareTo(a.updatedAt);
+          return b.lastMessageUpdatedAt.compareTo(a.lastMessageUpdatedAt);
         }
       });
   }

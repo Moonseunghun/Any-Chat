@@ -1,7 +1,9 @@
+import 'package:anychat/model/auth.dart';
 import 'package:anychat/page/router.dart';
 import 'package:anychat/service/chat_service.dart';
 import 'package:anychat/service/database_service.dart';
-import 'package:anychat/service/gateway_service.dart';
+import 'package:anychat/service/launcher_service.dart';
+import 'package:anychat/state/user_state.dart';
 import 'package:anychat/state/util_state.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -30,7 +32,7 @@ Future<void> main() async {
 
   await DatabaseService.getDatabase();
 
-  GatewayService().gateway();
+  LauncherService().launcher();
 
   runApp(const ProviderScope(child: MyApp()));
 }
@@ -43,11 +45,20 @@ class MyApp extends HookConsumerWidget {
     useEffect(() {
       return () {
         DatabaseService.close();
-        if (socket != null) {
+      };
+    }, []);
+
+    useEffect(() {
+      if (auth != null && socket == null) {
+        ChatService().connectSocket(ref);
+      }
+
+      return () {
+        if (auth == null && socket != null) {
           ChatService().disposeSocket();
         }
       };
-    }, []);
+    }, [ref.watch(userProvider)]);
 
     return ScreenUtilInit(
         designSize: const Size(393, 852),

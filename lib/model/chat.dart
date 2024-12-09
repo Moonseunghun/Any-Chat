@@ -21,14 +21,14 @@ class ChatRoomInfo extends Equatable {
   final String name;
   final String lastMessage;
   final File? profileImg;
-  final DateTime updatedAt;
+  final DateTime lastMessageUpdatedAt;
   final int unreadCount;
 
   const ChatRoomInfo({
     required this.id,
     required this.name,
     required this.lastMessage,
-    required this.updatedAt,
+    required this.lastMessageUpdatedAt,
     required this.unreadCount,
     this.profileImg,
   });
@@ -41,9 +41,9 @@ class ChatRoomInfo extends Equatable {
     return {
       'id': json['id'],
       'name': json['name'],
-      'lastMessage': json['lastMessage'],
+      'lastMessage': json['lastMessage'] is String ? json['lastMessage'] : '파일',
       'profileImg': opponent != null ? opponent['profileImg'] : null,
-      'updatedAt': json['updatedAt'],
+      'lastMessageUpdatedAt': json['lastMessageUpdatedAt'],
       'unreadCount': json['unreadCount'],
     };
   }
@@ -66,8 +66,8 @@ class ChatRoomInfo extends Equatable {
     return ChatRoomInfo(
       id: json['id'] as String,
       name: json['name'] as String,
-      lastMessage: json['lastMessage'] as String,
-      updatedAt: DateTime.parse(json['updatedAt'] as String).toLocal(),
+      lastMessage: json['lastMessage'] is String ? json['lastMessage'] : '파일',
+      lastMessageUpdatedAt: DateTime.parse(json['lastMessageUpdatedAt'] as String).toLocal(),
       unreadCount: json['unreadCount'] as int,
       profileImg: profileImg,
     );
