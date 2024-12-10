@@ -6,6 +6,8 @@
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
 
+    <uses-feature android:name="android.hardware.camera"/>
+
     <application
             android:label="anychat"
             android:name="${applicationName}"
@@ -38,7 +40,6 @@
                 android:name="flutterEmbedding"
                 android:value="2"/>
 
-        <uses-feature android:name="android.hardware.camera"/>
     </application>
     <!-- Required to query activities that can process text, see:
          https://developer.android.com/training/package-visibility and

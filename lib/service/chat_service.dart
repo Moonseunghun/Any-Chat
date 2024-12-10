@@ -26,7 +26,6 @@ class ChatService extends SecuredHttpClient {
   Future<void> getRooms(WidgetRef ref) async {
     await get(
         path: basePath,
-        queryParams: {if (prefs.getBool('isInitialSync') ?? true) 'isInitialSync': true},
         converter: (result) => result['data']).run(null, (result) async {
       List<ChatRoomInfo> chatRoomInfos = [];
 

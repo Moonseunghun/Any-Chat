@@ -17,6 +17,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:open_filex/open_filex.dart';
 import 'package:video_compress/video_compress.dart';
 import 'package:video_player/video_player.dart';
 
@@ -672,9 +673,8 @@ class ChatPage extends HookConsumerWidget {
                                                         BorderSide(color: Colors.grey, width: 1)),
                                                     borderRadius: BorderRadius.circular(4),
                                                     color: Colors.white),
-                                                child: Icon(Icons.file_download,
-                                                    size: 22,
-                                                    color: Colors.green.withOpacity(0.9))))
+                                                child: Icon(Icons.file_copy,
+                                                    size: 22, color: Colors.blue.withOpacity(0.9))))
                                       ],
                                     ))),
                 SizedBox(width: 4.w),
@@ -822,7 +822,11 @@ class ChatPage extends HookConsumerWidget {
                                                   color: Color(0xFF3B3B3B)))),
                                       SizedBox(width: 4.w),
                                       GestureDetector(
-                                          onTap: () {},
+                                          onTap: () async {
+                                            if (message != null) {
+                                              await OpenFilex.open(message.content['file'].path);
+                                            }
+                                          },
                                           child: Container(
                                               padding: const EdgeInsets.all(4),
                                               decoration: BoxDecoration(
@@ -830,8 +834,8 @@ class ChatPage extends HookConsumerWidget {
                                                       BorderSide(color: Colors.grey, width: 1)),
                                                   borderRadius: BorderRadius.circular(4),
                                                   color: Colors.white),
-                                              child: Icon(Icons.file_download,
-                                                  size: 22, color: Colors.green.withOpacity(0.9))))
+                                              child: Icon(Icons.file_copy,
+                                                  size: 22, color: Colors.blue.withOpacity(0.9))))
                                     ],
                                   ))
                 ])),
