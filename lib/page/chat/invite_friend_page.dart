@@ -59,7 +59,7 @@ class InviteFriendPage extends HookConsumerWidget {
                                 });
                               } else {
                                 ChatService().inviteUsers(
-                                    selectedFriends.value.map((e) => e.friend.id).toList());
+                                    selectedFriends.value.map((e) => e.friend.userId).toList());
                                 router.pop();
                               }
                             },
@@ -130,7 +130,7 @@ class InviteFriendPage extends HookConsumerWidget {
                           .watch(friendsProvider)
                           .where((e) => arguments == null
                               ? true
-                              : !arguments!['participants'].contains(e.friend.id))
+                              : !arguments!['participants'].contains(e.friend.userId))
                           .map((friend) => _profileWidget(selectedFriends, friend))
                           .toList(),
                     ))))

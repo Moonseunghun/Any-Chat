@@ -88,6 +88,15 @@ class UserService extends SecuredHttpClient {
     }, errorMessage: '언어 설정에 실패했습니다');
   }
 
+  Future<String> getUserName(String userId) async {
+    return await get(
+        path: '$basePath/user-id',
+        queryParams: {'userId': userId},
+        converter: (result) => result['data']).run(null, (data) {
+      return data['name'];
+    });
+  }
+
   Future<void> logOut(WidgetRef ref) async {
     await Auth.clear();
     router.go(LoginPage.routeName);

@@ -32,7 +32,7 @@ class Friend extends Equatable {
   }
 
   static Future<Friend> fromMap(Map<String, dynamic> json) async {
-    final profileInfo = {'id': json['stringId'], 'profileImg': json['profileImg']};
+    final profileInfo = {'userId': json['stringId'], 'profileImg': json['profileImg']};
 
     return Friend(
       id: json['id'],
@@ -47,7 +47,7 @@ class Friend extends Equatable {
   static Map<String, dynamic> toMap(Map<String, dynamic> json) {
     return {
       'id': json['id'],
-      'stringId': json['friend']['id'],
+      'stringId': json['friend']['userId'],
       'nickName': json['nickname'],
       'originName': json['originName'],
       'friendTypeId': json['friendTypeId'],
@@ -78,12 +78,13 @@ class Friend extends Equatable {
 }
 
 class ProfileInfo {
-  final String id;
+  final String userId;
   final File? profileImg;
   final File? backgroundImg;
   final String? stateMessage;
 
-  ProfileInfo({required this.id, required this.profileImg, this.backgroundImg, this.stateMessage});
+  ProfileInfo(
+      {required this.userId, required this.profileImg, this.backgroundImg, this.stateMessage});
 
   static Future<ProfileInfo> fromJson(Map<String, dynamic> json) async {
     File? profileImg;
@@ -97,7 +98,7 @@ class ProfileInfo {
     }
 
     return ProfileInfo(
-        id: json['id'],
+        userId: json['userId'],
         profileImg: profileImg,
         backgroundImg: backgroundImg,
         stateMessage: json['stateMessage']);

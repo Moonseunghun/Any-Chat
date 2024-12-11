@@ -24,9 +24,7 @@ class ChatService extends SecuredHttpClient {
   final String basePath = '/chat/api';
 
   Future<void> getRooms(WidgetRef ref) async {
-    await get(
-        path: basePath,
-        converter: (result) => result['data']).run(null, (result) async {
+    await get(path: basePath, converter: (result) => result['data']).run(null, (result) async {
       List<ChatRoomInfo> chatRoomInfos = [];
 
       await DatabaseService.batchInsert(
@@ -53,7 +51,7 @@ class ChatService extends SecuredHttpClient {
     return await post(
         path: basePath,
         queryParams: {
-          'targetUserIds': friends.map((e) => e.friend.id).toList(),
+          'targetUserIds': friends.map((e) => e.friend.userId).toList(),
           'chatRoomName': chatRoomName
         },
         converter: (result) => result['data']).run(ref, (result) {
@@ -84,7 +82,7 @@ class ChatService extends SecuredHttpClient {
               .toList());
 
       if (messages.value.isNotEmpty) {
-        readMessage(messages.value.last.seqId);
+        readMessage(messages.value.first.seqId);
       }
 
       return result['nextCursor'];
@@ -158,7 +156,7 @@ class ChatService extends SecuredHttpClient {
               .toList());
 
       if (messages.value.isNotEmpty) {
-        readMessage(messages.value.last.seqId);
+        readMessage(messages.value.first.seqId);
       }
     });
   }
@@ -223,7 +221,7 @@ class ChatService extends SecuredHttpClient {
 
       DatabaseService.insert('Message', Message.toMap(result));
 
-      readMessage(messages.value.last.seqId);
+      readMessage(messages.value.first.seqId);
     });
   }
 
@@ -241,8 +239,10 @@ class ChatService extends SecuredHttpClient {
         final updateMessage = updatedMessages.where((e) => e['seqId'] == message.seqId).firstOrNull;
 
         if (updateMessage != null) {
-          DatabaseService.update('Message', {'readCount': updateMessage['readCount'] as int},
-              'seqId = ?', [message.seqId]);
+          if (updateMessage['readCount'] != null) {
+            DatabaseService.update('Message', {'readCount': updateMessage['readCount'] as int},
+                'seqId = ?', [message.seqId]);
+          }
 
           return message.copyWith(readCount: updateMessage['readCount'] as int);
         } else {

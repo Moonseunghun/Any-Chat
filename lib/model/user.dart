@@ -40,7 +40,7 @@ class User {
       id: json['id'],
       name: json['name'],
       userInfo: await UserInfo.fromJson(json['userInfo']),
-      phoneNumbers: List<String>.from(json['phoneNumbers']),
+      phoneNumbers: [],
     );
   }
 

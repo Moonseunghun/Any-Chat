@@ -88,7 +88,8 @@ class SecuredHttpClient extends HttpClient {
       };
 
   @override
-  Future<T> createRequest<T>(Future<T> Function() request) => request.call().catchError((e) async {
+  Future<T> createRequest<T>(Future<T> Function() request) =>
+      request.call().catchError((e, s) async {
         if ((e as Error).statusCode == 401) {
           return await this
               .request(
