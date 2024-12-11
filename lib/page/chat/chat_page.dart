@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:anychat/common/datetime_extension.dart';
 import 'package:anychat/model/chat.dart';
 import 'package:anychat/page/chat/camera_page.dart';
+import 'package:anychat/page/chat/kick_popup.dart';
 import 'package:anychat/page/image_close_page.dart';
 import 'package:anychat/page/router.dart';
 import 'package:anychat/service/chat_service.dart';
@@ -572,7 +573,7 @@ class ChatPage extends HookConsumerWidget {
                           ),
                         ),
                       ))))),
-      ..._showLeftBar(ref, isShow, participants, owner.value)
+      ..._showLeftBar(ref, context, isShow, participants, owner.value)
     ]);
   }
 
@@ -848,7 +849,7 @@ class ChatPage extends HookConsumerWidget {
     );
   }
 
-  List<Widget> _showLeftBar(WidgetRef ref, ValueNotifier<bool> isShow,
+  List<Widget> _showLeftBar(WidgetRef ref, BuildContext context, ValueNotifier<bool> isShow,
           ValueNotifier<List<ChatUserInfo>> participants, ChatUserInfo? owner) =>
       [
         if (isShow.value)
@@ -928,11 +929,11 @@ class ChatPage extends HookConsumerWidget {
                             padding: EdgeInsets.only(left: 20.w, right: 14.w, top: 10.h),
                             child: Column(
                               children: [
-                                _profileWidget(ref, participants.value.length, owner),
+                                _profileWidget(ref, context, participants.value.length, owner),
                                 ...participants.value
                                     .where((e) => e.id != ref.watch(userProvider)!.id)
                                     .map((e) => _profileWidget(
-                                        ref, participants.value.length, owner,
+                                        ref, context, participants.value.length, owner,
                                         participant: e))
                               ],
                             )),
@@ -958,7 +959,8 @@ class ChatPage extends HookConsumerWidget {
                 )))
       ];
 
-  Widget _profileWidget(WidgetRef ref, int participantCount, ChatUserInfo? owner,
+  Widget _profileWidget(
+          WidgetRef ref, BuildContext context, int participantCount, ChatUserInfo? owner,
           {ChatUserInfo? participant}) =>
       GestureDetector(
           onTap: () {},
@@ -1011,7 +1013,7 @@ class ChatPage extends HookConsumerWidget {
                     if (owner?.id == ref.read(userProvider)!.id)
                       GestureDetector(
                           onTap: () {
-                            ChatService().kickUser(participant.id);
+                            kickPopup(context, participant);
                           },
                           child: Container(
                             padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4),
