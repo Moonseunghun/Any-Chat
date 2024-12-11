@@ -8,6 +8,7 @@ import 'package:anychat/model/user.dart';
 import 'package:anychat/page/login/login_page.dart';
 import 'package:anychat/page/router.dart';
 import 'package:anychat/service/database_service.dart';
+import 'package:anychat/state/friend_state.dart';
 import 'package:anychat/state/user_state.dart';
 import 'package:anychat/state/util_state.dart';
 import 'package:dio/dio.dart';
@@ -15,13 +16,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../common/toast.dart';
 import '../model/auth.dart';
+import '../model/friend.dart';
 
 class UserService extends SecuredHttpClient {
   final String basePath = '/account/api/users';
 
   Future<void> getMe(WidgetRef ref) async {
-    // dio.interceptors.add(LogInterceptor(requestBody: true, responseBody: true));
-
     await get(path: '$basePath/get-me', converter: (result) => result['data']).run(
       ref,
       (data) async {
@@ -88,7 +88,14 @@ class UserService extends SecuredHttpClient {
     }, errorMessage: '언어 설정에 실패했습니다');
   }
 
-  Future<String> getUserName(String userId) async {
+  Future<String> getUserName(WidgetRef ref, String userId) async {
+    final Friend? friend =
+        ref.read(friendsProvider).where((e) => e.friend.userId == userId).firstOrNull;
+
+    if (friend != null) {
+      return friend.nickname;
+    }
+
     return await get(
         path: '$basePath/user-id',
         queryParams: {'userId': userId},

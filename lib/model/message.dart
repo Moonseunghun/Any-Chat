@@ -3,7 +3,9 @@ import 'dart:io';
 
 import 'package:anychat/common/cache_manager.dart';
 import 'package:anychat/model/chat.dart';
+import 'package:anychat/service/user_service.dart';
 import 'package:equatable/equatable.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:video_compress/video_compress.dart';
 
 enum MessageStatus { loading, fail }
@@ -101,33 +103,64 @@ class Message extends Equatable {
             ? ''
             : '${inviter.name}님께서 ${invitee.map((e) => e.name).join(', ')}님을 초대했습니다.';
       case MessageType.leave:
-        final ChatUserInfo? exitUser = participants!
-            .where((e) => e.id == (content as Map<String, dynamic>)['exitUserId'])
-            .firstOrNull;
-        return exitUser == null ? '' : '${exitUser.name}님께서 퇴장하였습니다.';
+        return '${(content as Map<String, dynamic>)['exitUserName']}님께서 퇴장하였습니다.';
       case MessageType.kick:
-        final ChatUserInfo? kicker = participants!
-            .where((e) => e.id == (content as Map<String, dynamic>)['kickedById'])
-            .firstOrNull;
-        final ChatUserInfo? kicked = participants
-            .where((e) => (content as Map<String, dynamic>)['kickedOutId'] == e.id)
-            .firstOrNull;
-        return kicker == null || kicked == null ? '' : '${kicker.name}님께서 ${kicked.name}님을 강퇴했습니다.';
+        return '${(content as Map<String, dynamic>)['kickerName']}님께서 ${(content as Map<String, dynamic>)['kickedName']}님을 강퇴했습니다.';
     }
   }
 
-  static Future<Message> fromJson(Map<String, dynamic> json) async {
+  static Future<Message> fromJson(
+      WidgetRef ref, List<ChatUserInfo>? participants, Map<String, dynamic> json) async {
     final MessageType messageType = MessageType.fromValue(json['messageType'] as int);
 
     late final dynamic content;
 
     if (messageType == MessageType.text) {
       content = json['content'] as String;
-    } else if (messageType == MessageType.invite ||
-        messageType == MessageType.kick ||
-        messageType == MessageType.leave) {
+    } else if (messageType == MessageType.invite) {
       content = (json['content'] is String ? jsonDecode(json['content']) : json['content'])
           as Map<String, dynamic>;
+    } else if (messageType == MessageType.kick) {
+      final map = (json['content'] is String ? jsonDecode(json['content']) : json['content'])
+          as Map<String, dynamic>;
+
+      final ChatUserInfo? kicker =
+          participants!.where((e) => e.id == map['kickedById']).firstOrNull;
+      final ChatUserInfo? kicked =
+          participants.where((e) => map['kickedOutId'] == e.id).firstOrNull;
+
+      late final String kickerName;
+      late final String kickedName;
+
+      if (kicker == null) {
+        kickerName = await UserService().getUserName(ref, map['kickedById']);
+      } else {
+        kickerName = kicker.name;
+      }
+
+      if (kicked == null) {
+        kickedName = await UserService().getUserName(ref, map['kickedOutId']);
+      } else {
+        kickedName = kicked.name;
+      }
+
+      content = {'kickerName': kickerName, 'kickedName': kickedName};
+    } else if (messageType == MessageType.leave) {
+      final map = (json['content'] is String ? jsonDecode(json['content']) : json['content'])
+          as Map<String, dynamic>;
+
+      final ChatUserInfo? exitUser =
+          participants!.where((e) => e.id == map['exitUserId']).firstOrNull;
+
+      late final String exitUserName;
+
+      if (exitUser == null) {
+        exitUserName = await UserService().getUserName(ref, map['exitUserId']);
+      } else {
+        exitUserName = exitUser.name;
+      }
+
+      content = {'exitUserName': exitUserName};
     } else if (messageType == MessageType.image || messageType == MessageType.file) {
       final Map<String, dynamic> map =
           (json['content'] is String ? jsonDecode(json['content']) : json['content']);
@@ -173,7 +206,7 @@ class Message extends Equatable {
     };
   }
 
-  Message copyWith({int? readCount}) {
+  Message copyWith({int? readCount, int? totalParticipants}) {
     return Message(
         id: id,
         chatRoomId: chatRoomId,
@@ -181,7 +214,7 @@ class Message extends Equatable {
         senderId: senderId,
         content: content,
         messageType: messageType,
-        totalParticipants: totalParticipants,
+        totalParticipants: totalParticipants ?? this.totalParticipants,
         readCount: readCount ?? this.readCount,
         createdAt: createdAt);
   }

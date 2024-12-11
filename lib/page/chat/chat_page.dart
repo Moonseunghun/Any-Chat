@@ -81,13 +81,13 @@ class ChatPage extends HookConsumerWidget {
           final List<Message> tmp = [];
 
           for (final message in value) {
-            tmp.add(await Message.fromJson(message));
+            tmp.add(await Message.fromJson(ref, participants.value, message));
           }
 
           messages.value = tmp;
         });
 
-        ChatService().joinRoom(chatRoomHeader.chatRoomId, messages, cursor);
+        ChatService().joinRoom(ref, participants, chatRoomHeader.chatRoomId, messages, cursor);
 
         DatabaseService.search('ChatUserInfo',
             where: 'chatRoomId = ?', whereArgs: [chatRoomHeader.chatRoomId]).then((value) async {
@@ -106,9 +106,10 @@ class ChatPage extends HookConsumerWidget {
           });
         });
         ChatService().onMessageRead(messages);
-        ChatService()
-            .onMessageReceived(chatRoomHeader.chatRoomId, messages, participants, loadingMessages);
+        ChatService().onMessageReceived(
+            ref, chatRoomHeader.chatRoomId, messages, participants, loadingMessages);
         ChatService().onKickUser();
+        ChatService().onUpdatedMessages(messages);
 
         _scrollController.addListener(() {
           if (_scrollController.position.pixels <= _scrollController.position.minScrollExtent) {
@@ -205,7 +206,8 @@ class ChatPage extends HookConsumerWidget {
                             if (notification is ScrollEndNotification &&
                                 notification.metrics.extentAfter == 0) {
                               ChatService()
-                                  .getMessages(messages, chatRoomHeader.chatRoomId, cursor.value)
+                                  .getMessages(ref, participants, messages,
+                                      chatRoomHeader.chatRoomId, cursor.value)
                                   .then((value) {
                                 cursor.value = value;
                               });

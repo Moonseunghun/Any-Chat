@@ -59,7 +59,7 @@ class ChatService extends SecuredHttpClient {
     }, errorMessage: '채팅방을 생성하는데 실패했습니다.');
   }
 
-  Future<String?> getMessages(
+  Future<String?> getMessages(WidgetRef ref, ValueNotifier<List<ChatUserInfo>> participants,
       ValueNotifier<List<Message>> messages, String chatRoomId, String? cursor) async {
     return await get(
         path: '$basePath/$chatRoomId/messages',
@@ -69,7 +69,7 @@ class ChatService extends SecuredHttpClient {
 
       for (final Map<String, dynamic> message
           in List<Map<String, dynamic>>.from(result['newMessages'])) {
-        tmp.add(await Message.fromJson(message));
+        tmp.add(await Message.fromJson(ref, participants.value, message));
       }
 
       messages.value = <Message>{...messages.value, ...tmp}.toList()
@@ -132,8 +132,8 @@ class ChatService extends SecuredHttpClient {
     socket = null;
   }
 
-  void joinRoom(
-      String chatRoomId, ValueNotifier<List<Message>> messages, ValueNotifier<String?> cursor) {
+  void joinRoom(WidgetRef ref, ValueNotifier<List<ChatUserInfo>> participants, String chatRoomId,
+      ValueNotifier<List<Message>> messages, ValueNotifier<String?> cursor) {
     socket!.emit('C_JOIN_ROOM', {'chatRoomId': chatRoomId});
     socket!.on('S_JOIN_ROOM', (data) async {
       final result = jsonDecode(data);
@@ -142,7 +142,7 @@ class ChatService extends SecuredHttpClient {
 
       for (final Map<String, dynamic> message
           in List<Map<String, dynamic>>.from(result['messages'])) {
-        tmp.add(await Message.fromJson(message));
+        tmp.add(await Message.fromJson(ref, participants.value, message));
       }
 
       messages.value = tmp..sort((a, b) => b.seqId.compareTo(a.seqId));
@@ -168,6 +168,7 @@ class ChatService extends SecuredHttpClient {
     socket!.off('S_SEND_MESSAGE');
     socket!.off('S_MESSAGE_READ');
     socket!.off('S_KICKED');
+    socket!.off('S_UPDATED_MESSAGES');
   }
 
   void sendMessage(String message) {
@@ -186,7 +187,7 @@ class ChatService extends SecuredHttpClient {
         {'fileBuffer': file.readAsBytesSync(), 'fileName': file.path.split('/').last});
   }
 
-  void onMessageReceived(
+  void onMessageReceived(WidgetRef ref,
       String chatRoomId,
       ValueNotifier<List<Message>> messages,
       ValueNotifier<List<ChatUserInfo>> participants,
@@ -198,9 +199,13 @@ class ChatService extends SecuredHttpClient {
         participants.value = participants.value
             .where((e) => e.id != (result['content'] as Map<String, dynamic>)['kickedOutId'])
             .toList();
+      } else if (result['messageType'] == MessageType.leave.value) {
+        participants.value = participants.value
+            .where((e) => e.id != (result['content'] as Map<String, dynamic>)['exitUserId'])
+            .toList();
       }
 
-      final Message message = await Message.fromJson(result);
+      final Message message = await Message.fromJson(ref, participants.value, result);
 
       final List<LoadingMessage> tmp = List.from(loadingMessages.value);
       final index = tmp.indexWhere((e) =>
@@ -242,9 +247,11 @@ class ChatService extends SecuredHttpClient {
           if (updateMessage['readCount'] != null) {
             DatabaseService.update('Message', {'readCount': updateMessage['readCount'] as int},
                 'seqId = ?', [message.seqId]);
-          }
 
-          return message.copyWith(readCount: updateMessage['readCount'] as int);
+            return message.copyWith(readCount: updateMessage['readCount'] as int);
+          } else {
+            return message;
+          }
         } else {
           return message;
         }
@@ -280,13 +287,45 @@ class ChatService extends SecuredHttpClient {
   void onInviteUsers() {
     socket!.on('S_CREATE_GROUP_CHAT_ROOM', (data) {
       router.pop();
-      print(data);
       socket!.on('S_LEAVE_ROOM', (_) {
         socket!.off('S_LEAVE_ROOM');
         router.push(ChatPage.routeName,
             extra:
                 ChatRoomHeader(chatRoomId: data['chatRoomId'], chatRoomName: data['chatRoomName']));
       });
+    });
+  }
+
+  void onUpdatedMessages(ValueNotifier<List<Message>> messages) {
+    socket!.on('S_UPDATED_MESSAGES', (data) {
+      final List<Map<String, dynamic>> updatedMessages = List<dynamic>.from(data['updatedMessages'])
+          .map((e) => e as Map<String, dynamic>)
+          .toList();
+
+      messages.value = messages.value.map((message) {
+        final updateMessage = updatedMessages.where((e) => e['seqId'] == message.seqId).firstOrNull;
+
+        if (updateMessage != null) {
+          if (updateMessage['readCount'] != null) {
+            DatabaseService.update(
+                'Message',
+                {
+                  'readCount': updateMessage['readCount'] as int,
+                  'totalParticipants': updateMessage['totalParticipants'] as int
+                },
+                'seqId = ?',
+                [message.seqId]);
+
+            return message.copyWith(
+                readCount: updateMessage['readCount'] as int,
+                totalParticipants: updateMessage['totalParticipants'] as int);
+          } else {
+            return message;
+          }
+        } else {
+          return message;
+        }
+      }).toList();
     });
   }
 
