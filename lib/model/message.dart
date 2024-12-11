@@ -93,15 +93,7 @@ class Message extends Equatable {
       case MessageType.file:
         return content as Map<String, dynamic>;
       case MessageType.invite:
-        final ChatUserInfo? inviter = participants!
-            .where((e) => e.id == (content as Map<String, dynamic>)['inviterId'])
-            .firstOrNull;
-        final List<ChatUserInfo> invitee = participants
-            .where((e) => (content as Map<String, dynamic>)['inviteeIds'].contains(e.id))
-            .toList();
-        return inviter == null
-            ? ''
-            : '${inviter.name}님께서 ${invitee.map((e) => e.name).join(', ')}님을 초대했습니다.';
+        return '${(content as Map<String, dynamic>)['inviterName']}님께서 ${(content as Map<String, dynamic>)['inviteeNames'].join(', ')}님을 초대했습니다.';
       case MessageType.leave:
         return '${(content as Map<String, dynamic>)['exitUserName']}님께서 퇴장하였습니다.';
       case MessageType.kick:
@@ -118,8 +110,31 @@ class Message extends Equatable {
     if (messageType == MessageType.text) {
       content = json['content'] as String;
     } else if (messageType == MessageType.invite) {
-      content = (json['content'] is String ? jsonDecode(json['content']) : json['content'])
+      final map = (json['content'] is String ? jsonDecode(json['content']) : json['content'])
           as Map<String, dynamic>;
+
+      final ChatUserInfo? inviter =
+          participants!.where((e) => e.id == map['inviterId']).firstOrNull;
+
+      final List<String> inviteeNames = [];
+
+      for (final String id in map['inviteeIds']) {
+        final ChatUserInfo? invitee = participants.where((e) => e.id == id).firstOrNull;
+        if (invitee != null) {
+          inviteeNames.add(invitee.name);
+        } else {
+          inviteeNames.add(await UserService().getUserName(ref, id));
+        }
+      }
+      late final String inviterName;
+
+      if (inviter == null) {
+        inviterName = await UserService().getUserName(ref, map['inviterId']);
+      } else {
+        inviterName = inviter.name;
+      }
+
+      content = {'inviterName': inviterName, 'inviteeNames': inviteeNames};
     } else if (messageType == MessageType.kick) {
       final map = (json['content'] is String ? jsonDecode(json['content']) : json['content'])
           as Map<String, dynamic>;
