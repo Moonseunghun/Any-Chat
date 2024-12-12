@@ -4,6 +4,7 @@ import 'package:anychat/page/home/home_page.dart';
 import 'package:anychat/page/setting/setting_page.dart';
 import 'package:anychat/service/chat_service.dart';
 import 'package:anychat/service/user_service.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -19,6 +20,7 @@ import '../state/friend_state.dart';
 import '../state/util_state.dart';
 
 String? friendsCursor;
+bool internetConnected = true;
 
 class MainLayout extends HookConsumerWidget {
   static const String routeName = '/';
@@ -31,6 +33,24 @@ class MainLayout extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     useEffect(() {
       WidgetsBinding.instance.addPostFrameCallback((_) {
+        Connectivity().onConnectivityChanged.listen((List<ConnectivityResult> result) {
+          if (result.contains(ConnectivityResult.mobile) ||
+              result.contains(ConnectivityResult.wifi)) {
+            if (!internetConnected) {
+              ChatService().connectSocket(ref);
+              FriendService().getFriends(ref, isInit: true).then((value) {
+                friendsCursor = value;
+              });
+              FriendService().getPinned(ref);
+              ChatService().getRooms(ref);
+
+              internetConnected = true;
+            }
+          } else {
+            internetConnected = false;
+          }
+        });
+
         UserService().getMe(ref);
         DatabaseService.search('Friends', where: 'isPinned = ?', whereArgs: [0])
             .then((value) async {

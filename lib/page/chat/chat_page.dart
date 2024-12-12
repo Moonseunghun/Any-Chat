@@ -10,6 +10,7 @@ import 'package:anychat/service/chat_service.dart';
 import 'package:anychat/state/chat_state.dart';
 import 'package:anychat/state/user_state.dart';
 import 'package:chewie/chewie.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -26,6 +27,8 @@ import '../../model/message.dart';
 import '../../service/database_service.dart';
 import '../video_player_page.dart';
 import 'invite_friend_page.dart';
+
+bool _internetConnected = true;
 
 class ChatPage extends HookConsumerWidget {
   static const String routeName = '/chat';
@@ -74,6 +77,29 @@ class ChatPage extends HookConsumerWidget {
 
     useEffect(() {
       WidgetsBinding.instance.addPostFrameCallback((_) {
+        Connectivity().onConnectivityChanged.listen((List<ConnectivityResult> result) {
+          if (result.contains(ConnectivityResult.mobile) ||
+              result.contains(ConnectivityResult.wifi)) {
+            if (!_internetConnected) {
+              ChatService()
+                  .joinRoom(ref, participants, chatRoomHeader.chatRoomId, messages, cursor);
+              ChatService().getParticipants(chatRoomHeader.chatRoomId, participants).then((_) {
+                ChatService().getRoomInfo(chatRoomHeader.chatRoomId).then((value) {
+                  owner.value = participants.value.where((e) => e.id == value).firstOrNull;
+                });
+              });
+              ChatService().onMessageRead(ref, messages);
+              ChatService().onMessageReceived(
+                  ref, chatRoomHeader.chatRoomId, messages, participants, loadingMessages);
+              ChatService().onKickUser(ref);
+              ChatService().onUpdatedMessages(ref, messages);
+              _internetConnected = true;
+            }
+          } else {
+            _internetConnected = false;
+          }
+        });
+
         DatabaseService.search('Message',
                 where: 'chatRoomId = ?',
                 whereArgs: [chatRoomHeader.chatRoomId],
@@ -106,11 +132,11 @@ class ChatPage extends HookConsumerWidget {
             owner.value = participants.value.where((e) => e.id == value).firstOrNull;
           });
         });
-        ChatService().onMessageRead(messages);
+        ChatService().onMessageRead(ref, messages);
         ChatService().onMessageReceived(
             ref, chatRoomHeader.chatRoomId, messages, participants, loadingMessages);
-        ChatService().onKickUser();
-        ChatService().onUpdatedMessages(messages);
+        ChatService().onKickUser(ref);
+        ChatService().onUpdatedMessages(ref, messages);
 
         _scrollController.addListener(() {
           if (_scrollController.position.pixels <= _scrollController.position.minScrollExtent) {
@@ -123,7 +149,7 @@ class ChatPage extends HookConsumerWidget {
 
       return () {
         _scrollController.dispose();
-        ChatService().outRoom();
+        ChatService().outRoom(ref);
       };
     }, []);
 
@@ -393,7 +419,7 @@ class ChatPage extends HookConsumerWidget {
                                                 createdAt: DateTime.now()),
                                             ...loadingMessages.value
                                           ];
-                                          ChatService().sendMessage(messageController.text);
+                                          ChatService().sendMessage(ref, messageController.text);
                                           messageController.clear();
                                         } else if (selectedImage.value != null) {
                                           loadingMessages.value = [
@@ -405,7 +431,7 @@ class ChatPage extends HookConsumerWidget {
                                                 createdAt: DateTime.now()),
                                             ...loadingMessages.value
                                           ];
-                                          ChatService().sendFile(selectedImage.value!);
+                                          ChatService().sendFile(ref, selectedImage.value!);
                                           FocusScope.of(context).unfocus();
                                           selectedImage.value = null;
                                         } else if (selectedVideo.value != null) {
@@ -423,7 +449,7 @@ class ChatPage extends HookConsumerWidget {
                                                 createdAt: DateTime.now()),
                                             ...loadingMessages.value
                                           ];
-                                          ChatService().sendFile(selectedVideo.value!);
+                                          ChatService().sendFile(ref, selectedVideo.value!);
                                           if (!context.mounted) return;
                                           FocusScope.of(context).unfocus();
                                           selectedVideo.value = null;
@@ -514,7 +540,7 @@ class ChatPage extends HookConsumerWidget {
                                                                         createdAt: DateTime.now()),
                                                                     ...loadingMessages.value
                                                                   ];
-                                                                  ChatService().sendFile(file);
+                                                                  ChatService().sendFile(ref, file);
                                                                   if (!context.mounted) return;
                                                                   FocusScope.of(context).unfocus();
                                                                   showPlusMenu.value = false;
@@ -1013,7 +1039,7 @@ class ChatPage extends HookConsumerWidget {
                     if (owner?.id == ref.read(userProvider)!.id)
                       GestureDetector(
                           onTap: () {
-                            kickPopup(context, participant);
+                            kickPopup(context, ref, participant);
                           },
                           child: Container(
                             padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4),

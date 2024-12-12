@@ -22,6 +22,7 @@ class InviteFriendPage extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final selectedFriends = useState<List<Friend>>([]);
+    final searchController = useTextEditingController();
 
     return GestureDetector(
         onTap: () {
@@ -58,7 +59,7 @@ class InviteFriendPage extends HookConsumerWidget {
                                   router.push(ChatPage.routeName, extra: chatRoomHeader);
                                 });
                               } else {
-                                ChatService().inviteUsers(
+                                ChatService().inviteUsers(ref,
                                     selectedFriends.value.map((e) => e.friend.userId).toList());
                                 router.pop();
                               }
@@ -99,17 +100,20 @@ class InviteFriendPage extends HookConsumerWidget {
                 width: 393.w,
                 height: 50,
                 child: TextField(
+                  controller: searchController,
                   decoration: InputDecoration(
-                      hintText: '검색',
-                      hintStyle: TextStyle(
-                          color: const Color(0xFF3B3B3B).withOpacity(0.5),
-                          fontWeight: FontWeight.bold,
-                          fontSize: 20),
-                      contentPadding: EdgeInsets.symmetric(horizontal: 19.w),
-                      border: const OutlineInputBorder(
-                          borderSide: BorderSide(color: Colors.black, width: 1)),
-                      focusedBorder: const OutlineInputBorder(
-                          borderSide: BorderSide(color: Colors.black, width: 1))),
+                    hintText: '검색',
+                    hintStyle: TextStyle(
+                        color: const Color(0xFF3B3B3B).withOpacity(0.5),
+                        fontWeight: FontWeight.bold,
+                        fontSize: 20),
+                    contentPadding: EdgeInsets.symmetric(horizontal: 19.w),
+                    border: const OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.black, width: 1)),
+                    focusedBorder: const OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.black, width: 1)),
+                  ),
+                  onEditingComplete: () {},
                 )),
             const SizedBox(height: 18),
             Expanded(

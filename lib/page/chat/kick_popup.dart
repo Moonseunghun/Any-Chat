@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import '../../common/overlay.dart';
 import '../../model/chat.dart';
 import '../../service/chat_service.dart';
 
-kickPopup(BuildContext context, ChatUserInfo kickedUser) {
+kickPopup(BuildContext context, WidgetRef ref, ChatUserInfo kickedUser) {
   OverlayComponent.showOverlay(
       context: context,
       child: Stack(children: [
@@ -35,7 +36,7 @@ kickPopup(BuildContext context, ChatUserInfo kickedUser) {
                     const Spacer(),
                     GestureDetector(
                         onTap: () {
-                          ChatService().kickUser(kickedUser.id);
+                          ChatService().kickUser(ref, kickedUser.id);
                           OverlayComponent.hideOverlay();
                         },
                         child: Container(

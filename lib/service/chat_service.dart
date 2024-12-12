@@ -82,7 +82,7 @@ class ChatService extends SecuredHttpClient {
               .toList());
 
       if (messages.value.isNotEmpty) {
-        readMessage(messages.value.first.seqId);
+        readMessage(ref, messages.value.first.seqId);
       }
 
       return result['nextCursor'];
@@ -117,14 +117,20 @@ class ChatService extends SecuredHttpClient {
         IO.OptionBuilder().setTransports(['websocket']).setExtraHeaders(
             {'authorization': auth!.accessToken}).build());
 
-    socket!.connect();
+    if (socket == null || !socketConnected) {
+      socket!.connect();
 
-    socket!.on('S_CONNECTION', (data) {
-      socketConnected = true;
-      catchError();
-      onChatRoomInfo(ref);
-      onInviteUsers();
-    });
+      socket!.on('S_CONNECTION', (data) {
+        socketConnected = true;
+        catchError();
+        onChatRoomInfo(ref);
+        onInviteUsers();
+      });
+
+      socket!.onDisconnect((_) {
+        socketConnected = false;
+      });
+    }
   }
 
   void disposeSocket() {
@@ -134,6 +140,7 @@ class ChatService extends SecuredHttpClient {
 
   void joinRoom(WidgetRef ref, ValueNotifier<List<ChatUserInfo>> participants, String chatRoomId,
       ValueNotifier<List<Message>> messages, ValueNotifier<String?> cursor) {
+    connectSocket(ref);
     socket!.emit('C_JOIN_ROOM', {'chatRoomId': chatRoomId});
     socket!.on('S_JOIN_ROOM', (data) async {
       final result = jsonDecode(data);
@@ -156,12 +163,13 @@ class ChatService extends SecuredHttpClient {
               .toList());
 
       if (messages.value.isNotEmpty) {
-        readMessage(messages.value.first.seqId);
+        readMessage(ref, messages.value.first.seqId);
       }
     });
   }
 
-  void outRoom() {
+  void outRoom(WidgetRef ref) {
+    connectSocket(ref);
     socket!.emit('C_LEAVE_ROOM');
 
     socket!.off('S_JOIN_ROOM');
@@ -171,7 +179,8 @@ class ChatService extends SecuredHttpClient {
     socket!.off('S_UPDATED_MESSAGES');
   }
 
-  void sendMessage(String message) {
+  void sendMessage(WidgetRef ref, String message) {
+    connectSocket(ref);
     socket!.emit('C_SEND_MESSAGE', {'message': message});
   }
 
@@ -182,16 +191,19 @@ class ChatService extends SecuredHttpClient {
     }, errorHandler: (_) {});
   }
 
-  void sendFile(File file) {
+  void sendFile(WidgetRef ref, File file) {
+    connectSocket(ref);
     socket!.emit('C_SEND_FILE',
         {'fileBuffer': file.readAsBytesSync(), 'fileName': file.path.split('/').last});
   }
 
-  void onMessageReceived(WidgetRef ref,
+  void onMessageReceived(
+      WidgetRef ref,
       String chatRoomId,
       ValueNotifier<List<Message>> messages,
       ValueNotifier<List<ChatUserInfo>> participants,
       ValueNotifier<List<LoadingMessage>> loadingMessages) {
+    connectSocket(ref);
     socket!.on('S_SEND_MESSAGE', (result) async {
       if (result['messageType'] == MessageType.invite.value) {
         await getParticipants(chatRoomId, participants);
@@ -226,15 +238,17 @@ class ChatService extends SecuredHttpClient {
 
       DatabaseService.insert('Message', Message.toMap(result));
 
-      readMessage(messages.value.first.seqId);
+      readMessage(ref, messages.value.first.seqId);
     });
   }
 
-  void readMessage(int seqId) {
+  void readMessage(WidgetRef ref, int seqId) {
+    connectSocket(ref);
     socket!.emit('C_MESSAGE_READ', {'lastSeqId': seqId});
   }
 
-  void onMessageRead(ValueNotifier<List<Message>> messages) {
+  void onMessageRead(WidgetRef ref, ValueNotifier<List<Message>> messages) {
+    connectSocket(ref);
     socket!.on('S_MESSAGE_READ', (data) {
       final List<Map<String, dynamic>> updatedMessages = List<dynamic>.from(data['updatedMessages'])
           .map((e) => e as Map<String, dynamic>)
@@ -280,7 +294,8 @@ class ChatService extends SecuredHttpClient {
     }, errorMessage: '채팅방을 나가는데 실패했습니다.');
   }
 
-  void inviteUsers(List<String> ids) {
+  void inviteUsers(WidgetRef ref, List<String> ids) {
+    connectSocket(ref);
     socket!.emit('C_INVITE_USER', {'inviteeIds': ids});
   }
 
@@ -296,7 +311,8 @@ class ChatService extends SecuredHttpClient {
     });
   }
 
-  void onUpdatedMessages(ValueNotifier<List<Message>> messages) {
+  void onUpdatedMessages(WidgetRef ref, ValueNotifier<List<Message>> messages) {
+    connectSocket(ref);
     socket!.on('S_UPDATED_MESSAGES', (data) {
       final List<Map<String, dynamic>> updatedMessages = List<dynamic>.from(data['updatedMessages'])
           .map((e) => e as Map<String, dynamic>)
@@ -329,11 +345,13 @@ class ChatService extends SecuredHttpClient {
     });
   }
 
-  void kickUser(String userId) {
+  void kickUser(WidgetRef ref, String userId) {
+    connectSocket(ref);
     socket!.emit('C_KICK_USER', {'targetUserId': userId});
   }
 
-  void onKickUser() {
+  void onKickUser(WidgetRef ref) {
+    connectSocket(ref);
     socket!.on('S_KICKED', (_) {
       router.pop();
       errorToast(message: '강퇴되었습니다.');
