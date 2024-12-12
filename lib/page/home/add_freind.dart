@@ -72,7 +72,7 @@ addFriendPopup(BuildContext context, WidgetRef ref) {
                       GestureDetector(
                           onTap: () {
                             OverlayComponent.hideOverlay();
-                            router.push(QrViewPage.routeName);
+                            router.push(QrViewPage.routeName, extra: 0);
                           },
                           child: Container(
                               color: Colors.transparent,

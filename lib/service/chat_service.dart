@@ -43,19 +43,13 @@ class ChatService extends SecuredHttpClient {
     }, errorHandler: (_) {});
   }
 
-  Future<ChatRoomHeader> makeRoom(WidgetRef ref, List<Friend> friends) async {
-    final String chatRoomName = friends.length > 6
-        ? "${friends.map((e) => e.nickname).take(6).join(', ')}..."
-        : friends.map((e) => e.nickname).join(', ');
-
+  Future<ChatRoomHeader> makeRoom(WidgetRef ref, List<String> friends) async {
     return await post(
         path: basePath,
-        queryParams: {
-          'targetUserIds': friends.map((e) => e.friend.userId).toList(),
-          'chatRoomName': chatRoomName
-        },
+        queryParams: {'targetUserIds': friends},
         converter: (result) => result['data']).run(ref, (result) {
-      return ChatRoomHeader(chatRoomId: result['chatRoomId'] as String, chatRoomName: chatRoomName);
+      return ChatRoomHeader(
+          chatRoomId: result['chatRoomId'] as String, chatRoomName: result['name']);
     }, errorMessage: '채팅방을 생성하는데 실패했습니다.');
   }
 

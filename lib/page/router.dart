@@ -60,7 +60,8 @@ final router = GoRouter(
             transitionDuration: const Duration(milliseconds: 300))),
     GoRoute(
         path: AddFriendByIdPage.routeName, builder: (context, state) => const AddFriendByIdPage()),
-    GoRoute(path: QrViewPage.routeName, builder: (context, state) => QrViewPage()),
+    GoRoute(
+        path: QrViewPage.routeName, builder: (context, state) => QrViewPage(state.extra as int)),
     GoRoute(
         path: ChatPage.routeName,
         builder: (context, state) => ChatPage(state.extra as ChatRoomHeader)),

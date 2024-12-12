@@ -9,6 +9,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import '../../service/chat_service.dart';
 import '../../service/friend_service.dart';
+import '../home/qr_view_page.dart';
 import '../main_layout.dart';
 import 'chat_page.dart';
 
@@ -44,7 +45,9 @@ class InviteFriendPage extends HookConsumerWidget {
                       children: [
                         const Spacer(),
                         GestureDetector(
-                            onTap: () {},
+                            onTap: () {
+                              router.push(QrViewPage.routeName, extra: arguments == null ? 1 : 2);
+                            },
                             child: Container(
                                 padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 10),
                                 child: SvgPicture.asset('assets/images/qr_code.svg', width: 24))),
@@ -53,7 +56,8 @@ class InviteFriendPage extends HookConsumerWidget {
                             onTap: () {
                               if (arguments == null) {
                                 ChatService()
-                                    .makeRoom(ref, selectedFriends.value)
+                                    .makeRoom(ref,
+                                        selectedFriends.value.map((e) => e.friend.userId).toList())
                                     .then((chatRoomHeader) {
                                   router.pop();
                                   router.push(ChatPage.routeName, extra: chatRoomHeader);

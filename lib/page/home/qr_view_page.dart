@@ -4,15 +4,18 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
 
+import '../../service/chat_service.dart';
 import '../../service/friend_service.dart';
+import '../chat/chat_page.dart';
 import '../router.dart';
 
 class QrViewPage extends HookConsumerWidget {
   static const String routeName = '/qr_code';
 
-  QrViewPage({super.key});
+  QrViewPage(this.index, {super.key});
 
   final GlobalKey _qrKey = GlobalKey();
+  final int index;
   int scanCount = 0;
 
   @override
@@ -39,13 +42,26 @@ class QrViewPage extends HookConsumerWidget {
               scanCount = scanCount + 1;
               controller.pauseCamera();
               if (scanCount > 2) return;
-              FriendService().addFriend(ref, scanData.code!).then((_) {
+
+              if (index == 0) {
+                FriendService().addFriend(ref, scanData.code!).then((_) {
+                  router.pop();
+                }).catchError((e) {
+                  controller.resumeCamera();
+                }).whenComplete(() {
+                  scanCount = 0;
+                });
+              } else if (index == 1) {
+                ChatService().makeRoom(ref, [scanData.code!]).then((chatRoomHeader) {
+                  router.pop();
+                  router.pop();
+                  router.push(ChatPage.routeName, extra: chatRoomHeader);
+                });
+              } else if (index == 2) {
+                ChatService().inviteUsers(ref, [scanData.code!]);
                 router.pop();
-              }).catchError((e) {
-                controller.resumeCamera();
-              }).whenComplete(() {
-                scanCount = 0;
-              });
+                router.pop();
+              }
             });
           },
           overlay: QrScannerOverlayShape(

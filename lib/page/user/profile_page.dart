@@ -309,7 +309,8 @@ class ProfilePage extends HookConsumerWidget {
                                           GestureDetector(
                                               onTap: () {
                                                 ChatService()
-                                                    .makeRoom(ref, [friend]).then((chatRoomHeader) {
+                                                    .makeRoom(ref, [friend.friend.userId]).then(
+                                                        (chatRoomHeader) {
                                                   router.push(ChatPage.routeName,
                                                       extra: chatRoomHeader);
                                                 });

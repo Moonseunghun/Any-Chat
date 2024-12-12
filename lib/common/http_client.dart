@@ -1,4 +1,3 @@
-import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
 
 import '../model/auth.dart';
@@ -64,13 +63,6 @@ class HttpClient {
   Future<T> Function() request<T>(
           T Function(Map<String, dynamic>) converter, Future<Response> Function() handler) =>
       () async {
-        final connectivityResult = await Connectivity().checkConnectivity();
-
-        if (!connectivityResult.any(
-            (element) => [ConnectivityResult.wifi, ConnectivityResult.mobile].contains(element))) {
-          throw Error(CustomException('인터넷 연결을 확인해주세요.'));
-        }
-
         return await handler().then((result) => converter(result.data)).catchError(
             (error, stackTrace) => error is DioException
                 ? throw Error(error, stackTrace: stackTrace, statusCode: error.response?.statusCode)
