@@ -1,6 +1,8 @@
 import 'package:anychat/common/toast.dart';
 import 'package:anychat/model/language.dart';
+import 'package:anychat/page/login/privacy_page.dart';
 import 'package:anychat/page/login/set_profile_id_page.dart';
+import 'package:anychat/page/login/terms_page.dart';
 import 'package:anychat/page/router.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
@@ -31,8 +33,8 @@ class ConsentPage extends HookConsumerWidget {
       SizedBox(height: 10.h),
       const Divider(color: Color(0xFFBABABA), thickness: 1),
       SizedBox(height: 70.h),
-      _buildCheckBox(content: '개인정보처리방침 (필수)', check: firstCheck, url: ''),
-      _buildCheckBox(content: '서비스 이용약관 동의 (필수)', check: secondCheck, url: ''),
+      _buildCheckBox(content: '개인정보처리방침 (필수)', check: firstCheck, url: TermsPage.routeName),
+      _buildCheckBox(content: '서비스 이용약관 동의 (필수)', check: secondCheck, url: PrivacyPage.routeName),
       const Spacer(),
       GestureDetector(
         onTap: () {
@@ -79,15 +81,19 @@ class ConsentPage extends HookConsumerWidget {
               style:
                   const TextStyle(fontSize: 16, color: Colors.black, fontWeight: FontWeight.w500)),
           const Spacer(),
-          Container(
-            padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
-            decoration: BoxDecoration(
-                border: Border.all(color: const Color(0xFF7C4DFF)),
-                borderRadius: BorderRadius.circular(2)),
-            child: const Text('내용보기',
-                style:
-                    TextStyle(fontSize: 10, color: Color(0xFF7C4DFF), fontWeight: FontWeight.bold)),
-          ),
+          GestureDetector(
+              onTap: () {
+                router.push(url);
+              },
+              child: Container(
+                padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
+                decoration: BoxDecoration(
+                    border: Border.all(color: const Color(0xFF7C4DFF)),
+                    borderRadius: BorderRadius.circular(2)),
+                child: const Text('내용보기',
+                    style: TextStyle(
+                        fontSize: 10, color: Color(0xFF7C4DFF), fontWeight: FontWeight.bold)),
+              )),
           SizedBox(width: 20.w)
         ],
       );

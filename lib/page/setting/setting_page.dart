@@ -1,4 +1,5 @@
 import 'package:anychat/common/config.dart';
+import 'package:anychat/page/login/privacy_page.dart';
 import 'package:anychat/page/router.dart';
 import 'package:anychat/service/user_service.dart';
 import 'package:anychat/state/user_state.dart';
@@ -8,6 +9,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import '../login/language_select_page.dart';
+import '../login/terms_page.dart';
 import 'anychat_id_page.dart';
 
 class SettingPage extends HookConsumerWidget {
@@ -38,8 +40,16 @@ class SettingPage extends HookConsumerWidget {
                   router.push(AnychatIdPage.routeName);
                 },
                 optionText: ref.watch(userProvider)?.userInfo.profileId ?? 'ID를 만들어주세요'),
-            _buildListWidget(title: '이용약관 보기', onTap: () {}),
-            _buildListWidget(title: '개인정보처리방침 보기', onTap: () {}),
+            _buildListWidget(
+                title: '이용약관 보기',
+                onTap: () {
+                  router.push(TermsPage.routeName);
+                }),
+            _buildListWidget(
+                title: '개인정보처리방침 보기',
+                onTap: () {
+                  router.push(PrivacyPage.routeName);
+                }),
             _buildListWidget(title: '앱 버전 ${HttpConfig.appVersion}', onTap: () {}),
             _buildListWidget(title: '오픈소스 라이선스 보기', onTap: () {}),
             _buildListWidget(

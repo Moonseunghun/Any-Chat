@@ -15,7 +15,9 @@ import 'package:anychat/page/image_close_page.dart';
 import 'package:anychat/page/login/consent_page.dart';
 import 'package:anychat/page/login/language_select_page.dart';
 import 'package:anychat/page/login/login_page.dart';
+import 'package:anychat/page/login/privacy_page.dart';
 import 'package:anychat/page/login/set_profile_id_page.dart';
+import 'package:anychat/page/login/terms_page.dart';
 import 'package:anychat/page/setting/anychat_id_page.dart';
 import 'package:anychat/page/setting/set_anychat_id_page.dart';
 import 'package:anychat/page/user/profile_page.dart';
@@ -32,6 +34,8 @@ final router = GoRouter(
   routes: [
     GoRoute(path: LoginPage.routeName, builder: (context, state) => const LoginPage()),
     GoRoute(path: CameraPage.routeName, builder: (context, state) => const CameraPage()),
+    GoRoute(path: TermsPage.routeName, builder: (context, state) => const TermsPage()),
+    GoRoute(path: PrivacyPage.routeName, builder: (context, state) => const PrivacyPage()),
     GoRoute(
         path: LanguageSelectPage.routeName,
         builder: (context, state) => LanguageSelectPage(isCreate: (state.extra ?? false) as bool)),
@@ -96,7 +100,9 @@ final router = GoRouter(
       LoginPage.routeName,
       LanguageSelectPage.routeName,
       ConsentPage.routeName,
-      SetProfileIdPage.routeName
+      SetProfileIdPage.routeName,
+      TermsPage.routeName,
+      PrivacyPage.routeName
     ];
 
     final String? accessToken = prefs.getString('access_token');
