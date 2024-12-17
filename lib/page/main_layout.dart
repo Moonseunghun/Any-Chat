@@ -148,7 +148,7 @@ class MainLayout extends HookConsumerWidget {
             color: Colors.transparent,
             padding: EdgeInsets.symmetric(horizontal: 15.w, vertical: 10.h),
             child: SizedBox(
-                width: 40.w,
+                width: 48.w,
                 height: 47.h,
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -165,7 +165,8 @@ class MainLayout extends HookConsumerWidget {
                       style: TextStyle(
                           fontSize: 10.r,
                           fontWeight: FontWeight.w500,
-                          color: isSelected ? const Color(0xFF7C4DFF) : const Color(0xFF3B3B3B)),
+                          color: isSelected ? const Color(0xFF7C4DFF) : const Color(0xFF3B3B3B),
+                          overflow: TextOverflow.ellipsis),
                     )
                   ],
                 ))));

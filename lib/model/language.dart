@@ -16,7 +16,7 @@ enum Language {
   th("th", "แบบไทย", Locale('th', 'TH')),
   tr("tr", "Türkçe", Locale('tr', 'TR')),
   ph("tl", "Tagalog", Locale('tl', 'PH')),
-  kz("kk", "Қазақ тілі", Locale('kk')),
+  kz("kk", "Қазақ тілі", Locale('kz')),
   mn("mn", "Монгол хэл", Locale('mn', 'MN')),
   pt("pt", "Português", Locale('pt', 'PT')),
   uz("uz", "o'zbek", Locale('uz', 'UZ'));

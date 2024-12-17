@@ -5,13 +5,13 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/services.dart';
 
 class MultiLangAssetLoader extends AssetLoader {
-  const MultiLangAssetLoader();
-
   @override
   Future<Map<String, dynamic>> load(String path, Locale locale) async {
-    final jsonString = await rootBundle.loadString(path);
-    final Map<String, dynamic> jsonMap = json.decode(jsonString);
+    final data = await rootBundle.loadString(path);
+    final translations = json.decode(data) as Map<String, dynamic>;
 
-    return jsonMap[locale.languageCode] ?? {};
+    final langData = translations[locale.toLanguageTag()] as Map<String, dynamic>?;
+
+    return langData ?? {};
   }
 }

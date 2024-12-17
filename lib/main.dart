@@ -63,7 +63,7 @@ Future<void> main() async {
       ],
       path: 'assets/translations/translations.json',
       fallbackLocale: const Locale('en', 'US'),
-      assetLoader: const MultiLangAssetLoader(),
+      assetLoader: MultiLangAssetLoader(),
       child: const ProviderScope(child: MyApp())));
 }
 
@@ -105,6 +105,9 @@ class MyApp extends HookConsumerWidget {
                     useMaterial3: false,
                     scaffoldBackgroundColor: Colors.white,
                     fontFamily: 'Pretendard'),
+                locale: context.locale,
+                supportedLocales: context.supportedLocales,
+                localizationsDelegates: context.localizationDelegates,
                 routerConfig: router,
                 debugShowCheckedModeBanner: false,
                 builder: (context, child) {

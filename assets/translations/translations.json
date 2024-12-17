@@ -1,5 +1,5 @@
 {
-  "ko_KR": {
+  "ko-KR": {
     "locale": "한국어",
     "langset": "사용언어 설정",
     "btn_set": "설정",
@@ -42,7 +42,7 @@
     "email_enter": "Email 입력",
     "pw_find": "비밀번호 찾기"
   },
-  "en_US": {
+  "en-US": {
     "locale": "English",
     "langset": "Set language",
     "btn_set": "setting",
@@ -85,7 +85,7 @@
     "email_enter": "Enter your email",
     "pw_find": "find password"
   },
-  "ja_JP": {
+  "ja-JP": {
     "locale": "日本語",
     "langset": "言語を設定する",
     "btn_set": "設定",
@@ -128,7 +128,7 @@
     "email_enter": "メールアドレスを入力してください",
     "pw_find": "パスワードを見つける"
   },
-  "id_ID": {
+  "id-ID": {
     "locale": "bahasa Indonesia",
     "langset": "Tetapkan bahasa",
     "btn_set": "pengaturan",
@@ -171,7 +171,7 @@
     "email_enter": "Masukkan email Anda",
     "pw_find": "menemukan kata sandi"
   },
-  "th_TH": {
+  "th-TH": {
     "locale": "แบบไทย",
     "langset": "ตั้งค่าภาษา",
     "btn_set": "การตั้งค่า",
@@ -214,7 +214,7 @@
     "email_enter": "ใส่อีเมลของคุณ",
     "pw_find": "ค้นหารหัสผ่าน"
   },
-  "zh_CN": {
+  "zh-CN": {
     "locale": "简体中文",
     "langset": "设置语言",
     "btn_set": "环境",
@@ -257,7 +257,7 @@
     "email_enter": "输入您的电子邮件",
     "pw_find": "查找密码"
   },
-  "zh_TW": {
+  "zh-TW": {
     "locale": "繁体中文",
     "langset": "設定語言",
     "btn_set": "環境",
@@ -300,7 +300,7 @@
     "email_enter": "輸入您的電子郵件",
     "pw_find": "尋找密碼"
   },
-  "es_ES": {
+  "es-ES": {
     "locale": "español",
     "langset": "Establecer idioma",
     "btn_set": "configuración",
@@ -343,7 +343,7 @@
     "email_enter": "Introduce tu correo electrónico",
     "pw_find": "encontrar contraseña"
   },
-  "fr_FR": {
+  "fr-FR": {
     "locale": "français",
     "langset": "Définir la langue",
     "btn_set": "paramètre",
@@ -386,7 +386,7 @@
     "email_enter": "Entrez votre email",
     "pw_find": "trouver le mot de passe"
   },
-  "de_DE": {
+  "de-DE": {
     "locale": "Deutsch",
     "langset": "Sprache einstellen",
     "btn_set": "Einstellung",
@@ -429,7 +429,7 @@
     "email_enter": "Geben Sie Ihre E-Mail-Adresse ein",
     "pw_find": "Passwort finden"
   },
-  "vi_VN": {
+  "vi-VN": {
     "locale": "Tiếng Việt",
     "langset": "Đặt ngôn ngữ",
     "btn_set": "cài đặt",
@@ -515,7 +515,7 @@
     "email_enter": "Введите адрес электронной почты",
     "pw_find": "найти пароль"
   },
-  "ar_SA": {
+  "ar-SA": {
     "locale": "اللغة العربية",
     "langset": "ضبط اللغة",
     "btn_set": "جلسة",
@@ -558,7 +558,7 @@
     "email_enter": "أدخل بريدك الإلكتروني",
     "pw_find": "العثور على كلمة المرور"
   },
-  "tl_PH": {
+  "tl-PH": {
     "locale": "Tagalog",
     "langset": "Itakda ang wika",
     "btn_set": "setting",
@@ -644,7 +644,7 @@
     "email_enter": "Электрондық поштаңызды енгізіңіз",
     "pw_find": "құпия сөзді табыңыз"
   },
-  "mn_MN": {
+  "mn-MN": {
     "locale": "Монгол хэл",
     "langset": "Хэл тохируулах",
     "btn_set": "тохиргоо",
@@ -687,7 +687,7 @@
     "email_enter": "Имэйлээ оруулна уу",
     "pw_find": "нууц үгээ олох"
   },
-  "ms_MY": {
+  "ms-MY": {
     "locale": "Bahasa Malaysia",
     "langset": "Tetapkan bahasa",
     "btn_set": "tetapan",
@@ -730,7 +730,7 @@
     "email_enter": "Masukkan e-mel anda",
     "pw_find": "cari kata laluan"
   },
-  "pt_PT": {
+  "pt-PT": {
     "locale": "Português",
     "langset": "Definir idioma",
     "btn_set": "contexto",
@@ -773,7 +773,7 @@
     "email_enter": "Digite seu e-mail",
     "pw_find": "encontrar senha"
   },
-  "tr_TR": {
+  "tr-TR": {
     "locale": "Türkçe",
     "langset": "Dili ayarla",
     "btn_set": "ayar",
@@ -816,7 +816,7 @@
     "email_enter": "E-postanızı girin",
     "pw_find": "şifre bul"
   },
-  "uz_UZ": {
+  "uz-UZ": {
     "locale": "o'zbek",
     "langset": "Tilni sozlash",
     "btn_set": "sozlash",
