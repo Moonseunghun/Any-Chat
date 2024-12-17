@@ -11,6 +11,7 @@ import 'package:anychat/state/chat_state.dart';
 import 'package:anychat/state/user_state.dart';
 import 'package:chewie/chewie.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -37,7 +38,7 @@ class ChatPage extends HookConsumerWidget {
 
   final Map<String, String> plusMenu = {
     'album': '앨범',
-    'camera_circled': '카메라',
+    'camera_circled': 'cam_title'.tr(),
     'file': '파일',
     'contact': '연락처',
     'voice_call_circled': '음성통화',

@@ -2,6 +2,7 @@ import 'package:anychat/common/config.dart';
 import 'package:anychat/page/router.dart';
 import 'package:anychat/service/user_service.dart';
 import 'package:anychat/state/user_state.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -22,8 +23,8 @@ class SettingPage extends HookConsumerWidget {
             Container(
                 height: 50,
                 alignment: Alignment.centerLeft,
-                child: const Text('설정',
-                    style: TextStyle(
+                child: Text('btn_set'.tr(),
+                    style: const TextStyle(
                         fontSize: 20, fontWeight: FontWeight.bold, color: Color(0xFF3B3B3B)))),
             SizedBox(height: 20.h),
             _buildListWidget(

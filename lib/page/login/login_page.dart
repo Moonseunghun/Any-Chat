@@ -2,6 +2,7 @@ import 'package:anychat/page/login/language_select_page.dart';
 import 'package:anychat/page/router.dart';
 import 'package:anychat/service/login_service.dart';
 import 'package:anychat/service/user_service.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -54,11 +55,11 @@ class LoginPage extends HookConsumerWidget {
                         child: Align(
                             alignment: Alignment.centerLeft,
                             child: SvgPicture.asset('assets/images/google.svg', width: 22.r))),
-                    const Positioned.fill(
+                    Positioned.fill(
                         child: Align(
                             alignment: Alignment.center,
-                            child: Text('Google로 로그인',
-                                style: TextStyle(
+                            child: Text('login_google'.tr(),
+                                style: const TextStyle(
                                     fontSize: 16,
                                     color: Color(0xFF1A1A1A),
                                     fontWeight: FontWeight.w600)))),
@@ -95,11 +96,11 @@ class LoginPage extends HookConsumerWidget {
                         child: Align(
                             alignment: Alignment.centerLeft,
                             child: SvgPicture.asset('assets/images/apple.svg', width: 22.r))),
-                    const Positioned.fill(
+                    Positioned.fill(
                         child: Align(
                             alignment: Alignment.center,
-                            child: Text('Apple로 로그인',
-                                style: TextStyle(
+                            child: Text('login_apple'.tr(),
+                                style: const TextStyle(
                                     fontSize: 16,
                                     color: Colors.white,
                                     fontWeight: FontWeight.w600)))),

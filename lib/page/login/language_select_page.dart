@@ -2,6 +2,7 @@ import 'package:anychat/common/toast.dart';
 import 'package:anychat/model/language.dart';
 import 'package:anychat/page/router.dart';
 import 'package:anychat/service/user_service.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -30,7 +31,7 @@ class LanguageSelectPage extends HookConsumerWidget {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   SizedBox(height: 36.h),
-                  Text(isCreate ? '사용언어 설정' : '언어 설정',
+                  Text(isCreate ? 'langset'.tr() : '언어 설정',
                       style: const TextStyle(
                           fontSize: 24, fontWeight: FontWeight.bold, color: Colors.black)),
                   SizedBox(height: 38.h),
@@ -100,6 +101,8 @@ class LanguageSelectPage extends HookConsumerWidget {
                           errorToast(message: '언어를 선택해주세요');
                           return;
                         }
+
+                        context.setLocale(selectedLanguage.value!.locale);
 
                         if (isCreate) {
                           router.go(ConsentPage.routeName, extra: selectedLanguage.value);

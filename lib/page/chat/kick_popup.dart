@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -44,7 +45,7 @@ kickPopup(BuildContext context, WidgetRef ref, ChatUserInfo kickedUser) {
                               color: const Color(0xFF7A4DFF),
                               borderRadius: BorderRadius.circular(6.r)),
                           padding: EdgeInsets.symmetric(vertical: 13.h, horizontal: 40.w),
-                          child: Text('확인',
+                          child: Text('btn_confirm'.tr(),
                               style: TextStyle(
                                   color: Colors.white,
                                   fontSize: 15.r,

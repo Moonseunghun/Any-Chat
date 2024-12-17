@@ -2,6 +2,7 @@ import 'package:anychat/common/toast.dart';
 import 'package:anychat/model/language.dart';
 import 'package:anychat/page/login/set_profile_id_page.dart';
 import 'package:anychat/page/router.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -48,9 +49,9 @@ class ConsentPage extends HookConsumerWidget {
             margin: EdgeInsets.symmetric(horizontal: 20.w),
             decoration: BoxDecoration(
                 color: const Color(0xFF7C4DFF), borderRadius: BorderRadius.circular(10)),
-            child: const Center(
-                child: Text('확인',
-                    style: TextStyle(
+            child: Center(
+                child: Text('btn_confirm'.tr(),
+                    style: const TextStyle(
                         fontSize: 20, color: Colors.white, fontWeight: FontWeight.w600)))),
       ),
       SizedBox(height: 57.h)

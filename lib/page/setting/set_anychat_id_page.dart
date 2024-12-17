@@ -1,6 +1,7 @@
 import 'package:anychat/common/toast.dart';
 import 'package:anychat/model/user.dart';
 import 'package:anychat/service/user_service.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -50,8 +51,8 @@ class SetAnychatIdPage extends HookConsumerWidget {
                         color: Colors.transparent,
                         alignment: Alignment.center,
                         padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 6),
-                        child: const Text('확인',
-                            style: TextStyle(
+                        child: Text('btn_confirm'.tr(),
+                            style: const TextStyle(
                                 fontSize: 16, color: Colors.black, fontWeight: FontWeight.bold)))),
                 SizedBox(width: 10.w)
               ],
