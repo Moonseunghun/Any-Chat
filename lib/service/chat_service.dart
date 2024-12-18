@@ -7,6 +7,7 @@ import 'package:anychat/common/toast.dart';
 import 'package:anychat/main.dart';
 import 'package:anychat/model/chat.dart';
 import 'package:anychat/service/database_service.dart';
+import 'package:anychat/service/translate_service.dart';
 import 'package:anychat/state/chat_state.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -59,6 +60,7 @@ class ChatService extends SecuredHttpClient {
         queryParams: {'limit': 40, 'cursor': cursor},
         converter: (result) => result['data']).run(null, (result) async {
       final List<Message> tmp = [];
+      final List<Message> tmp2 = [];
 
       for (final Map<String, dynamic> message
           in List<Map<String, dynamic>>.from(result['newMessages'])) {
@@ -68,11 +70,16 @@ class ChatService extends SecuredHttpClient {
       messages.value = <Message>{...messages.value, ...tmp}.toList()
         ..sort((a, b) => b.seqId.compareTo(a.seqId));
 
-      DatabaseService.batchInsert(
-          'Message',
-          List<dynamic>.from(result['newMessages'])
-              .map((e) => Message.toMap(e as Map<String, dynamic>))
-              .toList());
+      for (final Message message in messages.value) {
+        if (message.messageType == MessageType.text) {
+          tmp2.add(await TranslateService().translate(ref, message));
+        } else {
+          tmp2.add(message);
+        }
+      }
+      messages.value = tmp2;
+
+      DatabaseService.batchInsert('Message', tmp2.map((e) => Message.toMap(e)).toList());
 
       if (messages.value.isNotEmpty) {
         readMessage(ref, messages.value.first.seqId);
@@ -139,6 +146,7 @@ class ChatService extends SecuredHttpClient {
       final result = jsonDecode(data);
 
       final List<Message> tmp = [];
+      final List<Message> tmp2 = [];
 
       for (final Map<String, dynamic> message
           in List<Map<String, dynamic>>.from(result['messages'])) {
@@ -149,11 +157,16 @@ class ChatService extends SecuredHttpClient {
 
       cursor.value = result['nextCursor'];
 
-      DatabaseService.batchInsert(
-          'Message',
-          List<dynamic>.from(result['messages'])
-              .map((e) => Message.toMap(e as Map<String, dynamic>))
-              .toList());
+      for (final Message message in messages.value) {
+        if (message.messageType == MessageType.text) {
+          tmp2.add(await TranslateService().translate(ref, message));
+        } else {
+          tmp2.add(message);
+        }
+      }
+      messages.value = tmp2;
+
+      DatabaseService.batchInsert('Message', tmp2.map((e) => Message.toMap(e)).toList());
 
       if (messages.value.isNotEmpty) {
         readMessage(ref, messages.value.first.seqId);
@@ -227,9 +240,16 @@ class ChatService extends SecuredHttpClient {
         loadingMessages.value = tmp;
       }
 
-      messages.value = [message, ...messages.value];
+      late final Message translatedMessage;
+      if (message.messageType == MessageType.text) {
+        translatedMessage = await TranslateService().translate(ref, message);
+      } else {
+        translatedMessage = message;
+      }
 
-      DatabaseService.insert('Message', Message.toMap(result));
+      messages.value = [translatedMessage, ...messages.value];
+
+      DatabaseService.insert('Message', Message.toMap(message));
 
       readMessage(ref, messages.value.first.seqId);
     });

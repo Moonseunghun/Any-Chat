@@ -65,11 +65,13 @@ class Message extends Equatable {
   final int seqId;
   final String senderId;
   final dynamic content;
+  final String? targetContent;
+  final String? targetLang;
   final MessageType messageType;
   final int? totalParticipants;
   final int? readCount;
   final DateTime createdAt;
-  final String lang;
+  final String? lang;
 
   const Message(
       {required this.id,
@@ -77,16 +79,18 @@ class Message extends Equatable {
       required this.seqId,
       required this.senderId,
       required this.content,
+      this.targetContent,
+      this.targetLang,
       required this.messageType,
       this.totalParticipants,
       this.readCount,
       required this.createdAt,
-      required this.lang});
+      this.lang});
 
-  dynamic showMessage({List<ChatUserInfo>? participants}) {
+  dynamic showMessage({List<ChatUserInfo>? participants, bool showOrigin = false}) {
     switch (messageType) {
       case MessageType.text:
-        return content as String;
+        return showOrigin ? content : (targetContent ?? content) as String;
       case MessageType.image:
         return content as Map<String, dynamic>;
       case MessageType.video:
@@ -114,25 +118,29 @@ class Message extends Equatable {
       final map = (json['content'] is String ? jsonDecode(json['content']) : json['content'])
           as Map<String, dynamic>;
 
-      final ChatUserInfo? inviter =
-          participants!.where((e) => e.id == map['inviterId']).firstOrNull;
-
-      final List<String> inviteeNames = [];
-
-      for (final String id in map['inviteeIds']) {
-        final ChatUserInfo? invitee = participants.where((e) => e.id == id).firstOrNull;
-        if (invitee != null) {
-          inviteeNames.add(invitee.name);
-        } else {
-          inviteeNames.add(await UserService().getUserName(ref, id));
-        }
-      }
       late final String inviterName;
-
-      if (inviter == null) {
-        inviterName = await UserService().getUserName(ref, map['inviterId']);
+      List<String> inviteeNames = [];
+      if (map['inviterName'] != null && map['inviteeNames'] != null) {
+        inviterName = map['inviterName'];
+        inviteeNames = List<dynamic>.of(map['inviteeNames']).map((e) => e as String).toList();
       } else {
-        inviterName = inviter.name;
+        final ChatUserInfo? inviter =
+            participants!.where((e) => e.id == map['inviterId']).firstOrNull;
+
+        for (final String id in map['inviteeIds']) {
+          final ChatUserInfo? invitee = participants.where((e) => e.id == id).firstOrNull;
+          if (invitee != null) {
+            inviteeNames.add(invitee.name);
+          } else {
+            inviteeNames.add(await UserService().getUserName(ref, id));
+          }
+        }
+
+        if (inviter == null) {
+          inviterName = await UserService().getUserName(ref, map['inviterId']);
+        } else {
+          inviterName = inviter.name;
+        }
       }
 
       content = {'inviterName': inviterName, 'inviteeNames': inviteeNames};
@@ -140,24 +148,29 @@ class Message extends Equatable {
       final map = (json['content'] is String ? jsonDecode(json['content']) : json['content'])
           as Map<String, dynamic>;
 
-      final ChatUserInfo? kicker =
-          participants!.where((e) => e.id == map['kickedById']).firstOrNull;
-      final ChatUserInfo? kicked =
-          participants.where((e) => map['kickedOutId'] == e.id).firstOrNull;
-
       late final String kickerName;
       late final String kickedName;
 
-      if (kicker == null) {
-        kickerName = await UserService().getUserName(ref, map['kickedById']);
+      if (map['kickerName'] != null && map['kickedName'] != null) {
+        kickedName = map['kickedName'];
+        kickerName = map['kickerName'];
       } else {
-        kickerName = kicker.name;
-      }
+        final ChatUserInfo? kicker =
+            participants!.where((e) => e.id == map['kickedById']).firstOrNull;
+        final ChatUserInfo? kicked =
+            participants.where((e) => map['kickedOutId'] == e.id).firstOrNull;
 
-      if (kicked == null) {
-        kickedName = await UserService().getUserName(ref, map['kickedOutId']);
-      } else {
-        kickedName = kicked.name;
+        if (kicker == null) {
+          kickerName = await UserService().getUserName(ref, map['kickedById']);
+        } else {
+          kickerName = kicker.name;
+        }
+
+        if (kicked == null) {
+          kickedName = await UserService().getUserName(ref, map['kickedOutId']);
+        } else {
+          kickedName = kicked.name;
+        }
       }
 
       content = {'kickerName': kickerName, 'kickedName': kickedName};
@@ -170,10 +183,14 @@ class Message extends Equatable {
 
       late final String exitUserName;
 
-      if (exitUser == null) {
-        exitUserName = await UserService().getUserName(ref, map['exitUserId']);
+      if (map['exitUserName'] != null) {
+        exitUserName = map['exitUserName'];
       } else {
-        exitUserName = exitUser.name;
+        if (exitUser == null) {
+          exitUserName = await UserService().getUserName(ref, map['exitUserId']);
+        } else {
+          exitUserName = exitUser.name;
+        }
       }
 
       content = {'exitUserName': exitUserName};
@@ -200,36 +217,43 @@ class Message extends Equatable {
         seqId: json['seqId'] as int,
         senderId: json['senderId'] as String,
         content: content,
+        targetContent: json['targetContent'] as String?,
+        targetLang: json['targetLang'] as String?,
         messageType: messageType,
         totalParticipants:
             json['totalParticipants'] == null ? null : json['totalParticipants'] as int,
         readCount: json['readCount'] == null ? 1 : json['readCount'] as int,
         createdAt: DateTime.parse(json['createdAt'] as String).toLocal(),
-        lang: json['lang'] as String);
+        lang: json['lang'] as String?);
   }
 
-  static Map<String, dynamic> toMap(Map<String, dynamic> json) {
+  static Map<String, dynamic> toMap(Message message) {
     return {
-      'id': json['id'] as String? ?? json['messageId'] as String,
-      'chatRoomId': json['chatRoomId'],
-      'seqId': json['seqId'],
-      'senderId': json['senderId'],
-      'content': json['content'] is String ? json['content'] : jsonEncode(json['content']),
-      'messageType': json['messageType'],
-      'totalParticipants': json['totalParticipants'],
-      'readCount': json['readCount'],
-      'createdAt': json['createdAt'],
-      'lang': json['lang']
+      'id': message.id,
+      'chatRoomId': message.chatRoomId,
+      'seqId': message.seqId,
+      'senderId': message.senderId,
+      'content': message.content is String ? message.content : jsonEncode(message.content),
+      'targetContent': message.targetContent,
+      'targetLang': message.targetLang,
+      'messageType': message.messageType.value,
+      'totalParticipants': message.totalParticipants,
+      'readCount': message.readCount,
+      'createdAt': message.createdAt.toUtc().toIso8601String(),
+      'lang': message.lang
     };
   }
 
-  Message copyWith({int? readCount, int? totalParticipants}) {
+  Message copyWith(
+      {String? targetContent, String? targetLang, int? readCount, int? totalParticipants}) {
     return Message(
         id: id,
         chatRoomId: chatRoomId,
         seqId: seqId,
         senderId: senderId,
         content: content,
+        targetContent: targetContent,
+        targetLang: targetLang,
         messageType: messageType,
         totalParticipants: totalParticipants ?? this.totalParticipants,
         readCount: readCount ?? this.readCount,

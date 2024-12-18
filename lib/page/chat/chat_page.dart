@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:anychat/common/datetime_extension.dart';
@@ -60,6 +61,7 @@ class ChatPage extends HookConsumerWidget {
     final messageController = useTextEditingController();
 
     final messages = useState<List<Message>>([]);
+    final showOriginMessages = useState<List<int>>([]);
     final loadingMessages = useState<List<LoadingMessage>>([]);
     final cursor = useState<String?>(null);
     final scrollAtBottom = useState<bool>(true);
@@ -77,8 +79,11 @@ class ChatPage extends HookConsumerWidget {
     }, [keyboardHeight]);
 
     useEffect(() {
+      late final StreamSubscription<List<ConnectivityResult>> subscription;
+
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        Connectivity().onConnectivityChanged.listen((List<ConnectivityResult> result) {
+        subscription =
+            Connectivity().onConnectivityChanged.listen((List<ConnectivityResult> result) {
           if (result.contains(ConnectivityResult.mobile) ||
               result.contains(ConnectivityResult.wifi)) {
             if (!_internetConnected) {
@@ -149,6 +154,7 @@ class ChatPage extends HookConsumerWidget {
       });
 
       return () {
+        subscription.cancel();
         _scrollController.dispose();
         ChatService().outRoom(ref);
       };
@@ -289,6 +295,7 @@ class ChatPage extends HookConsumerWidget {
                                                 )
                                               : _opponentChat(
                                                   message: message,
+                                                  showOriginMessages: showOriginMessages,
                                                   optional: optional || afterSenderId == null
                                                       ? true
                                                       : afterSenderId == ref.read(userProvider)!.id,
@@ -607,6 +614,7 @@ class ChatPage extends HookConsumerWidget {
   Widget _opponentChat(
       {bool first = false,
       bool optional = false,
+      required ValueNotifier<List<int>> showOriginMessages,
       required Message message,
       bool change = false,
       required ValueNotifier<List<ChatUserInfo>> participants}) {
@@ -653,7 +661,9 @@ class ChatPage extends HookConsumerWidget {
                       ),
                     ),
                     child: message.messageType == MessageType.text
-                        ? Text(message.showMessage(),
+                        ? Text(
+                            message.showMessage(
+                                showOrigin: showOriginMessages.value.contains(message.seqId)),
                             style: const TextStyle(
                                 fontWeight: FontWeight.w500,
                                 fontSize: 14,
@@ -695,7 +705,9 @@ class ChatPage extends HookConsumerWidget {
                                                     color: Color(0xFF3B3B3B)))),
                                         SizedBox(width: 4.w),
                                         GestureDetector(
-                                            onTap: () {},
+                                            onTap: () async {
+                                              await OpenFilex.open(message.content['file'].path);
+                                            },
                                             child: Container(
                                                 padding: const EdgeInsets.all(4),
                                                 decoration: BoxDecoration(
@@ -708,13 +720,26 @@ class ChatPage extends HookConsumerWidget {
                                       ],
                                     ))),
                 SizedBox(width: 4.w),
-                if (optional)
-                  Column(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('원문보기',
-                            style: TextStyle(fontSize: 11, color: Colors.black.withOpacity(0.7))),
+                Column(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      GestureDetector(
+                          onTap: () {
+                            showOriginMessages.value = showOriginMessages.value
+                                    .contains(message.seqId)
+                                ? showOriginMessages.value.where((e) => e != message.seqId).toList()
+                                : [...showOriginMessages.value, message.seqId];
+                          },
+                          child: Container(
+                              color: Colors.transparent,
+                              child: Text(
+                                  showOriginMessages.value.contains(message.seqId)
+                                      ? '번역보기'
+                                      : '원문보기',
+                                  style: TextStyle(
+                                      fontSize: 11, color: Colors.black.withOpacity(0.7))))),
+                      if (optional) ...[
                         if ((message.totalParticipants ?? 0) - message.readCount! > 0)
                           Text(((message.totalParticipants ?? 0) - message.readCount!).toString(),
                               style: TextStyle(fontSize: 11, color: Colors.black.withOpacity(0.7))),
@@ -723,7 +748,8 @@ class ChatPage extends HookConsumerWidget {
                                 fontSize: 10,
                                 color: Color(0xFF3B3B3B),
                                 fontWeight: FontWeight.w500)),
-                      ])
+                      ]
+                    ])
               ],
             )
           ],

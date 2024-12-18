@@ -70,9 +70,11 @@ class InviteFriendPage extends HookConsumerWidget {
                               }
                             },
                             child: Container(
+                                width: 90.w,
                                 padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 10),
                                 child: Text('btn_confirm'.tr(),
                                     style: const TextStyle(
+                                        overflow: TextOverflow.ellipsis,
                                         fontSize: 16,
                                         color: Colors.black,
                                         fontWeight: FontWeight.bold)))),

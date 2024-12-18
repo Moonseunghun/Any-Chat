@@ -32,6 +32,8 @@ class DatabaseService {
         seqId INTEGER,
         senderId TEXT,
         content TEXT,
+        targetContent TEXT,
+        targetLang TEXT,
         messageType INTEGER,
         totalParticipants INTEGER,
         readCount INTEGER,
