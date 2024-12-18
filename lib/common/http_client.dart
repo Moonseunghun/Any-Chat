@@ -100,3 +100,37 @@ class SecuredHttpClient extends HttpClient {
         }
       });
 }
+
+class TransHttpClient extends HttpClient {
+  TransHttpClient();
+
+  @override
+  String get baseUrl => HttpConfig.transUrl;
+
+  @override
+  Map<String, dynamic> optionsHeader({bool isMultipart = false}) => {
+        if (!isMultipart) 'Content-Type': 'application/json',
+        if (auth != null) 'Authorization': 'Bearer ${auth!.accessToken}'
+      };
+
+  @override
+  Future<T> createRequest<T>(Future<T> Function() request) =>
+      request.call().catchError((e, s) async {
+        if ((e as Error).statusCode == 401) {
+          return await this
+              .request(
+                  (result) => result['data'],
+                  () => dio.post('$baseUrl/account/api/auth/access-token',
+                      options: Options(headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ${auth!.refreshToken}'
+                      })))()
+              .then((data) async {
+            auth = auth!.copyWith(accessToken: data['accessToken']);
+            return await request.call();
+          });
+        } else {
+          throw e;
+        }
+      });
+}

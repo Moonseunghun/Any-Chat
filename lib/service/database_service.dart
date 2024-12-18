@@ -35,7 +35,8 @@ class DatabaseService {
         messageType INTEGER,
         totalParticipants INTEGER,
         readCount INTEGER,
-        createdAt TEXT
+        createdAt TEXT,
+        lang TEXT
       )
     ''');
 

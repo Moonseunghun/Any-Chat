@@ -63,7 +63,6 @@ class User {
         id: prefs.getString('id')!,
         name: prefs.getString('name')!,
         userInfo: UserInfo(
-          userId: prefs.getString('userId')!,
           profileId: prefs.getString('profileId'),
           lang: prefs.getString('lang')!,
           profileImg: null,
@@ -81,16 +80,13 @@ class User {
 }
 
 class UserInfo {
-  final String userId;
   final String? profileId;
   final String lang;
   final File? profileImg;
   final File? backgroundImg;
   final String? stateMessage;
 
-  UserInfo(
-      {required this.userId,
-      required this.profileId,
+  UserInfo({required this.profileId,
       required this.lang,
       required this.profileImg,
       required this.backgroundImg,
@@ -107,7 +103,6 @@ class UserInfo {
       backgroundImg = await CacheManager.getCachedFile(json['backgroundImg']);
     }
 
-    prefs.setString('userId', json['userId']);
     prefs.setString('profileId', json['profileId']);
     prefs.setString('lang', json['lang']);
     if (json['profileImg'] != null) {
@@ -121,7 +116,6 @@ class UserInfo {
     }
 
     return UserInfo(
-      userId: json['userId'],
       profileId: json['profileId'],
       lang: json['lang'],
       profileImg: profileImg,
@@ -138,7 +132,6 @@ class UserInfo {
     String? stateMessage,
   }) {
     return UserInfo(
-      userId: userId,
       profileId: profileId ?? this.profileId,
       lang: lang ?? this.lang,
       profileImg: profileImg ?? this.profileImg,

@@ -69,18 +69,19 @@ class Message extends Equatable {
   final int? totalParticipants;
   final int? readCount;
   final DateTime createdAt;
+  final String lang;
 
-  const Message({
-    required this.id,
-    required this.chatRoomId,
-    required this.seqId,
-    required this.senderId,
-    required this.content,
-    required this.messageType,
-    this.totalParticipants,
-    this.readCount,
-    required this.createdAt,
-  });
+  const Message(
+      {required this.id,
+      required this.chatRoomId,
+      required this.seqId,
+      required this.senderId,
+      required this.content,
+      required this.messageType,
+      this.totalParticipants,
+      this.readCount,
+      required this.createdAt,
+      required this.lang});
 
   dynamic showMessage({List<ChatUserInfo>? participants}) {
     switch (messageType) {
@@ -194,17 +195,17 @@ class Message extends Equatable {
     }
 
     return Message(
-      id: json['id'] as String? ?? json['messageId'] as String,
-      chatRoomId: json['chatRoomId'] as String,
-      seqId: json['seqId'] as int,
-      senderId: json['senderId'] as String,
-      content: content,
-      messageType: messageType,
-      totalParticipants:
-          json['totalParticipants'] == null ? null : json['totalParticipants'] as int,
-      readCount: json['readCount'] == null ? 1 : json['readCount'] as int,
-      createdAt: DateTime.parse(json['createdAt'] as String).toLocal(),
-    );
+        id: json['id'] as String? ?? json['messageId'] as String,
+        chatRoomId: json['chatRoomId'] as String,
+        seqId: json['seqId'] as int,
+        senderId: json['senderId'] as String,
+        content: content,
+        messageType: messageType,
+        totalParticipants:
+            json['totalParticipants'] == null ? null : json['totalParticipants'] as int,
+        readCount: json['readCount'] == null ? 1 : json['readCount'] as int,
+        createdAt: DateTime.parse(json['createdAt'] as String).toLocal(),
+        lang: json['lang'] as String);
   }
 
   static Map<String, dynamic> toMap(Map<String, dynamic> json) {
@@ -218,6 +219,7 @@ class Message extends Equatable {
       'totalParticipants': json['totalParticipants'],
       'readCount': json['readCount'],
       'createdAt': json['createdAt'],
+      'lang': json['lang']
     };
   }
 
@@ -231,7 +233,8 @@ class Message extends Equatable {
         messageType: messageType,
         totalParticipants: totalParticipants ?? this.totalParticipants,
         readCount: readCount ?? this.readCount,
-        createdAt: createdAt);
+        createdAt: createdAt,
+        lang: lang);
   }
 
   @override

@@ -15,7 +15,6 @@ import 'package:socket_io_client/socket_io_client.dart' as IO;
 
 import '../common/config.dart';
 import '../model/auth.dart';
-import '../model/friend.dart';
 import '../model/message.dart';
 import '../page/chat/chat_page.dart';
 import '../page/router.dart';

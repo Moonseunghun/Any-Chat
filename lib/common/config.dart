@@ -5,4 +5,5 @@ class HttpConfig {
   static String prodUrl = 'https://anychat-api.anychat.com';
 
   static String webSocketUrl = 'wss://dev-anychat-realtime.anychat.com';
+  static String transUrl = 'http://trans.anychat.com:5005/';
 }

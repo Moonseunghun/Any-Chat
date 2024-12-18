@@ -1,11 +1,17 @@
+import 'dart:async';
+
 import 'package:anychat/model/auth.dart';
 import 'package:anychat/model/language.dart';
+import 'package:anychat/page/main_layout.dart';
 import 'package:anychat/page/router.dart';
 import 'package:anychat/service/chat_service.dart';
 import 'package:anychat/service/database_service.dart';
+import 'package:anychat/service/friend_service.dart';
 import 'package:anychat/service/launcher_service.dart';
+import 'package:anychat/service/user_service.dart';
 import 'package:anychat/state/user_state.dart';
 import 'package:anychat/state/util_state.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -23,6 +29,7 @@ import 'firebase_options.dart';
 late final SharedPreferences prefs;
 Socket? socket;
 bool socketConnected = false;
+bool internetConnected = true;
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -73,24 +80,63 @@ class MyApp extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     useEffect(() {
+      late final StreamSubscription<List<ConnectivityResult>> subscription;
+
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (ref.read(userProvider) != null) {
           context.setLocale(Language.fromCode(ref.read(userProvider)!.userInfo.lang).locale);
         }
+
+        subscription =
+            Connectivity().onConnectivityChanged.listen((List<ConnectivityResult> result) {
+          if (result.contains(ConnectivityResult.mobile) ||
+              result.contains(ConnectivityResult.wifi)) {
+            if (!internetConnected) {
+              if (auth != null) {
+                UserService().getMe(ref).then((_) {
+                  if (!socketConnected) {
+                    ChatService().connectSocket(ref);
+                  }
+                });
+
+                FriendService().getFriends(ref, isInit: true).then((value) {
+                  friendsCursor = value;
+                });
+                FriendService().getPinned(ref);
+                ChatService().getRooms(ref);
+              }
+
+              internetConnected = true;
+            } else {
+              internetConnected = false;
+            }
+          }
+        });
       });
 
       return () {
         DatabaseService.close();
+        subscription.cancel();
       };
     }, []);
 
     useEffect(() {
-      if (auth != null && socket == null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (auth != null) {
+          FriendService().getFriends(ref, isInit: true).then((value) {
+            friendsCursor = value;
+          });
+          FriendService().getPinned(ref);
+          ChatService().getRooms(ref);
+        }
+      });
+
+      if (auth != null && !socketConnected) {
         ChatService().connectSocket(ref);
       }
 
       return () {
-        if (auth == null && socket != null) {
+        if (auth == null && socketConnected) {
           ChatService().disposeSocket();
         }
       };

@@ -29,5 +29,6 @@ class Auth {
     await prefs.remove('access_token');
     await prefs.remove('refresh_token');
     await prefs.remove('totalCount');
+    await prefs.remove('uuid');
   }
 }

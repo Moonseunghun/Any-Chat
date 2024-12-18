@@ -713,6 +713,8 @@ class ChatPage extends HookConsumerWidget {
                       mainAxisAlignment: MainAxisAlignment.end,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        Text('원문보기',
+                            style: TextStyle(fontSize: 11, color: Colors.black.withOpacity(0.7))),
                         if ((message.totalParticipants ?? 0) - message.readCount! > 0)
                           Text(((message.totalParticipants ?? 0) - message.readCount!).toString(),
                               style: TextStyle(fontSize: 11, color: Colors.black.withOpacity(0.7))),
