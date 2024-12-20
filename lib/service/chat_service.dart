@@ -9,6 +9,7 @@ import 'package:anychat/model/chat.dart';
 import 'package:anychat/service/database_service.dart';
 import 'package:anychat/service/translate_service.dart';
 import 'package:anychat/state/chat_state.dart';
+import 'package:anychat/state/user_state.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path/path.dart' as p;
@@ -251,7 +252,9 @@ class ChatService extends SecuredHttpClient {
 
       DatabaseService.insert('Message', Message.toMap(message));
 
-      readMessage(ref, messages.value.first.seqId);
+      if (messages.value.first.senderId != ref.read(userProvider)!.id) {
+        readMessage(ref, messages.value.first.seqId);
+      }
     });
   }
 

@@ -43,7 +43,7 @@ Future<void> main() async {
 
   await DatabaseService.getDatabase();
 
-  LauncherService().launcher();
+  await LauncherService().launcher();
 
   runApp(EasyLocalization(
       supportedLocales: const [

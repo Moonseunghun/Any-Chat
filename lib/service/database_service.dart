@@ -96,6 +96,6 @@ class DatabaseService {
   }
 
   static Future<void> close() async {
-    await _database!.close();
+    await _database?.close();
   }
 }

@@ -200,6 +200,7 @@ class Message extends Equatable {
 
       content = {
         'file': await CacheManager.getCachedFile(map['fileUrl']),
+        'path': map['fileUrl'],
         'fileName': map['fileName']
       };
     } else if (messageType == MessageType.video) {
@@ -208,7 +209,12 @@ class Message extends Equatable {
 
       final File file = await CacheManager.getCachedFile(map['fileUrl']);
       final File thumbnail = await VideoCompress.getFileThumbnail(file.path, quality: 50);
-      content = {'file': file, 'thumbnail': thumbnail, 'fileName': map['fileName']};
+      content = {
+        'file': file,
+        'path': map['fileUrl'],
+        'thumbnail': thumbnail,
+        'fileName': map['fileName']
+      };
     }
 
     return Message(
@@ -228,12 +234,25 @@ class Message extends Equatable {
   }
 
   static Map<String, dynamic> toMap(Message message) {
+    late final dynamic content;
+
+    if (message.messageType == MessageType.image ||
+        message.messageType == MessageType.file ||
+        message.messageType == MessageType.video) {
+      content = jsonEncode({
+        'fileUrl': (message.content as Map<String, dynamic>)['path'],
+        'fileName': (message.content as Map<String, dynamic>)['fileName']
+      });
+    } else {
+      content = message.content is String ? message.content : jsonEncode(message.content);
+    }
+
     return {
       'id': message.id,
       'chatRoomId': message.chatRoomId,
       'seqId': message.seqId,
       'senderId': message.senderId,
-      'content': message.content is String ? message.content : jsonEncode(message.content),
+      'content': content,
       'targetContent': message.targetContent,
       'targetLang': message.targetLang,
       'messageType': message.messageType.value,

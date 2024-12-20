@@ -674,7 +674,8 @@ class ChatPage extends HookConsumerWidget {
                                   router.push(ImageClosePage.routeName,
                                       extra: message.content['file'] as File);
                                 },
-                                child: Image.file(message.content as File, fit: BoxFit.cover))
+                                child:
+                                    Image.file(message.content['file'] as File, fit: BoxFit.cover))
                             : message.messageType == MessageType.video
                                 ? Stack(
                                     children: [
