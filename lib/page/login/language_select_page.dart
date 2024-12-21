@@ -1,5 +1,6 @@
 import 'package:anychat/common/toast.dart';
 import 'package:anychat/model/language.dart';
+import 'package:anychat/page/login/login_page.dart';
 import 'package:anychat/page/router.dart';
 import 'package:anychat/service/user_service.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -9,19 +10,17 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import '../../state/user_state.dart';
-import 'consent_page.dart';
 
 class LanguageSelectPage extends HookConsumerWidget {
   static const String routeName = '/language';
 
-  const LanguageSelectPage({this.isCreate = false, super.key});
-
-  final bool isCreate;
+  const LanguageSelectPage({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final selectedLanguage = useState<Language?>(
-        isCreate ? null : Language.fromCode(ref.read(userProvider)!.userInfo.lang));
+    final selectedLanguage = useState<Language?>(ref.read(userProvider) == null
+        ? null
+        : Language.fromCode(ref.read(userProvider)!.userInfo.lang));
 
     return Scaffold(
       body: SafeArea(
@@ -31,12 +30,16 @@ class LanguageSelectPage extends HookConsumerWidget {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   SizedBox(height: 36.h),
-                  Text(isCreate ? 'langset'.tr() : '언어 설정',
-                      style: const TextStyle(
-                          fontSize: 24, fontWeight: FontWeight.bold, color: Colors.black)),
+                  Text(
+                    ref.read(userProvider) == null ? 'langset'.tr() : 'set_language'.tr(),
+                    style: const TextStyle(
+                        fontSize: 24, fontWeight: FontWeight.bold, color: Colors.black),
+                    textAlign: TextAlign.center,
+                  ),
                   SizedBox(height: 38.h),
-                  const Text('ANYCHAT 서비스 이용을 위해 언어 설정이 필요합니다.',
-                      style: TextStyle(fontSize: 14, color: Color(0xFF16C1AF))),
+                  Text('langset_subj'.tr(),
+                      style: const TextStyle(fontSize: 14, color: Color(0xFF16C1AF)),
+                      textAlign: TextAlign.center),
                   SizedBox(height: 70.h),
                   Expanded(
                       child: GridView.builder(
@@ -104,22 +107,26 @@ class LanguageSelectPage extends HookConsumerWidget {
 
                         context.setLocale(selectedLanguage.value!.locale);
 
-                        if (isCreate) {
-                          router.go(ConsentPage.routeName, extra: selectedLanguage.value);
+                        if (ref.read(userProvider) == null) {
+                          router.go(LoginPage.routeName, extra: selectedLanguage.value);
                         } else {
                           UserService().setLanguage(ref, selectedLanguage.value!);
                         }
                       },
                       child: Container(
-                        width: 208.w,
+                        width: 240.w,
                         height: 54.h,
                         alignment: Alignment.center,
+                        padding: EdgeInsets.symmetric(horizontal: 10.w),
                         decoration: BoxDecoration(
                             color: const Color(0xFF7A4DFF),
                             borderRadius: BorderRadius.circular(27)),
-                        child: const Text('사용언어 설정하기',
-                            style: TextStyle(
-                                fontSize: 16, color: Colors.white, fontWeight: FontWeight.w500)),
+                        child: Text('langset_btn'.tr(),
+                            style: const TextStyle(
+                                fontSize: 16,
+                                color: Colors.white,
+                                fontWeight: FontWeight.w500,
+                                overflow: TextOverflow.ellipsis)),
                       )),
                   SizedBox(height: 30.h),
                 ],

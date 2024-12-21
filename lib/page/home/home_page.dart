@@ -4,6 +4,7 @@ import 'package:anychat/page/router.dart';
 import 'package:anychat/service/friend_service.dart';
 import 'package:anychat/state/friend_state.dart';
 import 'package:anychat/state/user_state.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -30,8 +31,8 @@ class HomePage extends HookConsumerWidget {
             child: Row(
               children: [
                 SizedBox(width: 20.w),
-                const Text('친구',
-                    style: TextStyle(
+                Text('friend'.tr(),
+                    style: const TextStyle(
                         fontSize: 20, fontWeight: FontWeight.bold, color: Color(0xFF3B3B3B))),
                 const Spacer(),
                 GestureDetector(
@@ -67,7 +68,7 @@ class HomePage extends HookConsumerWidget {
                     padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 8.h),
                     decoration: const BoxDecoration(
                         border: Border(bottom: BorderSide(color: Color(0xFFE0E2E4), width: 1))),
-                    child: Text('프로필',
+                    child: Text('profile'.tr(),
                         style: TextStyle(
                             fontSize: 12.r,
                             color: const Color(0xFF7C4DFF),
@@ -88,7 +89,7 @@ class HomePage extends HookConsumerWidget {
                                   Border(bottom: BorderSide(color: Color(0xFFE0E2E4), width: 1))),
                           child: Row(
                             children: [
-                              Text('즐겨찾기',
+                              Text('like'.tr(),
                                   style: TextStyle(
                                       fontSize: 12.r,
                                       color: const Color(0xFF7C4DFF),
@@ -122,7 +123,10 @@ class HomePage extends HookConsumerWidget {
                                   Border(bottom: BorderSide(color: Color(0xFFE0E2E4), width: 1))),
                           child: Row(
                             children: [
-                              Text('친구 ${ref.watch(friendCountProvider)}명',
+                              Text(
+                                  'friend_count'.tr(namedArgs: {
+                                    'friend_count': ref.watch(friendCountProvider).toString()
+                                  }),
                                   style: TextStyle(
                                       fontSize: 12.r,
                                       color: const Color(0xFF7C4DFF),

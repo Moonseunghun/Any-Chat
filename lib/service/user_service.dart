@@ -5,7 +5,7 @@ import 'package:anychat/common/error.dart';
 import 'package:anychat/common/http_client.dart';
 import 'package:anychat/model/language.dart';
 import 'package:anychat/model/user.dart';
-import 'package:anychat/page/login/login_page.dart';
+import 'package:anychat/page/login/language_select_page.dart';
 import 'package:anychat/page/router.dart';
 import 'package:anychat/service/database_service.dart';
 import 'package:anychat/state/friend_state.dart';
@@ -80,11 +80,13 @@ class UserService extends SecuredHttpClient {
     }, errorMessage: '프로필 수정에 실패했습니다');
   }
 
-  Future<void> setLanguage(WidgetRef ref, Language language) async {
+  Future<void> setLanguage(WidgetRef ref, Language language, {bool callbackPop = true}) async {
     await put(path: '$basePath/language', queryParams: {'lang': language.code}).run(ref, (_) {
       ref.read(userProvider.notifier).setLanguage(language);
-      router.pop();
-      errorToast(message: '언어 설정이 완료되었습니다');
+      if (callbackPop) {
+        router.pop();
+        errorToast(message: '언어 설정이 완료되었습니다');
+      }
     }, errorMessage: '언어 설정에 실패했습니다');
   }
 
@@ -106,7 +108,7 @@ class UserService extends SecuredHttpClient {
 
   Future<void> logOut(WidgetRef ref) async {
     await Auth.clear();
-    router.go(LoginPage.routeName);
+    router.go(LanguageSelectPage.routeName);
     DatabaseService.delete('ChatRoomInfo');
     DatabaseService.delete('Message');
     DatabaseService.delete('Friends');

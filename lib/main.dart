@@ -67,8 +67,10 @@ Future<void> main() async {
         Locale('pt', 'PT'),
         Locale('tr', 'TR'),
         Locale('uz', 'UZ'),
+        Locale('ms', 'MY')
       ],
       path: 'assets/translations/translations.json',
+      startLocale: const Locale('en', 'US'),
       fallbackLocale: const Locale('en', 'US'),
       assetLoader: MultiLangAssetLoader(),
       child: const ProviderScope(child: MyApp())));
@@ -85,6 +87,8 @@ class MyApp extends HookConsumerWidget {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (ref.read(userProvider) != null) {
           context.setLocale(Language.fromCode(ref.read(userProvider)!.userInfo.lang).locale);
+        } else {
+          context.setLocale(Language.us.locale);
         }
 
         subscription =

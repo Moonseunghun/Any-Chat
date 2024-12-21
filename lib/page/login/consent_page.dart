@@ -27,19 +27,19 @@ class ConsentPage extends HookConsumerWidget {
       SizedBox(height: 153.h),
       Padding(
           padding: EdgeInsets.only(left: 20.w),
-          child: const Text('개인정보 동의',
-              style:
-                  TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Color(0xFF7C4DFF)))),
+          child: Text('agree_title'.tr(),
+              style: const TextStyle(
+                  fontSize: 20, fontWeight: FontWeight.bold, color: Color(0xFF7C4DFF)))),
       SizedBox(height: 10.h),
       const Divider(color: Color(0xFFBABABA), thickness: 1),
       SizedBox(height: 70.h),
-      _buildCheckBox(content: '개인정보처리방침 (필수)', check: firstCheck, url: TermsPage.routeName),
-      _buildCheckBox(content: '서비스 이용약관 동의 (필수)', check: secondCheck, url: PrivacyPage.routeName),
+      _buildCheckBox(content: 'agree_privacy'.tr(), check: firstCheck, url: TermsPage.routeName),
+      _buildCheckBox(content: 'agree_terms'.tr(), check: secondCheck, url: PrivacyPage.routeName),
       const Spacer(),
       GestureDetector(
         onTap: () {
           if (!firstCheck.value || !secondCheck.value) {
-            errorToast(message: '필수 항목에 동의해주세요');
+            errorToast(message: 'agree_warning'.tr());
             return;
           }
 
@@ -90,8 +90,8 @@ class ConsentPage extends HookConsumerWidget {
                 decoration: BoxDecoration(
                     border: Border.all(color: const Color(0xFF7C4DFF)),
                     borderRadius: BorderRadius.circular(2)),
-                child: const Text('내용보기',
-                    style: TextStyle(
+                child: Text('agree_detail'.tr(),
+                    style: const TextStyle(
                         fontSize: 10, color: Color(0xFF7C4DFF), fontWeight: FontWeight.bold)),
               )),
           SizedBox(width: 20.w)

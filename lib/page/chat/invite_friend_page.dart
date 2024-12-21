@@ -72,6 +72,7 @@ class InviteFriendPage extends HookConsumerWidget {
                             child: Container(
                                 width: 90.w,
                                 padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 10),
+                                alignment: Alignment.centerRight,
                                 child: Text('btn_confirm'.tr(),
                                     style: const TextStyle(
                                         overflow: TextOverflow.ellipsis,
@@ -97,7 +98,7 @@ class InviteFriendPage extends HookConsumerWidget {
                     Positioned(
                         child: Align(
                       alignment: Alignment.center,
-                      child: Text(arguments == null ? '대화상대선택' : '대화상대초대',
+                      child: Text(arguments == null ? 'choice_partner'.tr() : '대화상대초대',
                           style: const TextStyle(
                               fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black)),
                     )),
@@ -109,7 +110,7 @@ class InviteFriendPage extends HookConsumerWidget {
                 child: TextField(
                   controller: searchController,
                   decoration: InputDecoration(
-                    hintText: '검색',
+                    hintText: 'search_title'.tr(),
                     hintStyle: TextStyle(
                         color: const Color(0xFF3B3B3B).withOpacity(0.5),
                         fontWeight: FontWeight.bold,

@@ -41,7 +41,7 @@ class SetAnychatIdPage extends HookConsumerWidget {
                 GestureDetector(
                     onTap: () {
                       if (!isValidProfileId(idController.text.trim())) {
-                        errorToast(message: '영문 + 숫자 조합 8자로 적어주세요');
+                        errorToast(message: 'profile_id_warn'.tr());
                         return;
                       }
 

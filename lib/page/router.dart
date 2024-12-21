@@ -32,13 +32,14 @@ import 'main_layout.dart';
 final router = GoRouter(
   initialLocation: MainLayout.routeName,
   routes: [
-    GoRoute(path: LoginPage.routeName, builder: (context, state) => const LoginPage()),
+    GoRoute(
+        path: LoginPage.routeName, builder: (context, state) => LoginPage(state.extra as Language)),
     GoRoute(path: CameraPage.routeName, builder: (context, state) => const CameraPage()),
     GoRoute(path: TermsPage.routeName, builder: (context, state) => const TermsPage()),
     GoRoute(path: PrivacyPage.routeName, builder: (context, state) => const PrivacyPage()),
     GoRoute(
         path: LanguageSelectPage.routeName,
-        builder: (context, state) => LanguageSelectPage(isCreate: (state.extra ?? false) as bool)),
+        builder: (context, state) => const LanguageSelectPage()),
     GoRoute(
         path: ConsentPage.routeName,
         builder: (context, state) => ConsentPage(state.extra as Language)),
@@ -114,7 +115,7 @@ final router = GoRouter(
     } else if (allowRoute.contains(state.fullPath)) {
       return null;
     } else {
-      return LoginPage.routeName;
+      return LanguageSelectPage.routeName;
     }
   },
 );

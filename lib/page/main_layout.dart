@@ -87,9 +87,17 @@ class MainLayout extends HookConsumerWidget {
             children: [
               SizedBox(width: 4.w),
               navigationBarIcon(
-                  ref: ref, index: 0, name: '홈', iconUrl: 'assets/images/home', iconSize: 24.r),
+                  ref: ref,
+                  index: 0,
+                  name: 'btn_home'.tr(),
+                  iconUrl: 'assets/images/home',
+                  iconSize: 24.r),
               navigationBarIcon(
-                  ref: ref, index: 1, name: '채팅', iconUrl: 'assets/images/chat', iconSize: 24.r),
+                  ref: ref,
+                  index: 1,
+                  name: 'btn_chat'.tr(),
+                  iconUrl: 'assets/images/chat',
+                  iconSize: 24.r),
               Container(
                   color: Colors.transparent,
                   padding: EdgeInsets.symmetric(horizontal: 15.w, vertical: 10.h),

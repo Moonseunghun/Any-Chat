@@ -4,6 +4,7 @@ import 'package:anychat/page/chat/chat_page.dart';
 import 'package:anychat/page/chat/show_sort_menu.dart';
 import 'package:anychat/page/router.dart';
 import 'package:anychat/state/chat_state.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -33,8 +34,8 @@ class ChatListPage extends HookConsumerWidget {
                 child: Row(
                   children: [
                     SizedBox(width: 20.w),
-                    const Text('채팅',
-                        style: TextStyle(
+                    Text('btn_chat'.tr(),
+                        style: const TextStyle(
                             fontSize: 20, fontWeight: FontWeight.bold, color: Color(0xFF3B3B3B))),
                     const Spacer(),
                     GestureDetector(
@@ -169,11 +170,11 @@ class ChatListPage extends HookConsumerWidget {
                         padding: EdgeInsets.symmetric(horizontal: 9.w, vertical: 13),
                         child: const Icon(Icons.close, color: Color(0xFF3B3B3B), size: 24),
                       )),
-                  const Positioned.fill(
+                  Positioned.fill(
                       child: Align(
                     alignment: Alignment.center,
-                    child: Text('새로운 채팅',
-                        style: TextStyle(
+                    child: Text('new_chat_title'.tr(),
+                        style: const TextStyle(
                             fontSize: 16, fontWeight: FontWeight.bold, color: Color(0xFF3B3B3B))),
                   ))
                 ],
@@ -191,8 +192,8 @@ class ChatListPage extends HookConsumerWidget {
                     children: [
                       SvgPicture.asset('assets/images/chat_unselected.svg', width: 36),
                       const SizedBox(height: 5),
-                      const Text('일반채팅',
-                          style: TextStyle(
+                      Text('btn_normal_chat'.tr(),
+                          style: const TextStyle(
                               fontSize: 12, color: Color(0xFF3B3B3B), fontWeight: FontWeight.w500))
                     ],
                   ))),
@@ -216,7 +217,7 @@ class ChatListPage extends HookConsumerWidget {
                 style: const TextStyle(
                     fontSize: 20, color: Color(0xFF3B3B3B), fontWeight: FontWeight.bold),
                 decoration: InputDecoration(
-                  hintText: '검색',
+                  hintText: 'search_title'.tr(),
                   hintStyle: TextStyle(
                       fontSize: 20,
                       color: const Color(0xFF3B3B3B).withOpacity(0.5),

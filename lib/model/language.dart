@@ -19,7 +19,8 @@ enum Language {
   kz("kk", "Қазақ тілі", Locale('kz')),
   mn("mn", "Монгол хэл", Locale('mn', 'MN')),
   pt("pt", "Português", Locale('pt', 'PT')),
-  uz("uz", "o'zbek", Locale('uz', 'UZ'));
+  uz("uz", "o'zbek", Locale('uz', 'UZ')),
+  ms("ms", "Bahasa Malaysia", Locale('ms', 'MY'));
 
   final String code;
   final String value;

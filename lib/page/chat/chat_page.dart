@@ -41,7 +41,7 @@ class ChatPage extends HookConsumerWidget {
     'album': '앨범',
     'camera_circled': 'cam_title'.tr(),
     'file': '파일',
-    'contact': '연락처',
+    'contact': 'contact_title'.tr(),
     'voice_call_circled': '음성통화',
     'face_call_circled': '영상통화'
   };

@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -55,8 +56,8 @@ class EditFriendPage extends HookConsumerWidget {
                 width: double.infinity,
                 color: const Color(0xFFC74DFF).withOpacity(0.1),
                 padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 8.h),
-                child:
-                    Text('프로필', style: TextStyle(fontSize: 12.r, color: const Color(0xFF3B3B3B))),
+                child: Text('profile'.tr(),
+                    style: TextStyle(fontSize: 12.r, color: const Color(0xFF3B3B3B))),
               ),
               SizedBox(height: 8.h),
               _profileWidget(ref),
@@ -67,7 +68,7 @@ class EditFriendPage extends HookConsumerWidget {
                   padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 8.h),
                   child: Row(
                     children: [
-                      Text('즐겨찾기',
+                      Text('like'.tr(),
                           style: TextStyle(fontSize: 12.r, color: const Color(0xFF3B3B3B))),
                       const Spacer(),
                     ],
@@ -85,7 +86,10 @@ class EditFriendPage extends HookConsumerWidget {
                   padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 8.h),
                   child: Row(
                     children: [
-                      Text('친구 ${ref.watch(friendCountProvider)}명',
+                      Text(
+                          'friend_count'.tr(namedArgs: {
+                            'friend_count': ref.watch(friendCountProvider).toString()
+                          }),
                           style: TextStyle(fontSize: 12.r, color: const Color(0xFF3B3B3B))),
                       const Spacer(),
                     ],

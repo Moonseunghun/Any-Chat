@@ -1,3 +1,4 @@
+import 'package:anychat/page/login/consent_page.dart';
 import 'package:anychat/page/login/language_select_page.dart';
 import 'package:anychat/page/router.dart';
 import 'package:anychat/service/login_service.dart';
@@ -8,12 +9,15 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
+import '../../model/language.dart';
 import '../main_layout.dart';
 
 class LoginPage extends HookConsumerWidget {
   static const String routeName = '/login';
 
-  const LoginPage({super.key});
+  const LoginPage(this.language, {super.key});
+
+  final Language language;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -33,10 +37,13 @@ class LoginPage extends HookConsumerWidget {
                   loginService.registerCheck(ref).then((result) {
                     if (result) {
                       loginService.login(ref).then((_) async {
-                        await UserService().getMe(ref).then((_) => router.go(MainLayout.routeName));
+                        await UserService().getMe(ref).then((_) async {
+                          await UserService().setLanguage(ref, language, callbackPop: false);
+                          router.go(MainLayout.routeName);
+                        });
                       });
                     } else {
-                      router.go(LanguageSelectPage.routeName, extra: true);
+                      router.go(ConsentPage.routeName, extra: language);
                     }
                   });
                 }

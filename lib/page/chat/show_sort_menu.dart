@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -35,13 +36,13 @@ showSortMenu(BuildContext context, WidgetRef ref) {
                     ]),
                 child: Column(
                   children: [
-                    _menuItem('최신 메세지 순', () {
+                    _menuItem('sort_new_msg'.tr(), () {
                       ref.read(chatRoomInfoProvider.notifier).sortByUpdatedAt();
                     }),
-                    _menuItem('안 읽은 메세지 순', () {
+                    _menuItem('sort_unread'.tr(), () {
                       ref.read(chatRoomInfoProvider.notifier).sortByUnreadCount();
                     }),
-                    _menuItem('즐겨찾기 순', () {}, showBorder: false),
+                    _menuItem('sort_favorite'.tr(), () {}, showBorder: false),
                   ],
                 )))
       ]));

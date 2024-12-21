@@ -1,4 +1,5 @@
 import 'package:anychat/common/config.dart';
+import 'package:anychat/model/language.dart';
 import 'package:anychat/page/login/privacy_page.dart';
 import 'package:anychat/page/router.dart';
 import 'package:anychat/service/user_service.dart';
@@ -30,31 +31,34 @@ class SettingPage extends HookConsumerWidget {
                         fontSize: 20, fontWeight: FontWeight.bold, color: Color(0xFF3B3B3B)))),
             SizedBox(height: 20.h),
             _buildListWidget(
-                title: '언어 설정',
+                title: 'set_language'.tr(),
                 onTap: () {
                   router.push(LanguageSelectPage.routeName);
                 }),
             _buildListWidget(
-                title: '애니챗 ID',
+                title: 'profile_id'.tr(),
                 onTap: () {
                   router.push(AnychatIdPage.routeName);
                 },
                 optionText: ref.watch(userProvider)?.userInfo.profileId ?? 'ID를 만들어주세요'),
             _buildListWidget(
-                title: '이용약관 보기',
+                title: 'set_show_terms'.tr(),
                 onTap: () {
                   router.push(TermsPage.routeName);
                 }),
             _buildListWidget(
-                title: '개인정보처리방침 보기',
+                title: 'set_show_privacy'.tr(),
                 onTap: () {
                   router.push(PrivacyPage.routeName);
                 }),
-            _buildListWidget(title: '앱 버전 ${HttpConfig.appVersion}', onTap: () {}),
-            _buildListWidget(title: '오픈소스 라이선스 보기', onTap: () {}),
             _buildListWidget(
-                title: '로그아웃',
+                title: 'set_appversion'.tr(namedArgs: {'app_version': HttpConfig.appVersion}),
+                onTap: () {}),
+            _buildListWidget(title: 'set_license'.tr(), onTap: () {}),
+            _buildListWidget(
+                title: 'set_logout'.tr(),
                 onTap: () {
+                  context.setLocale(Language.us.locale);
                   UserService().logOut(ref);
                 }),
           ],

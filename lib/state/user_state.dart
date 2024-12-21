@@ -35,6 +35,7 @@ class UserNotifier extends StateNotifier<User?> {
   }
 
   void setLanguage(Language language) {
+    prefs.setString('lang', language.code);
     state = state!.copyWith(userInfo: state!.userInfo.copyWith(lang: language.code));
   }
 

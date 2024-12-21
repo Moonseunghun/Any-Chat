@@ -1,5 +1,6 @@
 import 'package:anychat/page/setting/set_anychat_id_page.dart';
 import 'package:anychat/state/user_state.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -25,9 +26,9 @@ class AnychatIdPage extends ConsumerWidget {
                 router.pop();
               },
               icon: const Icon(Icons.close, color: Color(0xFF3B3B3B), size: 24)),
-          title: const Text('애니챗 ID',
-              style:
-                  TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Color(0xFF3B3B3B))),
+          title: Text('profile_id'.tr(),
+              style: const TextStyle(
+                  fontSize: 20, fontWeight: FontWeight.bold, color: Color(0xFF3B3B3B))),
           centerTitle: true),
       body: Padding(
           padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 30),

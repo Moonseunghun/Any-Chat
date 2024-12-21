@@ -33,8 +33,8 @@ class SetProfileIdPage extends HookConsumerWidget {
               SizedBox(height: 153.h),
               Padding(
                   padding: EdgeInsets.only(left: 20.w),
-                  child: const Text('프로필 ID 생성',
-                      style: TextStyle(fontSize: 20, color: Color(0xFF7C4DFF)))),
+                  child: Text('profile_id_title'.tr(),
+                      style: const TextStyle(fontSize: 20, color: Color(0xFF7C4DFF)))),
               SizedBox(height: 10.h),
               const Divider(color: Color(0xFFBABABA), thickness: 1),
               SizedBox(height: 50.h),
@@ -43,7 +43,7 @@ class SetProfileIdPage extends HookConsumerWidget {
                   child: TextField(
                       controller: idController,
                       decoration: InputDecoration(
-                          hintText: '애니챗 ID',
+                          hintText: 'profile_id'.tr(),
                           hintStyle: TextStyle(
                               fontSize: 20,
                               color: Colors.black.withOpacity(0.5),
@@ -54,14 +54,13 @@ class SetProfileIdPage extends HookConsumerWidget {
               SizedBox(height: 80.h),
               Padding(
                   padding: EdgeInsets.only(left: 20.w, right: 104.w),
-                  child: const Text(
-                      '프로필 ID는 영문 + 숫자 조합 8자로 적어주세요.\n프로필 ID는 친구를 추가하거나 찾을때 사용하는 고유 식별자 입니다.',
-                      style: TextStyle(fontSize: 12, color: Colors.black))),
+                  child: Text('profile_id_ex'.tr(),
+                      style: const TextStyle(fontSize: 12, color: Colors.black))),
               const Spacer(),
               GestureDetector(
                 onTap: () {
                   if (!isValidProfileId(idController.text.trim())) {
-                    errorToast(message: '영문 + 숫자 조합 8자로 적어주세요');
+                    errorToast(message: 'profile_id_warn'.tr());
                     return;
                   }
 
