@@ -138,9 +138,23 @@ class MainLayout extends HookConsumerWidget {
                         width: 32.r,
                         height: 32.r,
                         alignment: Alignment.center,
-                        child: SvgPicture.asset(
-                            '${iconUrl}_${isSelected ? "selected" : "unselected"}.svg',
-                            width: iconSize)),
+                        child: Stack(
+                          children: [
+                            SvgPicture.asset(
+                                '${iconUrl}_${isSelected ? "selected" : "unselected"}.svg',
+                                width: iconSize),
+                            if (index == 1 &&
+                                ref.watch(chatRoomInfoProvider).any((e) => e.unreadCount > 0))
+                              Positioned(
+                                  right: 0,
+                                  top: 0,
+                                  child: Container(
+                                      width: 7.r,
+                                      height: 7.r,
+                                      decoration: const BoxDecoration(
+                                          color: Colors.red, shape: BoxShape.circle)))
+                          ],
+                        )),
                     Text(
                       name,
                       style: TextStyle(

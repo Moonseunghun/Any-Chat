@@ -1,4 +1,5 @@
 import 'package:anychat/model/chat.dart';
+import 'package:anychat/service/database_service.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class ChatRoomInfoNotifier extends StateNotifier<List<ChatRoomInfo>> {
@@ -12,6 +13,8 @@ class ChatRoomInfoNotifier extends StateNotifier<List<ChatRoomInfo>> {
   }
 
   void allRead(String chatRoomId) {
+    DatabaseService.update('ChatRoomInfo', {'unreadCount': 0}, 'id = ?', [chatRoomId]);
+
     final tmp = state.map((e) => e.id == chatRoomId ? e.copyWith(unreadCount: 0) : e).toList();
     state = tmp;
     save = tmp;
