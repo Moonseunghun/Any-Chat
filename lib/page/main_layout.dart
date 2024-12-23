@@ -98,10 +98,12 @@ class MainLayout extends HookConsumerWidget {
                   name: 'btn_chat'.tr(),
                   iconUrl: 'assets/images/chat',
                   iconSize: 24.r),
-              Container(
-                  color: Colors.transparent,
-                  padding: EdgeInsets.symmetric(horizontal: 15.w, vertical: 10.h),
-                  child: Image.asset('assets/images/anychat.png', height: 61.r)),
+              GestureDetector(
+                  onTap: () {},
+                  child: Container(
+                      color: Colors.transparent,
+                      padding: EdgeInsets.symmetric(horizontal: 15.w, vertical: 10.h),
+                      child: Image.asset('assets/images/anychat.png', height: 61.r))),
               navigationBarIcon(
                   ref: ref,
                   index: 2,

@@ -1,3 +1,5 @@
+import 'package:anychat/service/chat_service.dart';
+
 import '../main.dart';
 
 Auth? auth;
@@ -26,6 +28,7 @@ class Auth {
 
   static clear() async {
     auth = null;
+    ChatService().disposeSocket();
     await prefs.remove('access_token');
     await prefs.remove('refresh_token');
     await prefs.remove('totalCount');

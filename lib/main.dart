@@ -81,6 +81,17 @@ class MyApp extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final appLifecycleState = useAppLifecycleState();
+
+    useEffect(() {
+      if (appLifecycleState == AppLifecycleState.resumed) {
+        if (auth != null && !socketConnected) {
+          ChatService().connectSocket(ref);
+        }
+      }
+      return () {};
+    }, [appLifecycleState]);
+
     useEffect(() {
       late final StreamSubscription<List<ConnectivityResult>> subscription;
 

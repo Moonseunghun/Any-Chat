@@ -10,6 +10,7 @@ import 'package:anychat/service/database_service.dart';
 import 'package:anychat/service/translate_service.dart';
 import 'package:anychat/state/chat_state.dart';
 import 'package:anychat/state/user_state.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path/path.dart' as p;
@@ -118,25 +119,30 @@ class ChatService extends SecuredHttpClient {
         IO.OptionBuilder().setTransports(['websocket']).setExtraHeaders(
             {'authorization': auth!.accessToken}).build());
 
+    ChatService().catchError(ref);
+
     if (socket == null || !socketConnected) {
       socket!.connect();
 
       socket!.on('S_CONNECTION', (data) {
         socketConnected = true;
-        catchError();
         onChatRoomInfo(ref);
         onInviteUsers();
       });
 
       socket!.onDisconnect((_) {
         socketConnected = false;
+        socket!.off('S_CONNECTION');
+        socket = null;
+        connectSocket(ref);
       });
     }
   }
 
   void disposeSocket() {
-    socket!.disconnect();
-    socket = null;
+    if (socket != null) {
+      socket!.disconnect();
+    }
   }
 
   void joinRoom(WidgetRef ref, ValueNotifier<List<ChatUserInfo>> participants, String chatRoomId,
@@ -374,8 +380,20 @@ class ChatService extends SecuredHttpClient {
     });
   }
 
-  void catchError() {
+  void catchError(WidgetRef ref) {
     socket!.on('S_ERROR', (data) {
+      if (data['status'] == 401) {
+        dio
+            .post('$baseUrl/account/api/auth/access-token',
+                options: Options(headers: {
+                  'Content-Type': 'application/json',
+                  'Authorization': 'Bearer ${auth!.refreshToken}'
+                }))
+            .then((result) async {
+          auth = auth!.copyWith(accessToken: result.data['accessToken']);
+          connectSocket(ref);
+        });
+      }
       print('에러: $data');
     });
   }
