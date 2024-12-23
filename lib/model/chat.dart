@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:anychat/model/message.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -21,6 +22,7 @@ class ChatRoomInfo extends Equatable {
   final String name;
   final String lastMessage;
   final File? profileImg;
+  final MessageType messageType;
   final DateTime lastMessageUpdatedAt;
   final int unreadCount;
 
@@ -28,6 +30,7 @@ class ChatRoomInfo extends Equatable {
     required this.id,
     required this.name,
     required this.lastMessage,
+    required this.messageType,
     required this.lastMessageUpdatedAt,
     required this.unreadCount,
     this.profileImg,
@@ -43,6 +46,7 @@ class ChatRoomInfo extends Equatable {
       'name': json['name'],
       'lastMessage': json['lastMessage'] is String ? json['lastMessage'] : '파일',
       'profileImg': opponent != null ? opponent['profileImg'] : null,
+      'messageType': json['messageType'],
       'lastMessageUpdatedAt': json['lastMessageUpdatedAt'],
       'unreadCount': json['unreadCount'],
     };
@@ -68,6 +72,7 @@ class ChatRoomInfo extends Equatable {
       name: json['name'] as String,
       lastMessage: json['lastMessage'] is String ? json['lastMessage'] : '파일',
       lastMessageUpdatedAt: DateTime.parse(json['lastMessageUpdatedAt'] as String).toLocal(),
+      messageType: MessageType.fromValue(json['messageType'] as int),
       unreadCount: json['unreadCount'] as int,
       profileImg: profileImg,
     );
@@ -78,6 +83,7 @@ class ChatRoomInfo extends Equatable {
     String? name,
     String? lastMessage,
     File? profileImg,
+    MessageType? messageType,
     DateTime? lastMessageUpdatedAt,
     int? unreadCount,
   }) {
@@ -86,6 +92,7 @@ class ChatRoomInfo extends Equatable {
       name: name ?? this.name,
       lastMessage: lastMessage ?? this.lastMessage,
       profileImg: profileImg ?? this.profileImg,
+      messageType: messageType ?? this.messageType,
       lastMessageUpdatedAt: lastMessageUpdatedAt ?? this.lastMessageUpdatedAt,
       unreadCount: unreadCount ?? this.unreadCount,
     );

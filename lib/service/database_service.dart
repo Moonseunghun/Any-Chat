@@ -20,6 +20,7 @@ class DatabaseService {
         name TEXT NOT NULL,
         lastMessage TEXT,
         profileImg TEXT,
+        messageType TEXT,
         lastMessageUpdatedAt TEXT,
         unreadCount INTEGER
       )

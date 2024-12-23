@@ -1,3 +1,4 @@
+import 'package:anychat/common/toast.dart';
 import 'package:anychat/main.dart';
 import 'package:anychat/page/chat/chat_list_page.dart';
 import 'package:anychat/page/home/home_page.dart';
@@ -8,7 +9,9 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:url_launcher/url_launcher.dart';
 
+import '../common/config.dart';
 import '../model/chat.dart';
 import '../model/friend.dart';
 import '../service/database_service.dart';
@@ -99,7 +102,20 @@ class MainLayout extends HookConsumerWidget {
                   iconUrl: 'assets/images/chat',
                   iconSize: 24.r),
               GestureDetector(
-                  onTap: () {},
+                  onTap: () async {
+                    final Uri deepLink = Uri.parse("package:com.ubms.anyclub");
+                    final Uri downloadUrl = Uri.parse(HttpConfig.downloadUrl);
+
+                    if (await canLaunchUrl(deepLink)) {
+                      await launchUrl(deepLink, mode: LaunchMode.externalApplication);
+                    } else {
+                      if (await canLaunchUrl(downloadUrl)) {
+                        await launchUrl(downloadUrl);
+                      } else {
+                        errorToast(message: '이동할 수 없습니다');
+                      }
+                    }
+                  },
                   child: Container(
                       color: Colors.transparent,
                       padding: EdgeInsets.symmetric(horizontal: 15.w, vertical: 10.h),

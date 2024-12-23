@@ -1,5 +1,6 @@
 import 'package:anychat/common/datetime_extension.dart';
 import 'package:anychat/model/chat.dart';
+import 'package:anychat/model/message.dart';
 import 'package:anychat/page/chat/chat_page.dart';
 import 'package:anychat/page/chat/show_sort_menu.dart';
 import 'package:anychat/page/router.dart';
@@ -106,7 +107,14 @@ class ChatListPage extends HookConsumerWidget {
                         style: const TextStyle(
                             fontSize: 14, fontWeight: FontWeight.w500, color: Color(0xFF3B3B3B))),
                     SizedBox(height: 5.h),
-                    Text(chatRoomInfo.lastMessage,
+                    Text(
+                        chatRoomInfo.messageType == MessageType.file
+                            ? '파일'
+                            : chatRoomInfo.messageType == MessageType.image
+                                ? '이미지'
+                                : chatRoomInfo.messageType == MessageType.video
+                                    ? '비디오'
+                                    : chatRoomInfo.lastMessage,
                         style: const TextStyle(fontSize: 10, color: Color(0xFF3B3B3B)),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis),
