@@ -141,4 +141,5 @@ class UserInfo {
   }
 }
 
-bool isValidProfileId(String profileId) => RegExp(r'^[a-zA-Z0-9._-]{4,20}$').hasMatch(profileId);
+bool isValidProfileId(String profileId) =>
+    RegExp(r'^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8}$').hasMatch(profileId);

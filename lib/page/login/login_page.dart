@@ -82,10 +82,13 @@ class LoginPage extends HookConsumerWidget {
                   loginService.registerCheck(ref).then((result) {
                     if (result) {
                       loginService.login(ref).then((_) async {
-                        await UserService().getMe(ref).then((_) => router.go(MainLayout.routeName));
+                        await UserService().getMe(ref).then((_) async {
+                          await UserService().setLanguage(ref, language, callbackPop: false);
+                          router.go(MainLayout.routeName);
+                        });
                       });
                     } else {
-                      router.go(LanguageSelectPage.routeName, extra: true);
+                      router.go(ConsentPage.routeName, extra: language);
                     }
                   });
                 }
