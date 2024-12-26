@@ -2,6 +2,8 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
@@ -46,16 +48,16 @@
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
 	<key>NSPhotoLibraryUsageDescription</key>
-    <string>Permission is required to get photos in the app</string>
-    <key>NSCameraUsageDescription</key>
-    <string>Permission is required to scan a qrcode and take a picture in the app</string>
-    <key>NSMicrophoneUsageDescription</key>
-    <string>Permission is required to take a video in the app</string>
-    <key>NSAppTransportSecurity</key>
-    <dict>
-        <key>NSAllowsArbitraryLoads</key>
-        <true/>
-    </dict>
+	<string>Permission is required to get photos in the app</string>
+	<key>NSCameraUsageDescription</key>
+	<string>Permission is required to scan a qrcode and take a picture in the app</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Permission is required to take a video in the app</string>
+	<key>NSAppTransportSecurity</key>
+	<dict>
+		<key>NSAllowsArbitraryLoads</key>
+		<true/>
+	</dict>
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict>

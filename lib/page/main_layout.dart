@@ -103,12 +103,21 @@ class MainLayout extends HookConsumerWidget {
                   iconSize: 24.r),
               GestureDetector(
                   onTap: () async {
-                    final Uri deepLink = Uri.parse("package:com.ubms.anyclub");
+                    final Uri deepLink = Uri.parse("anyclub://open");
                     final Uri downloadUrl = Uri.parse(HttpConfig.downloadUrl);
 
-                    if (await canLaunchUrl(deepLink)) {
-                      await launchUrl(deepLink, mode: LaunchMode.externalApplication);
-                    } else {
+                    try {
+                      await launchUrl(deepLink, mode: LaunchMode.externalApplication)
+                          .then((value) async {
+                        if (!value) {
+                          if (await canLaunchUrl(downloadUrl)) {
+                            await launchUrl(downloadUrl);
+                          } else {
+                            errorToast(message: '이동할 수 없습니다');
+                          }
+                        }
+                      });
+                    } catch (e) {
                       if (await canLaunchUrl(downloadUrl)) {
                         await launchUrl(downloadUrl);
                       } else {
