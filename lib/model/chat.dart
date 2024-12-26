@@ -46,7 +46,7 @@ class ChatRoomInfo extends Equatable {
       'name': json['name'],
       'lastMessage': json['lastMessage'] is String ? json['lastMessage'] : '파일',
       'profileImg': opponent != null ? opponent['profileImg'] : null,
-      'messageType': json['messageType'],
+      'messageType': json['messageType'] as int,
       'lastMessageUpdatedAt': json['lastMessageUpdatedAt'],
       'unreadCount': json['unreadCount'],
     };

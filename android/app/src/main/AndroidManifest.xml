@@ -32,7 +32,6 @@
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
-                <data android:scheme="package" android:host="com.ubms.anyclub"/>
             </intent-filter>
         </activity>
         <!-- Don't delete the meta-data below.

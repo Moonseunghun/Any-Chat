@@ -96,6 +96,7 @@ class ChatService extends SecuredHttpClient {
     return await get(
         path: '$basePath/$chatRoomId/participants',
         converter: (result) => result['data']).run(null, (data) async {
+      // print('participants: ${data['participants']}');
       final List<ChatUserInfo> chatUserInfos = [];
 
       for (final Map<String, dynamic> participant
@@ -119,7 +120,7 @@ class ChatService extends SecuredHttpClient {
         IO.OptionBuilder().setTransports(['websocket']).setExtraHeaders(
             {'authorization': auth!.accessToken}).build());
 
-    ChatService().catchError(ref);
+    catchError(ref);
 
     if (socket == null || !socketConnected) {
       socket!.connect();
@@ -132,9 +133,12 @@ class ChatService extends SecuredHttpClient {
 
       socket!.onDisconnect((_) {
         socketConnected = false;
-        socket!.off('S_CONNECTION');
+        socket?.off('S_ERROR');
+        socket?.off('S_CONNECTION');
         socket = null;
-        connectSocket(ref);
+        if (auth != null) {
+          connectSocket(ref);
+        }
       });
     }
   }
@@ -218,6 +222,7 @@ class ChatService extends SecuredHttpClient {
       ValueNotifier<List<LoadingMessage>> loadingMessages) {
     connectSocket(ref);
     socket!.on('S_SEND_MESSAGE', (result) async {
+      // print(result);
       if (result['messageType'] == MessageType.invite.value) {
         await getParticipants(chatRoomId, participants);
       } else if (result['messageType'] == MessageType.kick.value) {
@@ -299,6 +304,7 @@ class ChatService extends SecuredHttpClient {
 
   void onChatRoomInfo(WidgetRef ref) {
     socket!.on('S_CHAT_ROOM_UPDATE', (data) {
+      // print('data : $data');
       DatabaseService.insert('ChatRoomInfo', ChatRoomInfo.toMap(ref, data as Map<String, dynamic>));
 
       ChatRoomInfo.fromJson(ref, data).then((chatRoomInfo) {
