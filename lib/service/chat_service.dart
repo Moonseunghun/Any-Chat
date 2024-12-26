@@ -96,7 +96,6 @@ class ChatService extends SecuredHttpClient {
     return await get(
         path: '$basePath/$chatRoomId/participants',
         converter: (result) => result['data']).run(null, (data) async {
-      // print('participants: ${data['participants']}');
       final List<ChatUserInfo> chatUserInfos = [];
 
       for (final Map<String, dynamic> participant
@@ -114,31 +113,43 @@ class ChatService extends SecuredHttpClient {
     }, errorHandler: (_) {});
   }
 
-  void connectSocket(WidgetRef ref) {
-    socket = IO.io(
-        HttpConfig.webSocketUrl,
-        IO.OptionBuilder().setTransports(['websocket']).setExtraHeaders(
-            {'authorization': auth!.accessToken}).build());
-
-    catchError(ref);
-
+  Future<void> connectSocket(WidgetRef ref) async {
     if (socket == null || !socketConnected) {
-      socket!.connect();
+      await dio
+          .post('$baseUrl/account/api/auth/access-token',
+              options: Options(headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ${auth!.refreshToken}'
+              }))
+          .then((result) async {
+        auth = auth!.copyWith(accessToken: result.data['data']['accessToken']);
 
-      socket!.on('S_CONNECTION', (data) {
-        socketConnected = true;
-        onChatRoomInfo(ref);
-        onInviteUsers();
-      });
+        socket = IO.io(
+            HttpConfig.webSocketUrl,
+            IO.OptionBuilder().setTransports(['websocket']).setExtraHeaders(
+                {'authorization': auth!.accessToken}).build());
 
-      socket!.onDisconnect((_) {
-        socketConnected = false;
-        socket?.off('S_ERROR');
-        socket?.off('S_CONNECTION');
-        socket = null;
-        if (auth != null) {
-          connectSocket(ref);
-        }
+        catchError(ref);
+
+        socket!.connect();
+
+        socket!.on('S_CONNECTION', (data) {
+          socketConnected = true;
+          onChatRoomInfo(ref);
+          onInviteUsers();
+        });
+
+        socket!.onDisconnect((_) {
+          if (socketConnected) {
+            socketConnected = false;
+            socket?.off('S_ERROR');
+            socket?.off('S_CONNECTION');
+            socket = null;
+            if (auth != null) {
+              connectSocket(ref);
+            }
+          }
+        });
       });
     }
   }
@@ -149,9 +160,13 @@ class ChatService extends SecuredHttpClient {
     }
   }
 
-  void joinRoom(WidgetRef ref, ValueNotifier<List<ChatUserInfo>> participants, String chatRoomId,
-      ValueNotifier<List<Message>> messages, ValueNotifier<String?> cursor) {
-    connectSocket(ref);
+  Future<void> joinRoom(
+      WidgetRef ref,
+      ValueNotifier<List<ChatUserInfo>> participants,
+      String chatRoomId,
+      ValueNotifier<List<Message>> messages,
+      ValueNotifier<String?> cursor) async {
+    await connectSocket(ref);
     socket!.emit('C_JOIN_ROOM', {'chatRoomId': chatRoomId});
     socket!.on('S_JOIN_ROOM', (data) async {
       final result = jsonDecode(data);
@@ -222,7 +237,6 @@ class ChatService extends SecuredHttpClient {
       ValueNotifier<List<LoadingMessage>> loadingMessages) {
     connectSocket(ref);
     socket!.on('S_SEND_MESSAGE', (result) async {
-      // print(result);
       if (result['messageType'] == MessageType.invite.value) {
         await getParticipants(chatRoomId, participants);
       } else if (result['messageType'] == MessageType.kick.value) {
@@ -304,7 +318,6 @@ class ChatService extends SecuredHttpClient {
 
   void onChatRoomInfo(WidgetRef ref) {
     socket!.on('S_CHAT_ROOM_UPDATE', (data) {
-      // print('data : $data');
       DatabaseService.insert('ChatRoomInfo', ChatRoomInfo.toMap(ref, data as Map<String, dynamic>));
 
       ChatRoomInfo.fromJson(ref, data).then((chatRoomInfo) {
@@ -388,18 +401,6 @@ class ChatService extends SecuredHttpClient {
 
   void catchError(WidgetRef ref) {
     socket!.on('S_ERROR', (data) {
-      if (data['status'] == 401) {
-        dio
-            .post('$baseUrl/account/api/auth/access-token',
-                options: Options(headers: {
-                  'Content-Type': 'application/json',
-                  'Authorization': 'Bearer ${auth!.refreshToken}'
-                }))
-            .then((result) async {
-          auth = auth!.copyWith(accessToken: result.data['accessToken']);
-          connectSocket(ref);
-        });
-      }
       print('에러: $data');
     });
   }
