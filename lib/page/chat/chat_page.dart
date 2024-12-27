@@ -199,6 +199,8 @@ class ChatPage extends HookConsumerWidget {
               });
             }
           }
+
+          init.value = true;
         }
       });
 
@@ -685,117 +687,139 @@ class ChatPage extends HookConsumerWidget {
                                     fit: BoxFit.cover)
                                 : Image.file(participant!.profileImg!, fit: BoxFit.fill))
                         : null)),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.end,
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Container(
-                    constraints: BoxConstraints(
-                      maxWidth: 243.w,
-                    ),
-                    margin: EdgeInsets.only(left: 7.w, top: 6),
-                    padding: message.messageType == MessageType.text
-                        ? const EdgeInsets.symmetric(horizontal: 12, vertical: 10)
-                        : EdgeInsets.zero,
-                    decoration: ShapeDecoration(
-                      color: message.messageType == MessageType.text ? Colors.white : Colors.black,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: message.messageType == MessageType.text ||
-                                message.messageType == MessageType.file
-                            ? BorderRadius.circular(16)
-                            : BorderRadius.zero,
-                      ),
-                    ),
-                    child: message.messageType == MessageType.text
-                        ? Text(
-                            message.showMessage(
-                                showOrigin: showOriginMessages.value.contains(message.seqId)),
-                            style: const TextStyle(
-                                fontWeight: FontWeight.w500,
-                                fontSize: 14,
-                                color: Color(0xFF3B3B3B)))
-                        : message.messageType == MessageType.image
-                            ? GestureDetector(
-                                onTap: () {
-                                  router.push(ImageClosePage.routeName,
-                                      extra: message.content['file'] as File);
-                                },
-                                child:
-                                    Image.file(message.content['file'] as File, fit: BoxFit.cover))
-                            : message.messageType == MessageType.video
-                                ? Stack(
-                                    children: [
-                                      Image.file(message.content['thumbnail'] as File,
-                                          fit: BoxFit.cover),
-                                      Positioned.fill(
-                                          child: Align(
-                                              alignment: Alignment.center,
-                                              child: Icon(Icons.play_circle_fill,
-                                                  color: Colors.white, size: 50.r)))
-                                    ],
-                                  )
-                                : Container(
-                                    height: 60,
-                                    padding: EdgeInsets.symmetric(vertical: 6, horizontal: 8.w),
-                                    decoration: BoxDecoration(
-                                        color: Colors.white,
-                                        borderRadius: BorderRadius.circular(8)),
-                                    child: Row(
-                                      children: [
-                                        Expanded(
-                                            child: Text(message.content['fileName'],
-                                                maxLines: 2,
-                                                overflow: TextOverflow.ellipsis,
-                                                style: const TextStyle(
-                                                    fontWeight: FontWeight.w500,
-                                                    fontSize: 14,
-                                                    color: Color(0xFF3B3B3B)))),
-                                        SizedBox(width: 4.w),
-                                        GestureDetector(
-                                            onTap: () async {
-                                              await OpenFilex.open(message.content['file'].path);
-                                            },
-                                            child: Container(
-                                                padding: const EdgeInsets.all(4),
-                                                decoration: BoxDecoration(
-                                                    border: const Border.fromBorderSide(
-                                                        BorderSide(color: Colors.grey, width: 1)),
-                                                    borderRadius: BorderRadius.circular(4),
-                                                    color: Colors.white),
-                                                child: Icon(Icons.file_copy,
-                                                    size: 22, color: Colors.blue.withOpacity(0.9))))
-                                      ],
-                                    ))),
-                SizedBox(width: 4.w),
-                Column(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      GestureDetector(
-                          onTap: () {
-                            showOriginMessages.value = showOriginMessages.value
-                                    .contains(message.seqId)
-                                ? showOriginMessages.value.where((e) => e != message.seqId).toList()
-                                : [...showOriginMessages.value, message.seqId];
-                          },
-                          child: Container(
-                              color: Colors.transparent,
-                              child: Text(
-                                  showOriginMessages.value.contains(message.seqId)
-                                      ? '번역보기'
-                                      : '원문보기',
+                if (first)
+                  Padding(
+                      padding: EdgeInsets.only(left: 7.w),
+                      child: Text(participant?.name ?? '알 수 없음',
+                          style: const TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                              color: Color(0xFF3B3B3B)))),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Container(
+                        constraints: BoxConstraints(
+                          maxWidth: 243.w,
+                        ),
+                        margin: EdgeInsets.only(left: 7.w, top: 6),
+                        padding: message.messageType == MessageType.text
+                            ? const EdgeInsets.symmetric(horizontal: 12, vertical: 10)
+                            : EdgeInsets.zero,
+                        decoration: ShapeDecoration(
+                          color:
+                              message.messageType == MessageType.text ? Colors.white : Colors.black,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: message.messageType == MessageType.text ||
+                                    message.messageType == MessageType.file
+                                ? BorderRadius.circular(16)
+                                : BorderRadius.zero,
+                          ),
+                        ),
+                        child: message.messageType == MessageType.text
+                            ? Text(
+                                message.showMessage(
+                                    showOrigin: showOriginMessages.value.contains(message.seqId)),
+                                style: const TextStyle(
+                                    fontWeight: FontWeight.w500,
+                                    fontSize: 14,
+                                    color: Color(0xFF3B3B3B)))
+                            : message.messageType == MessageType.image
+                                ? GestureDetector(
+                                    onTap: () {
+                                      router.push(ImageClosePage.routeName,
+                                          extra: message.content['file'] as File);
+                                    },
+                                    child: Image.file(message.content['file'] as File,
+                                        fit: BoxFit.cover))
+                                : message.messageType == MessageType.video
+                                    ? Stack(
+                                        children: [
+                                          Image.file(message.content['thumbnail'] as File,
+                                              fit: BoxFit.cover),
+                                          Positioned.fill(
+                                              child: Align(
+                                                  alignment: Alignment.center,
+                                                  child: Icon(Icons.play_circle_fill,
+                                                      color: Colors.white, size: 50.r)))
+                                        ],
+                                      )
+                                    : Container(
+                                        height: 60,
+                                        padding: EdgeInsets.symmetric(vertical: 6, horizontal: 8.w),
+                                        decoration: BoxDecoration(
+                                            color: Colors.white,
+                                            borderRadius: BorderRadius.circular(8)),
+                                        child: Row(
+                                          children: [
+                                            Expanded(
+                                                child: Text(message.content['fileName'],
+                                                    maxLines: 2,
+                                                    overflow: TextOverflow.ellipsis,
+                                                    style: const TextStyle(
+                                                        fontWeight: FontWeight.w500,
+                                                        fontSize: 14,
+                                                        color: Color(0xFF3B3B3B)))),
+                                            SizedBox(width: 4.w),
+                                            GestureDetector(
+                                                onTap: () async {
+                                                  await OpenFilex.open(
+                                                      message.content['file'].path);
+                                                },
+                                                child: Container(
+                                                    padding: const EdgeInsets.all(4),
+                                                    decoration: BoxDecoration(
+                                                        border: const Border.fromBorderSide(
+                                                            BorderSide(
+                                                                color: Colors.grey, width: 1)),
+                                                        borderRadius: BorderRadius.circular(4),
+                                                        color: Colors.white),
+                                                    child: Icon(Icons.file_copy,
+                                                        size: 22,
+                                                        color: Colors.blue.withOpacity(0.9))))
+                                          ],
+                                        ))),
+                    SizedBox(width: 4.w),
+                    Column(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          GestureDetector(
+                              onTap: () {
+                                showOriginMessages.value =
+                                    showOriginMessages.value.contains(message.seqId)
+                                        ? showOriginMessages.value
+                                            .where((e) => e != message.seqId)
+                                            .toList()
+                                        : [...showOriginMessages.value, message.seqId];
+                              },
+                              child: Container(
+                                  color: Colors.transparent,
+                                  child: Text(
+                                      showOriginMessages.value.contains(message.seqId)
+                                          ? '번역보기'
+                                          : '원문보기',
+                                      style: TextStyle(
+                                          fontSize: 11, color: Colors.black.withOpacity(0.7))))),
+                          if (optional) ...[
+                            if ((message.totalParticipants ?? 0) - message.readCount! > 0)
+                              Text(
+                                  ((message.totalParticipants ?? 0) - message.readCount!)
+                                      .toString(),
                                   style: TextStyle(
-                                      fontSize: 11, color: Colors.black.withOpacity(0.7))))),
-                      if (optional) ...[
-                        if ((message.totalParticipants ?? 0) - message.readCount! > 0)
-                          Text(((message.totalParticipants ?? 0) - message.readCount!).toString(),
-                              style: TextStyle(fontSize: 11, color: Colors.black.withOpacity(0.7))),
-                        Text(message.createdAt.to24HourFormat(),
-                            style: const TextStyle(
-                                fontSize: 10,
-                                color: Color(0xFF3B3B3B),
-                                fontWeight: FontWeight.w500)),
-                      ]
-                    ])
+                                      fontSize: 11, color: Colors.black.withOpacity(0.7))),
+                            Text(message.createdAt.to24HourFormat(),
+                                style: const TextStyle(
+                                    fontSize: 10,
+                                    color: Color(0xFF3B3B3B),
+                                    fontWeight: FontWeight.w500)),
+                          ]
+                        ])
+                  ],
+                )
               ],
             )
           ],

@@ -136,7 +136,6 @@ class ChatService extends SecuredHttpClient {
         outRoom(ref);
         socket?.off('S_ERROR');
         socket?.off('S_CONNECTION');
-        socket = null;
       });
     }
   }
