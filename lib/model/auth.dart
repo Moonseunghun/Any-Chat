@@ -33,5 +33,11 @@ class Auth {
     await prefs.remove('refresh_token');
     await prefs.remove('totalCount');
     await prefs.remove('uuid');
+    await prefs.remove('id');
+    await prefs.remove('name');
+    await prefs.remove('profileImg');
+    await prefs.remove('lang');
+    await prefs.remove('stateMessage');
+    await prefs.remove('phoneNumbers');
   }
 }

@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:anychat/common/toast.dart';
 import 'package:anychat/model/language.dart';
 import 'package:anychat/page/login/login_page.dart';
@@ -19,7 +21,11 @@ class LanguageSelectPage extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final selectedLanguage = useState<Language?>(ref.read(userProvider) == null
-        ? null
+        ? (Language.values
+                .where(
+                    (e) => e.name.toUpperCase() == PlatformDispatcher.instance.locale.countryCode)
+                .firstOrNull ??
+            Language.us)
         : Language.fromCode(ref.read(userProvider)!.userInfo.lang));
 
     return Scaffold(

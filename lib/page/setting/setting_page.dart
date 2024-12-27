@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:anychat/common/config.dart';
 import 'package:anychat/model/language.dart';
 import 'package:anychat/page/login/privacy_page.dart';
@@ -58,7 +60,13 @@ class SettingPage extends HookConsumerWidget {
             _buildListWidget(
                 title: 'set_logout'.tr(),
                 onTap: () {
-                  context.setLocale(Language.us.locale);
+                  context.setLocale((Language.values
+                              .where((e) =>
+                                  e.name.toUpperCase() ==
+                                  PlatformDispatcher.instance.locale.countryCode)
+                              .firstOrNull ??
+                          Language.us)
+                      .locale);
                   UserService().logOut(ref);
                 }),
           ],

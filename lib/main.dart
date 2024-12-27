@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:ui';
 
 import 'package:anychat/model/auth.dart';
 import 'package:anychat/model/language.dart';
@@ -89,7 +90,11 @@ class MyApp extends HookConsumerWidget {
         if (ref.read(userProvider) != null) {
           context.setLocale(Language.fromCode(ref.read(userProvider)!.userInfo.lang).locale);
         } else {
-          context.setLocale(Language.us.locale);
+          final language = Language.values
+              .where((e) => e.name.toUpperCase() == PlatformDispatcher.instance.locale.countryCode)
+              .firstOrNull;
+
+          context.setLocale(language?.locale ?? Language.us.locale);
         }
 
         subscription =
