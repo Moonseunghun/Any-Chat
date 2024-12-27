@@ -107,6 +107,7 @@ class EditFriendPage extends HookConsumerWidget {
         onTap: () {
           if (friend != null) {
             FriendService().getFriendInfo(ref, friend.id).then((detail) {
+              ref.read(friendsProvider.notifier).update(detail);
               router.push(ProfilePage.routeName, extra: detail);
             });
           } else {

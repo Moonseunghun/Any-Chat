@@ -74,6 +74,7 @@ class HideFriendPage extends HookConsumerWidget {
     return InkWell(
         onTap: () {
           FriendService().getFriendInfo(ref, friend.id).then((detail) {
+            ref.read(friendsProvider.notifier).update(detail);
             router.push(ProfilePage.routeName, extra: detail);
           });
         },

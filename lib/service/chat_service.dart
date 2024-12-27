@@ -255,7 +255,7 @@ class ChatService extends SecuredHttpClient {
 
       messages.value = [translatedMessage, ...messages.value];
 
-      DatabaseService.insert('Message', Message.toMap(message));
+      DatabaseService.insert('Message', Message.toMap(translatedMessage));
 
       if (messages.value.first.senderId != ref.read(userProvider)!.id) {
         readMessage(ref, messages.value.first.seqId);

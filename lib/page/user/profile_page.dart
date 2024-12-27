@@ -26,9 +26,10 @@ class ProfilePage extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final isEditMode = useState<bool>(false);
     final user = ref.watch(userProvider)!;
-    final Friend? friend = [...ref.watch(friendsProvider), ...ref.watch(hiddenFriendsProvider)]
-        .where((element) => element == this.friend)
-        .firstOrNull;
+    final Friend? friend =
+        [...ref.watch(friendsProvider), ...ref.watch(hiddenFriendsProvider)].contains(this.friend)
+            ? this.friend
+            : null;
     final nameClicked = useState<bool>(false);
     final messageClicked = useState<bool>(false);
 

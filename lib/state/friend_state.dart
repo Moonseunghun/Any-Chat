@@ -50,6 +50,15 @@ class FriendsNotifier extends StateNotifier<List<Friend>> {
       return e;
     }).toList();
   }
+
+  void update(Friend friend) {
+    state = state.map((e) {
+      if (e.id == friend.id) {
+        return friend;
+      }
+      return e;
+    }).toList();
+  }
 }
 
 class PinnedFriendsNotifier extends StateNotifier<List<Friend>> {
