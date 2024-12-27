@@ -2,12 +2,14 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:anychat/common/datetime_extension.dart';
+import 'package:anychat/main.dart';
 import 'package:anychat/model/chat.dart';
 import 'package:anychat/page/chat/camera_page.dart';
 import 'package:anychat/page/chat/kick_popup.dart';
 import 'package:anychat/page/image_close_page.dart';
 import 'package:anychat/page/router.dart';
 import 'package:anychat/service/chat_service.dart';
+import 'package:anychat/service/user_service.dart';
 import 'package:anychat/state/chat_state.dart';
 import 'package:anychat/state/user_state.dart';
 import 'package:chewie/chewie.dart';
@@ -25,6 +27,7 @@ import 'package:open_filex/open_filex.dart';
 import 'package:video_compress/video_compress.dart';
 import 'package:video_player/video_player.dart';
 
+import '../../model/auth.dart';
 import '../../model/message.dart';
 import '../../service/database_service.dart';
 import '../video_player_page.dart';
@@ -52,6 +55,9 @@ class ChatPage extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final appLifecycleState = useAppLifecycleState();
+    final init = useState<bool>(false);
+
     double keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
     final owner = useState<ChatUserInfo?>(null);
     final isShow = useState<bool>(false);
@@ -86,19 +92,27 @@ class ChatPage extends HookConsumerWidget {
             Connectivity().onConnectivityChanged.listen((List<ConnectivityResult> result) {
           if (result.contains(ConnectivityResult.mobile) ||
               result.contains(ConnectivityResult.wifi)) {
-            if (!_internetConnected) {
-              ChatService()
-                  .joinRoom(ref, participants, chatRoomHeader.chatRoomId, messages, cursor);
+            if (!_internetConnected && auth != null) {
+              if (!socketConnected) {
+                UserService.refreshAccessToken().then((_) {
+                  ChatService().connectSocket(ref, callback: () {
+                    ChatService()
+                        .joinRoom(ref, participants, chatRoomHeader.chatRoomId, messages, cursor);
+                    ChatService().onMessageRead(ref, messages);
+                    ChatService().onMessageReceived(
+                        ref, chatRoomHeader.chatRoomId, messages, participants, loadingMessages);
+                    ChatService().onKickUser(ref);
+                    ChatService().onUpdatedMessages(ref, messages);
+                  });
+                });
+              }
+
               ChatService().getParticipants(chatRoomHeader.chatRoomId, participants).then((_) {
                 ChatService().getRoomInfo(chatRoomHeader.chatRoomId).then((value) {
                   owner.value = participants.value.where((e) => e.id == value).firstOrNull;
                 });
               });
-              ChatService().onMessageRead(ref, messages);
-              ChatService().onMessageReceived(
-                  ref, chatRoomHeader.chatRoomId, messages, participants, loadingMessages);
-              ChatService().onKickUser(ref);
-              ChatService().onUpdatedMessages(ref, messages);
+
               _internetConnected = true;
             }
           } else {
@@ -120,8 +134,6 @@ class ChatPage extends HookConsumerWidget {
           messages.value = tmp;
         });
 
-        ChatService().joinRoom(ref, participants, chatRoomHeader.chatRoomId, messages, cursor);
-
         DatabaseService.search('ChatUserInfo',
             where: 'chatRoomId = ?', whereArgs: [chatRoomHeader.chatRoomId]).then((value) async {
           final List<ChatUserInfo> chatUserInfos = [];
@@ -132,17 +144,6 @@ class ChatPage extends HookConsumerWidget {
 
           participants.value = chatUserInfos;
         });
-
-        ChatService().getParticipants(chatRoomHeader.chatRoomId, participants).then((_) {
-          ChatService().getRoomInfo(chatRoomHeader.chatRoomId).then((value) {
-            owner.value = participants.value.where((e) => e.id == value).firstOrNull;
-          });
-        });
-        ChatService().onMessageRead(ref, messages);
-        ChatService().onMessageReceived(
-            ref, chatRoomHeader.chatRoomId, messages, participants, loadingMessages);
-        ChatService().onKickUser(ref);
-        ChatService().onUpdatedMessages(ref, messages);
 
         _scrollController.addListener(() {
           if (_scrollController.position.pixels <= _scrollController.position.minScrollExtent) {
@@ -159,6 +160,50 @@ class ChatPage extends HookConsumerWidget {
         ChatService().outRoom(ref);
       };
     }, []);
+
+    useEffect(() {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (appLifecycleState == AppLifecycleState.resumed) {
+          if (_internetConnected && auth != null) {
+            if (socketConnected && !init.value) {
+              ChatService().getParticipants(chatRoomHeader.chatRoomId, participants).then((_) {
+                ChatService().getRoomInfo(chatRoomHeader.chatRoomId).then((value) {
+                  owner.value = participants.value.where((e) => e.id == value).firstOrNull;
+                });
+              });
+
+              ChatService()
+                  .joinRoom(ref, participants, chatRoomHeader.chatRoomId, messages, cursor);
+              ChatService().onMessageRead(ref, messages);
+              ChatService().onMessageReceived(
+                  ref, chatRoomHeader.chatRoomId, messages, participants, loadingMessages);
+              ChatService().onKickUser(ref);
+              ChatService().onUpdatedMessages(ref, messages);
+            } else if (!socketConnected) {
+              UserService.refreshAccessToken().then((_) {
+                ChatService().getParticipants(chatRoomHeader.chatRoomId, participants).then((_) {
+                  ChatService().getRoomInfo(chatRoomHeader.chatRoomId).then((value) {
+                    owner.value = participants.value.where((e) => e.id == value).firstOrNull;
+                  });
+                });
+
+                ChatService().connectSocket(ref, callback: () {
+                  ChatService()
+                      .joinRoom(ref, participants, chatRoomHeader.chatRoomId, messages, cursor);
+                  ChatService().onMessageRead(ref, messages);
+                  ChatService().onMessageReceived(
+                      ref, chatRoomHeader.chatRoomId, messages, participants, loadingMessages);
+                  ChatService().onKickUser(ref);
+                  ChatService().onUpdatedMessages(ref, messages);
+                });
+              });
+            }
+          }
+        }
+      });
+
+      return () {};
+    }, [appLifecycleState]);
 
     useEffect(() {
       WidgetsBinding.instance.addPostFrameCallback((_) {

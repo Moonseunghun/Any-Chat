@@ -8,7 +8,6 @@ import 'package:anychat/service/chat_service.dart';
 import 'package:anychat/service/database_service.dart';
 import 'package:anychat/service/friend_service.dart';
 import 'package:anychat/service/launcher_service.dart';
-import 'package:anychat/service/user_service.dart';
 import 'package:anychat/state/user_state.dart';
 import 'package:anychat/state/util_state.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
@@ -84,15 +83,6 @@ class MyApp extends HookConsumerWidget {
     final appLifecycleState = useAppLifecycleState();
 
     useEffect(() {
-      if (appLifecycleState == AppLifecycleState.resumed) {
-        if (auth != null && !socketConnected) {
-          ChatService().connectSocket(ref);
-        }
-      }
-      return () {};
-    }, [appLifecycleState]);
-
-    useEffect(() {
       late final StreamSubscription<List<ConnectivityResult>> subscription;
 
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -108,23 +98,20 @@ class MyApp extends HookConsumerWidget {
               result.contains(ConnectivityResult.wifi)) {
             if (!internetConnected) {
               if (auth != null) {
-                UserService().getMe(ref).then((_) {
-                  if (!socketConnected) {
-                    ChatService().connectSocket(ref);
-                  }
-                });
+                ChatService().connectSocket(ref);
 
                 FriendService().getFriends(ref, isInit: true).then((value) {
                   friendsCursor = value;
                 });
+
                 FriendService().getPinned(ref);
                 ChatService().getRooms(ref);
               }
 
               internetConnected = true;
-            } else {
-              internetConnected = false;
             }
+          } else {
+            internetConnected = false;
           }
         });
       });
@@ -137,7 +124,9 @@ class MyApp extends HookConsumerWidget {
 
     useEffect(() {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (auth != null) {
+        if (auth != null && appLifecycleState == AppLifecycleState.resumed && internetConnected) {
+          ChatService().connectSocket(ref);
+
           FriendService().getFriends(ref, isInit: true).then((value) {
             friendsCursor = value;
           });
@@ -146,16 +135,12 @@ class MyApp extends HookConsumerWidget {
         }
       });
 
-      if (auth != null && !socketConnected) {
-        ChatService().connectSocket(ref);
-      }
-
       return () {
         if (auth == null && socketConnected) {
           ChatService().disposeSocket();
         }
       };
-    }, [ref.watch(userProvider)]);
+    }, [ref.watch(userProvider), appLifecycleState]);
 
     return ScreenUtilInit(
         designSize: const Size(393, 852),

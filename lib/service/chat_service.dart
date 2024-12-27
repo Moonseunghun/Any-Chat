@@ -8,9 +8,9 @@ import 'package:anychat/main.dart';
 import 'package:anychat/model/chat.dart';
 import 'package:anychat/service/database_service.dart';
 import 'package:anychat/service/translate_service.dart';
+import 'package:anychat/service/user_service.dart';
 import 'package:anychat/state/chat_state.dart';
 import 'package:anychat/state/user_state.dart';
-import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path/path.dart' as p;
@@ -113,51 +113,36 @@ class ChatService extends SecuredHttpClient {
     }, errorHandler: (_) {});
   }
 
-  Future<void> connectSocket(WidgetRef ref) async {
-    if (socket == null || !socketConnected) {
-      await dio
-          .post('$baseUrl/account/api/auth/access-token',
-              options: Options(headers: {
-                'Content-Type': 'application/json',
-                'Authorization': 'Bearer ${auth!.refreshToken}'
-              }))
-          .then((result) async {
-        auth = auth!.copyWith(accessToken: result.data['data']['accessToken']);
+  Future<void> connectSocket(WidgetRef ref, {Function? callback}) async {
+    if (!socketConnected) {
+      socket = IO.io(
+          HttpConfig.webSocketUrl,
+          IO.OptionBuilder().setTransports(['websocket']).setExtraHeaders(
+              {'authorization': auth!.accessToken}).build());
 
-        socket = IO.io(
-            HttpConfig.webSocketUrl,
-            IO.OptionBuilder().setTransports(['websocket']).setExtraHeaders(
-                {'authorization': auth!.accessToken}).build());
+      catchError(ref);
 
-        catchError(ref);
+      socket!.connect();
 
-        socket!.connect();
+      socket!.on('S_CONNECTION', (data) {
+        socketConnected = true;
+        onChatRoomInfo(ref);
+        onInviteUsers();
+        callback?.call();
+      });
 
-        socket!.on('S_CONNECTION', (data) {
-          socketConnected = true;
-          onChatRoomInfo(ref);
-          onInviteUsers();
-        });
-
-        socket!.onDisconnect((_) {
-          if (socketConnected) {
-            socketConnected = false;
-            socket?.off('S_ERROR');
-            socket?.off('S_CONNECTION');
-            socket = null;
-            if (auth != null) {
-              connectSocket(ref);
-            }
-          }
-        });
+      socket!.onDisconnect((_) {
+        socketConnected = false;
+        outRoom(ref);
+        socket?.off('S_ERROR');
+        socket?.off('S_CONNECTION');
+        socket = null;
       });
     }
   }
 
   void disposeSocket() {
-    if (socket != null) {
-      socket!.disconnect();
-    }
+    socket?.disconnect();
   }
 
   Future<void> joinRoom(
@@ -166,7 +151,6 @@ class ChatService extends SecuredHttpClient {
       String chatRoomId,
       ValueNotifier<List<Message>> messages,
       ValueNotifier<String?> cursor) async {
-    await connectSocket(ref);
     socket!.emit('C_JOIN_ROOM', {'chatRoomId': chatRoomId});
     socket!.on('S_JOIN_ROOM', (data) async {
       final result = jsonDecode(data);
@@ -201,18 +185,16 @@ class ChatService extends SecuredHttpClient {
   }
 
   void outRoom(WidgetRef ref) {
-    connectSocket(ref);
-    socket!.emit('C_LEAVE_ROOM');
+    socket?.emit('C_LEAVE_ROOM');
 
-    socket!.off('S_JOIN_ROOM');
-    socket!.off('S_SEND_MESSAGE');
-    socket!.off('S_MESSAGE_READ');
-    socket!.off('S_KICKED');
-    socket!.off('S_UPDATED_MESSAGES');
+    socket?.off('S_JOIN_ROOM');
+    socket?.off('S_SEND_MESSAGE');
+    socket?.off('S_MESSAGE_READ');
+    socket?.off('S_KICKED');
+    socket?.off('S_UPDATED_MESSAGES');
   }
 
   void sendMessage(WidgetRef ref, String message) {
-    connectSocket(ref);
     socket!.emit('C_SEND_MESSAGE', {'message': message});
   }
 
@@ -224,7 +206,6 @@ class ChatService extends SecuredHttpClient {
   }
 
   void sendFile(WidgetRef ref, File file) {
-    connectSocket(ref);
     socket!.emit('C_SEND_FILE',
         {'fileBuffer': file.readAsBytesSync(), 'fileName': file.path.split('/').last});
   }
@@ -235,7 +216,6 @@ class ChatService extends SecuredHttpClient {
       ValueNotifier<List<Message>> messages,
       ValueNotifier<List<ChatUserInfo>> participants,
       ValueNotifier<List<LoadingMessage>> loadingMessages) {
-    connectSocket(ref);
     socket!.on('S_SEND_MESSAGE', (result) async {
       if (result['messageType'] == MessageType.invite.value) {
         await getParticipants(chatRoomId, participants);
@@ -284,12 +264,10 @@ class ChatService extends SecuredHttpClient {
   }
 
   void readMessage(WidgetRef ref, int seqId) {
-    connectSocket(ref);
     socket!.emit('C_MESSAGE_READ', {'lastSeqId': seqId});
   }
 
   void onMessageRead(WidgetRef ref, ValueNotifier<List<Message>> messages) {
-    connectSocket(ref);
     socket!.on('S_MESSAGE_READ', (data) {
       final List<Map<String, dynamic>> updatedMessages = List<dynamic>.from(data['updatedMessages'])
           .map((e) => e as Map<String, dynamic>)
@@ -336,7 +314,6 @@ class ChatService extends SecuredHttpClient {
   }
 
   void inviteUsers(WidgetRef ref, List<String> ids) {
-    connectSocket(ref);
     socket!.emit('C_INVITE_USER', {'inviteeIds': ids});
   }
 
@@ -353,7 +330,6 @@ class ChatService extends SecuredHttpClient {
   }
 
   void onUpdatedMessages(WidgetRef ref, ValueNotifier<List<Message>> messages) {
-    connectSocket(ref);
     socket!.on('S_UPDATED_MESSAGES', (data) {
       final List<Map<String, dynamic>> updatedMessages = List<dynamic>.from(data['updatedMessages'])
           .map((e) => e as Map<String, dynamic>)
@@ -387,12 +363,10 @@ class ChatService extends SecuredHttpClient {
   }
 
   void kickUser(WidgetRef ref, String userId) {
-    connectSocket(ref);
     socket!.emit('C_KICK_USER', {'targetUserId': userId});
   }
 
   void onKickUser(WidgetRef ref) {
-    connectSocket(ref);
     socket!.on('S_KICKED', (_) {
       router.pop();
       errorToast(message: '강퇴되었습니다.');
@@ -402,6 +376,11 @@ class ChatService extends SecuredHttpClient {
   void catchError(WidgetRef ref) {
     socket!.on('S_ERROR', (data) {
       print('에러: $data');
+      if (data['status'] == 401) {
+        UserService.refreshAccessToken().then((_) {
+          connectSocket(ref);
+        });
+      }
     });
   }
 }

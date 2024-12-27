@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:anychat/common/cache_manager.dart';
+import 'package:anychat/common/config.dart';
 import 'package:anychat/common/error.dart';
 import 'package:anychat/common/http_client.dart';
 import 'package:anychat/model/language.dart';
@@ -116,5 +117,17 @@ class UserService extends SecuredHttpClient {
     ref.read(userProvider.notifier).clear();
     ref.read(indexProvider.notifier).state = 0;
     CacheManager.clear();
+  }
+
+  static Future<void> refreshAccessToken() async {
+    await Dio()
+        .post('${HttpConfig.url}/account/api/auth/access-token',
+            options: Options(headers: {
+              'Content-Type': 'application/json',
+              'Authorization': 'Bearer ${auth!.refreshToken}'
+            }))
+        .then((result) async {
+      auth = auth!.copyWith(accessToken: result.data['data']['accessToken']);
+    });
   }
 }
