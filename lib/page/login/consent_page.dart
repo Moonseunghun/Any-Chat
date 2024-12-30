@@ -1,6 +1,8 @@
 import 'package:anychat/common/toast.dart';
 import 'package:anychat/model/language.dart';
 import 'package:anychat/page/login/privacy_page.dart';
+import 'package:anychat/page/login/register_page.dart';
+import 'package:anychat/page/login/set_nickname_page.dart';
 import 'package:anychat/page/login/set_profile_id_page.dart';
 import 'package:anychat/page/login/terms_page.dart';
 import 'package:anychat/page/router.dart';
@@ -43,7 +45,11 @@ class ConsentPage extends HookConsumerWidget {
             return;
           }
 
-          router.go(SetProfileIdPage.routeName, extra: language);
+          if (email != null) {
+            router.go(SetNicknamePage.routeName, extra: language);
+          } else {
+            router.go(SetProfileIdPage.routeName, extra: language);
+          }
         },
         child: Container(
             width: double.infinity,

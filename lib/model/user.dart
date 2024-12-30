@@ -86,7 +86,8 @@ class UserInfo {
   final File? backgroundImg;
   final String? stateMessage;
 
-  UserInfo({required this.profileId,
+  UserInfo(
+      {required this.profileId,
       required this.lang,
       required this.profileImg,
       required this.backgroundImg,
@@ -142,4 +143,12 @@ class UserInfo {
 }
 
 bool isValidProfileId(String profileId) =>
-    RegExp(r'^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8}$').hasMatch(profileId);
+    RegExp(r'^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,16}$').hasMatch(profileId);
+
+bool isValidNickname(String nickname) =>
+    RegExp(r'^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,16}$').hasMatch(nickname);
+
+bool isValidPassword(String password) =>
+    RegExp(r'^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,16}$').hasMatch(password);
+
+bool isValidEmail(String email) => RegExp(r'^.{0,7}$|^.{31,}$|^[^@]*@[^@]+$').hasMatch(email);

@@ -69,6 +69,11 @@ class SettingPage extends HookConsumerWidget {
                       .locale);
                   UserService().logOut(ref);
                 }),
+            _buildListWidget(
+                title: 'del_account'.tr(),
+                onTap: () {
+                  UserService().deleteAccount(ref, context);
+                }),
           ],
         ));
   }

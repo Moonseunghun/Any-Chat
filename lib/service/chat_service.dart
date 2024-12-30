@@ -113,12 +113,12 @@ class ChatService extends SecuredHttpClient {
     }, errorHandler: (_) {});
   }
 
-  Future<void> connectSocket(WidgetRef ref, {Function? callback}) async {
+  Future<void> connectSocket(WidgetRef ref, {Function? callback, String? accessToken}) async {
     if (!socketConnected) {
       socket = IO.io(
           HttpConfig.webSocketUrl,
           IO.OptionBuilder().setTransports(['websocket']).setExtraHeaders(
-              {'authorization': auth!.accessToken}).build());
+              {'authorization': accessToken ?? auth!.accessToken}).build());
 
       catchError(ref);
 
@@ -133,9 +133,6 @@ class ChatService extends SecuredHttpClient {
 
       socket!.onDisconnect((_) {
         socketConnected = false;
-        outRoom(ref);
-        socket?.off('S_ERROR');
-        socket?.off('S_CONNECTION');
       });
     }
   }
@@ -376,8 +373,9 @@ class ChatService extends SecuredHttpClient {
     socket!.on('S_ERROR', (data) {
       print('에러: $data');
       if (data['status'] == 401) {
-        UserService.refreshAccessToken().then((_) {
-          connectSocket(ref);
+        UserService.refreshAccessToken().then((token) {
+          print('토큰 갱신: $token');
+          connectSocket(ref, accessToken: token);
         });
       }
     });

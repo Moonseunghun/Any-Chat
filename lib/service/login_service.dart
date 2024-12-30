@@ -1,16 +1,21 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:anychat/common/error.dart';
 import 'package:anychat/common/http_client.dart';
 import 'package:anychat/model/language.dart';
 import 'package:anychat/model/user.dart';
+import 'package:anychat/page/login/register_page.dart';
 import 'package:device_info_plus/device_info_plus.dart';
+import 'package:dio/dio.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import 'package:uuid/uuid.dart';
 
+import '../common/config.dart';
 import '../common/toast.dart';
 import '../main.dart';
 import '../model/auth.dart';
@@ -117,6 +122,33 @@ class LoginService extends HttpClient {
     });
   }
 
+  Future<void> registerWithEmail(
+      WidgetRef ref, Language language, String profileId, String nickname) async {
+    final params = {
+      'email': email,
+      'password': password,
+      'name': nickname,
+      'profileId': profileId,
+      'lang': language.code,
+      'fcmToken': 'tmp',
+      'deviceId': await _getDeviceId(),
+      'deviceUUID': _getUUID()
+    };
+
+    await post(
+        path: '$basePath/register/email',
+        queryParams: params,
+        converter: (result) => result['data']).run(ref, (data) {
+      auth = Auth(accessToken: data['accessToken'], refreshToken: data['refreshToken']);
+    }, errorHandler: (error) {
+      if (error.statusCode == 403) {
+        errorToast(message: '중복된 ID입니다');
+      } else {
+        errorToast(message: '회원가입에 실패했습니다');
+      }
+    });
+  }
+
   Future<void> login(WidgetRef ref) async {
     final params = {
       'idToken': prefs.getString('id_token'),
@@ -136,6 +168,29 @@ class LoginService extends HttpClient {
       },
       errorMessage: '로그인에 실패했습니다',
     );
+  }
+
+  Future<void> loginWithEmail(WidgetRef ref, String email, String password) async {
+    final params = {'fcmToken': 'tmp', 'deviceId': await _getDeviceId(), 'deviceUUID': _getUUID()};
+
+    final String credentials = "$email:$password";
+
+    final String encodedCredentials = base64Encode(utf8.encode(credentials));
+
+    await Dio()
+        .post('${HttpConfig.url}$basePath/login/email',
+            data: params,
+            options: Options(headers: {
+              'Authorization': 'Basic $encodedCredentials',
+              'Content-Type': 'application/json'
+            }))
+        .then((result) async {
+      final data = result.data['data'];
+      auth = Auth(accessToken: data['accessToken'], refreshToken: data['refreshToken']);
+    }).catchError((error) {
+      print(error);
+      errorToast(message: 'fail_anychatlogin'.tr());
+    });
   }
 
   Future<String> _getDeviceId() async {

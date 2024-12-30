@@ -1,5 +1,4 @@
 import 'package:anychat/page/login/consent_page.dart';
-import 'package:anychat/page/login/language_select_page.dart';
 import 'package:anychat/page/router.dart';
 import 'package:anychat/service/login_service.dart';
 import 'package:anychat/service/user_service.dart';
@@ -11,6 +10,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import '../../model/language.dart';
 import '../main_layout.dart';
+import 'login_with_email_page.dart';
 
 class LoginPage extends HookConsumerWidget {
   static const String routeName = '/login';
@@ -115,7 +115,35 @@ class LoginPage extends HookConsumerWidget {
                                     color: Colors.white,
                                     fontWeight: FontWeight.w600)))),
                   ],
-                )))
+                ))),
+        SizedBox(height: 18.h),
+        InkWell(
+            onTap: () {
+              router.push(LoginWithEmailPage.routeName, extra: language);
+            },
+            child: Container(
+                width: 358.w,
+                height: 50,
+                decoration: BoxDecoration(
+                    border: Border.all(color: const Color(0xFFD4D4D4)),
+                    borderRadius: BorderRadius.circular(6.r)),
+                child: Stack(
+                  children: [
+                    Positioned.fill(
+                        left: 16.w,
+                        child: Align(
+                            alignment: Alignment.centerLeft,
+                            child: Image.asset('assets/images/anychat_icon.png', width: 34.r))),
+                    Positioned.fill(
+                        child: Align(
+                            alignment: Alignment.center,
+                            child: Text('login_anychat'.tr(),
+                                style: const TextStyle(
+                                    fontSize: 16,
+                                    color: Color(0xFF1A1A1A),
+                                    fontWeight: FontWeight.bold)))),
+                  ],
+                ))),
       ],
     ));
   }

@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:ui';
 
 import 'package:anychat/common/cache_manager.dart';
 import 'package:anychat/common/config.dart';
@@ -14,6 +15,8 @@ import 'package:anychat/state/friend_state.dart';
 import 'package:anychat/state/user_state.dart';
 import 'package:anychat/state/util_state.dart';
 import 'package:dio/dio.dart';
+import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../common/toast.dart';
@@ -129,8 +132,22 @@ class UserService extends SecuredHttpClient {
     CacheManager.clear();
   }
 
-  static Future<void> refreshAccessToken() async {
-    await Dio()
+  Future<void> deleteAccount(WidgetRef ref, BuildContext context) async {
+    await delete(path: '/account/api/auth/cancel-account').run(ref, (_) {
+      context.setLocale((Language.values
+                  .where(
+                      (e) => e.name.toUpperCase() == PlatformDispatcher.instance.locale.countryCode)
+                  .firstOrNull ??
+              Language.us)
+          .locale);
+
+      logOut(ref);
+      errorToast(message: '계정이 삭제되었습니다');
+    }, errorMessage: '계정 삭제에 실패했습니다');
+  }
+
+  static Future<String> refreshAccessToken() async {
+    return await Dio()
         .post('${HttpConfig.url}/account/api/auth/access-token',
             options: Options(headers: {
               'Content-Type': 'application/json',
@@ -138,6 +155,7 @@ class UserService extends SecuredHttpClient {
             }))
         .then((result) async {
       auth = auth!.copyWith(accessToken: result.data['data']['accessToken']);
+      return result.data['data']['accessToken'] as String;
     });
   }
 }
