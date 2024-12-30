@@ -106,11 +106,17 @@ class ChatUserInfo {
   final String id;
   final String name;
   final File? profileImg;
+  final File? backgroundImg;
+  final String? profileId;
+  final String? stateMessage;
 
   ChatUserInfo({
     required this.id,
     required this.name,
     this.profileImg,
+    this.backgroundImg,
+    this.profileId,
+    this.stateMessage,
   });
 
   static Map<String, dynamic> toMap(String chatRoomId, Map<String, dynamic> json) {
@@ -124,6 +130,7 @@ class ChatUserInfo {
 
   static Future<ChatUserInfo> fromJson(Map<String, dynamic> json) async {
     File? profileImg;
+    File? backgroundImg;
 
     if (json['profileImg'] != null) {
       profileImg = await CacheManager.getCachedFile(json['profileImg']);
@@ -131,7 +138,16 @@ class ChatUserInfo {
     if (json['userInfo'] != null && json['userInfo']['profileImg'] != null) {
       profileImg = await CacheManager.getCachedFile(json['userInfo']['profileImg']);
     }
+    if (json['userInfo'] != null && json['userInfo']['backgroundImg'] != null) {
+      backgroundImg = await CacheManager.getCachedFile(json['userInfo']['backgroundImg']);
+    }
 
-    return ChatUserInfo(id: json['userId'], name: json['name'], profileImg: profileImg);
+    return ChatUserInfo(
+        id: json['userId'] ?? json['id'],
+        name: json['name'],
+        profileImg: profileImg,
+        backgroundImg: backgroundImg,
+        profileId: json['userInfo'] == null ? null : json['userInfo']['profileId'],
+        stateMessage: json['userInfo'] == null ? null : json['userInfo']['stateMessage']);
   }
 }

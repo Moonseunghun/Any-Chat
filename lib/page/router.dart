@@ -20,6 +20,7 @@ import 'package:anychat/page/login/set_profile_id_page.dart';
 import 'package:anychat/page/login/terms_page.dart';
 import 'package:anychat/page/setting/anychat_id_page.dart';
 import 'package:anychat/page/setting/set_anychat_id_page.dart';
+import 'package:anychat/page/user/chat_profile_page.dart';
 import 'package:anychat/page/user/profile_page.dart';
 import 'package:anychat/page/video_player_page.dart';
 import 'package:flutter/cupertino.dart';
@@ -70,6 +71,22 @@ final router = GoRouter(
     GoRoute(
         path: ChatPage.routeName,
         builder: (context, state) => ChatPage(state.extra as ChatRoomHeader)),
+    GoRoute(
+        path: ChatProfilePage.routeName,
+        pageBuilder: (context, state) => CustomTransitionPage(
+            key: state.pageKey,
+            child: ChatProfilePage(chatUser: state.extra as ChatUserInfo),
+            transitionsBuilder: (context, animation, secondaryAnimation, child) {
+              const begin = Offset(0.0, 1.0);
+              const end = Offset.zero;
+              const curve = Curves.easeInOut;
+
+              var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+              var offsetAnimation = animation.drive(tween);
+
+              return SlideTransition(position: offsetAnimation, child: child);
+            },
+            transitionDuration: const Duration(milliseconds: 300))),
     GoRoute(path: HideFriendPage.routeName, builder: (context, state) => const HideFriendPage()),
     GoRoute(path: BlockFriendPage.routeName, builder: (context, state) => const BlockFriendPage()),
     GoRoute(

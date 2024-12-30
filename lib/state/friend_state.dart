@@ -137,8 +137,15 @@ class BlockFriendsNotifier extends StateNotifier<List<Friend>> {
   }
 
   void block(WidgetRef ref, int id) {
-    final Friend friend = ref.read(hiddenFriendsProvider).firstWhere((e) => e.id == id);
-    ref.read(hiddenFriendsProvider.notifier).block(id);
+    final Friend? hiddenFriend =
+        ref.read(hiddenFriendsProvider).where((e) => e.id == id).firstOrNull;
+    final Friend friend = hiddenFriend ?? ref.read(friendsProvider).firstWhere((e) => e.id == id);
+
+    if (hiddenFriend != null) {
+      ref.read(hiddenFriendsProvider.notifier).block(id);
+    } else {
+      ref.read(friendsProvider.notifier).removeFriend(id);
+    }
     state = [...state, friend].sortByName();
   }
 

@@ -1,4 +1,5 @@
 import 'package:anychat/common/toast.dart';
+import 'package:anychat/model/chat.dart';
 import 'package:anychat/page/main_layout.dart';
 import 'package:anychat/page/router.dart';
 import 'package:anychat/page/user/show_image_picker.dart';
@@ -17,21 +18,17 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import '../../model/friend.dart';
 import '../chat/chat_page.dart';
 
-class ProfilePage extends HookConsumerWidget {
-  static const String routeName = '/profile';
+class ChatProfilePage extends HookConsumerWidget {
+  static const String routeName = '/chat/profile';
 
-  const ProfilePage({this.friend, super.key});
+  const ChatProfilePage({required this.chatUser, super.key});
 
-  final Friend? friend;
+  final ChatUserInfo chatUser;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final isEditMode = useState<bool>(false);
     final user = ref.watch(userProvider)!;
-    final Friend? friend =
-        [...ref.watch(friendsProvider), ...ref.watch(hiddenFriendsProvider)].contains(this.friend)
-            ? this.friend
-            : null;
     final nameClicked = useState<bool>(false);
     final messageClicked = useState<bool>(false);
 
@@ -49,15 +46,15 @@ class ProfilePage extends HookConsumerWidget {
         },
         child: Container(
             decoration: BoxDecoration(
-              image: (friend == null
+              image: (chatUser.id == user.id
                       ? user.userInfo.backgroundImg == null
                           ? null
                           : DecorationImage(
                               fit: BoxFit.cover, image: FileImage(user.userInfo.backgroundImg!))
-                      : friend.friend.backgroundImg == null
+                      : chatUser.backgroundImg == null
                           ? null
                           : DecorationImage(
-                              fit: BoxFit.cover, image: FileImage(friend.friend.backgroundImg!))) ??
+                              fit: BoxFit.cover, image: FileImage(chatUser.backgroundImg!))) ??
                   const DecorationImage(
                       fit: BoxFit.cover,
                       image: AssetImage('assets/images/default_profile_background.png')),
@@ -86,13 +83,15 @@ class ProfilePage extends HookConsumerWidget {
                                   padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 10.h),
                                   child: const Icon(Icons.close, color: Colors.white, size: 24))),
                           const Spacer(),
-                          if (friend != null &&
-                              !ref
-                                  .watch(hiddenFriendsProvider)
-                                  .map((e) => e.id)
-                                  .contains(this.friend!.id))
+                          if (chatUser.id != user.id &&
+                              ref
+                                  .watch(friendsProvider)
+                                  .map((e) => e.friend.userId)
+                                  .contains(chatUser.id))
                             GestureDetector(
                                 onTap: () {
+                                  final Friend friend = ref.read(friendsProvider).firstWhere(
+                                      (element) => element.friend.userId == chatUser.id);
                                   if (friend.isPinned) {
                                     FriendService().unpinFriend(ref, friend.id);
                                   } else {
@@ -105,14 +104,18 @@ class ProfilePage extends HookConsumerWidget {
                                     child: SvgPicture.asset(
                                       'assets/images/star.svg',
                                       width: 24,
-                                      colorFilter: friend.isPinned
+                                      colorFilter: ref
+                                              .watch(friendsProvider)
+                                              .firstWhere(
+                                                  (element) => element.friend.userId == chatUser.id)
+                                              .isPinned
                                           ? const ColorFilter.mode(Colors.yellow, BlendMode.srcIn)
                                           : null,
                                     ))),
-                          if (friend != null)
+                          if (chatUser.id != user.id)
                             GestureDetector(
                                 onTap: () {
-                                  showProfileMore(context, ref, friend, null);
+                                  showProfileMore(context, ref, null, chatUser);
                                 },
                                 child: Container(
                                     color: Colors.transparent,
@@ -155,14 +158,14 @@ class ProfilePage extends HookConsumerWidget {
                           child: Stack(
                             children: [
                               ClipOval(
-                                child: (friend == null
+                                child: (chatUser.id == user.id
                                         ? user.userInfo.profileImg == null
                                             ? null
                                             : Image.file(user.userInfo.profileImg!,
                                                 width: 140, height: 140, fit: BoxFit.fill)
-                                        : friend.friend.profileImg == null
+                                        : chatUser.profileImg == null
                                             ? null
-                                            : Image.file(friend.friend.profileImg!,
+                                            : Image.file(chatUser.profileImg!,
                                                 width: 140, height: 140, fit: BoxFit.fill)) ??
                                     Image.asset('assets/images/default_profile.png',
                                         width: 140, height: 140),
@@ -206,7 +209,7 @@ class ProfilePage extends HookConsumerWidget {
                                     height: 18,
                                   ),
                                   Text(
-                                    friend?.nickname ?? user.name,
+                                    chatUser.id == user.id ? user.name : chatUser.name,
                                     style: const TextStyle(
                                         fontSize: 16,
                                         color: Color(0xFFF5F5F5),
@@ -252,9 +255,9 @@ class ProfilePage extends HookConsumerWidget {
                                   SizedBox(width: 48.w),
                                   const Spacer(),
                                   Text(
-                                    friend == null
+                                    chatUser.id == user.id
                                         ? user.userInfo.stateMessage ?? '여기에 상태메세지를 입력해주세요'
-                                        : friend.friend.stateMessage ?? '여기에 상태메세지를 입력해주세요',
+                                        : chatUser.stateMessage ?? '여기에 상태메세지를 입력해주세요',
                                     style: const TextStyle(
                                         fontSize: 12,
                                         fontWeight: FontWeight.w500,
@@ -285,7 +288,7 @@ class ProfilePage extends HookConsumerWidget {
                                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                                   children: [
                                     SizedBox(width: 20.w),
-                                    if (friend == null)
+                                    if (chatUser.id == user.id)
                                       Column(
                                         children: [
                                           GestureDetector(
@@ -309,14 +312,13 @@ class ProfilePage extends HookConsumerWidget {
                                           )
                                         ],
                                       ),
-                                    if (friend != null) ...[
+                                    if (chatUser.id != user.id) ...[
                                       Column(
                                         children: [
                                           GestureDetector(
                                               onTap: () {
-                                                ChatService()
-                                                    .makeRoom(ref, [friend.friend.userId]).then(
-                                                        (chatRoomHeader) {
+                                                ChatService().makeRoom(ref, [chatUser.id]).then(
+                                                    (chatRoomHeader) {
                                                   router.go(MainLayout.routeName);
                                                   router.push(ChatPage.routeName,
                                                       extra: chatRoomHeader);

@@ -30,6 +30,7 @@ import 'package:video_player/video_player.dart';
 import '../../model/auth.dart';
 import '../../model/message.dart';
 import '../../service/database_service.dart';
+import '../user/chat_profile_page.dart';
 import '../video_player_page.dart';
 import 'invite_friend_page.dart';
 
@@ -341,6 +342,7 @@ class ChatPage extends HookConsumerWidget {
                                                       : afterSenderId != ref.read(userProvider)!.id,
                                                 )
                                               : _opponentChat(
+                                                  ref: ref,
                                                   message: message,
                                                   showOriginMessages: showOriginMessages,
                                                   optional: optional || afterSenderId == null
@@ -658,8 +660,8 @@ class ChatPage extends HookConsumerWidget {
     ]);
   }
 
-  Widget _opponentChat(
-      {bool first = false,
+  Widget _opponentChat({required WidgetRef ref,
+    bool first = false,
       bool optional = false,
       required ValueNotifier<List<int>> showOriginMessages,
       required Message message,
@@ -675,7 +677,18 @@ class ChatPage extends HookConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             GestureDetector(
-                onTap: () {},
+                onTap: () async {
+                  if (participant != null) {
+                    if (participant.id == ref.read(userProvider)!.id) {
+                      router.push(ChatProfilePage.routeName, extra: participant);
+                    } else {
+                      final ChatUserInfo chatUserInfo =
+                          await UserService().getChatUserInfo(ref, participant.id);
+
+                      router.push(ChatProfilePage.routeName, extra: chatUserInfo);
+                    }
+                  }
+                },
                 child: Container(
                     width: 38,
                     height: 38,
@@ -1088,7 +1101,17 @@ class ChatPage extends HookConsumerWidget {
           WidgetRef ref, BuildContext context, int participantCount, ChatUserInfo? owner,
           {ChatUserInfo? participant}) =>
       GestureDetector(
-          onTap: () {},
+          onTap: () async {
+            if (participant != null) {
+              final ChatUserInfo chatUserInfo =
+                  await UserService().getChatUserInfo(ref, participant.id);
+
+              router.push(ChatProfilePage.routeName, extra: chatUserInfo);
+            } else {
+              router.push(ChatProfilePage.routeName,
+                  extra: ChatUserInfo(id: ref.read(userProvider)!.id, name: ''));
+            }
+          },
           child: Container(
               color: Colors.transparent,
               padding: EdgeInsets.symmetric(vertical: 7.h),

@@ -4,6 +4,7 @@ import 'package:anychat/common/cache_manager.dart';
 import 'package:anychat/common/config.dart';
 import 'package:anychat/common/error.dart';
 import 'package:anychat/common/http_client.dart';
+import 'package:anychat/model/chat.dart';
 import 'package:anychat/model/language.dart';
 import 'package:anychat/model/user.dart';
 import 'package:anychat/page/login/language_select_page.dart';
@@ -104,6 +105,15 @@ class UserService extends SecuredHttpClient {
         queryParams: {'userId': userId},
         converter: (result) => result['data']).run(null, (data) {
       return data['name'];
+    });
+  }
+
+  Future<ChatUserInfo> getChatUserInfo(WidgetRef ref, String userId) async {
+    return await get(
+        path: '$basePath/user-id',
+        queryParams: {'userId': userId},
+        converter: (result) => result['data']).run(ref, (data) {
+      return ChatUserInfo.fromJson(data);
     });
   }
 
