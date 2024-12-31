@@ -42,7 +42,7 @@ class SetNicknamePage extends HookConsumerWidget {
           Padding(
               padding: EdgeInsets.only(left: 20.w, right: 40.w),
               child: TextField(
-                  controller: idController,
+                  controller: nicknameController,
                   decoration: InputDecoration(
                       hintText: 'nick'.tr(),
                       hintStyle: TextStyle(
@@ -61,7 +61,7 @@ class SetNicknamePage extends HookConsumerWidget {
           Padding(
               padding: EdgeInsets.only(left: 20.w, right: 40.w),
               child: TextField(
-                  controller: nicknameController,
+                  controller: idController,
                   decoration: InputDecoration(
                       hintText: 'profile_id'.tr(),
                       hintStyle: TextStyle(
@@ -79,13 +79,13 @@ class SetNicknamePage extends HookConsumerWidget {
           SizedBox(height: 110.h),
           GestureDetector(
             onTap: () {
-              if (!isValidProfileId(idController.value.text.trim())) {
-                errorToast(message: 'profile_id_warn'.tr());
+              if (!isValidNickname(nicknameController.value.text.trim())) {
+                errorToast(message: 'nick_warn'.tr());
                 return;
               }
 
-              if (!isValidNickname(nicknameController.value.text.trim())) {
-                errorToast(message: 'nick_warn'.tr());
+              if (!isValidProfileId(idController.value.text.trim())) {
+                errorToast(message: 'profile_id_warn'.tr());
                 return;
               }
 

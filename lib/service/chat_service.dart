@@ -117,8 +117,11 @@ class ChatService extends SecuredHttpClient {
     if (!socketConnected) {
       socket = IO.io(
           HttpConfig.webSocketUrl,
-          IO.OptionBuilder().setTransports(['websocket']).setExtraHeaders(
-              {'authorization': accessToken ?? auth!.accessToken}).build());
+          IO.OptionBuilder()
+              .setTransports(['websocket'])
+              .setExtraHeaders({'authorization': accessToken ?? auth!.accessToken})
+              .enableForceNew()
+              .build());
 
       catchError(ref);
 
@@ -133,6 +136,9 @@ class ChatService extends SecuredHttpClient {
 
       socket!.onDisconnect((_) {
         socketConnected = false;
+        outRoom(ref);
+        socket?.off('S_ERROR');
+        socket?.off('S_CONNECTION');
       });
     }
   }
@@ -181,7 +187,9 @@ class ChatService extends SecuredHttpClient {
   }
 
   void outRoom(WidgetRef ref) {
-    socket?.emit('C_LEAVE_ROOM');
+    if (socketConnected) {
+      socket?.emit('C_LEAVE_ROOM');
+    }
 
     socket?.off('S_JOIN_ROOM');
     socket?.off('S_SEND_MESSAGE');
@@ -370,11 +378,18 @@ class ChatService extends SecuredHttpClient {
   }
 
   void catchError(WidgetRef ref) {
+    socket!.on('S_FILE_OPTIMIZATION_PROCESSING', (data) {
+      print('파일 최적화 중: $data');
+    });
+
+    socket!.on('S_FILE_UPLOAD_PROGRESS', (data) {
+      print('파일 업로드 중: $data');
+    });
+
     socket!.on('S_ERROR', (data) {
       print('에러: $data');
-      if (data['status'] == 401) {
+      if (data is Map && data['status'] == 401) {
         UserService.refreshAccessToken().then((token) {
-          print('토큰 갱신: $token');
           connectSocket(ref, accessToken: token);
         });
       }

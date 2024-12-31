@@ -4,6 +4,7 @@ import 'package:anychat/common/toast.dart';
 import 'package:anychat/main.dart';
 import 'package:anychat/page/main_layout.dart';
 import 'package:anychat/service/database_service.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../model/friend.dart';
@@ -97,7 +98,7 @@ class FriendService extends SecuredHttpClient {
   Future<Friend> getFriendInfo(WidgetRef ref, int indexId) async {
     return await get(path: '$basePath/$indexId', converter: (result) => result['data']).run(
         ref, (data) => Friend.fromJson(data as Map<String, dynamic>),
-        errorMessage: '친구 정보를 불러오는 중 오류가 발생했습니다');
+        errorMessage: 'friend_info_err'.tr());
   }
 
   Future<void> pinFriend(WidgetRef ref, int id) async {

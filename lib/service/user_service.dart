@@ -22,6 +22,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../common/toast.dart';
 import '../model/auth.dart';
 import '../model/friend.dart';
+import '../page/login/register_page.dart';
 
 class UserService extends SecuredHttpClient {
   final String basePath = '/account/api/users';
@@ -121,6 +122,8 @@ class UserService extends SecuredHttpClient {
   }
 
   Future<void> logOut(WidgetRef ref) async {
+    email = null;
+    password = null;
     await Auth.clear();
     router.go(LanguageSelectPage.routeName);
     DatabaseService.delete('ChatRoomInfo');

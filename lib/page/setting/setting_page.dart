@@ -14,6 +14,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import '../login/language_select_page.dart';
 import '../login/terms_page.dart';
 import 'anychat_id_page.dart';
+import 'delete_popup.dart';
 
 class SettingPage extends HookConsumerWidget {
   const SettingPage({super.key});
@@ -72,7 +73,7 @@ class SettingPage extends HookConsumerWidget {
             _buildListWidget(
                 title: 'del_account'.tr(),
                 onTap: () {
-                  UserService().deleteAccount(ref, context);
+                  deletePopup(context, ref);
                 }),
           ],
         ));

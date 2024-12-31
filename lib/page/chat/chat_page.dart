@@ -56,6 +56,7 @@ class ChatPage extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final bottomViewPadding = MediaQuery.of(context).viewPadding.bottom;
     final appLifecycleState = useAppLifecycleState();
     final init = useState<bool>(false);
 
@@ -374,7 +375,12 @@ class ChatPage extends HookConsumerWidget {
                                 ],
                               ))),
                       bottomNavigationBar: Container(
-                        padding: const EdgeInsets.only(top: 10),
+                        padding: EdgeInsets.only(
+                            top: 10,
+                            bottom: bottomViewPadding > 0 &&
+                                    (!showPlusMenu.value && !focusNode.hasFocus)
+                                ? 16
+                                : 0),
                         color: Colors.white,
                         child: IntrinsicHeight(
                           child: Column(
@@ -660,8 +666,9 @@ class ChatPage extends HookConsumerWidget {
     ]);
   }
 
-  Widget _opponentChat({required WidgetRef ref,
-    bool first = false,
+  Widget _opponentChat(
+      {required WidgetRef ref,
+      bool first = false,
       bool optional = false,
       required ValueNotifier<List<int>> showOriginMessages,
       required Message message,

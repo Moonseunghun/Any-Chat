@@ -145,7 +145,7 @@ class MyApp extends HookConsumerWidget {
           ChatService().disposeSocket();
         }
       };
-    }, [ref.watch(userProvider), appLifecycleState]);
+    }, [ref.watch(userProvider)?.id, ref.watch(userProvider)?.auto, appLifecycleState]);
 
     return ScreenUtilInit(
         designSize: const Size(393, 852),

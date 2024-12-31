@@ -29,8 +29,14 @@ class User {
   final String name;
   final UserInfo userInfo;
   final List<String> phoneNumbers;
+  final bool auto;
 
-  User({required this.id, required this.name, required this.userInfo, required this.phoneNumbers});
+  User(
+      {required this.id,
+      required this.name,
+      required this.userInfo,
+      required this.phoneNumbers,
+      this.auto = false});
 
   static Future<User> fromJson(Map<String, dynamic> json) async {
     prefs.setString('id', json['id']);
@@ -48,29 +54,31 @@ class User {
     String? name,
     UserInfo? userInfo,
     List<String>? phoneNumbers,
+    bool? auto,
   }) {
     return User(
       id: id,
       name: name ?? this.name,
       userInfo: userInfo ?? this.userInfo,
       phoneNumbers: phoneNumbers ?? this.phoneNumbers,
+      auto: auto ?? this.auto,
     );
   }
 
   static User? getUser() {
     if (prefs.getString('id') != null) {
       final User user = User(
-        id: prefs.getString('id')!,
-        name: prefs.getString('name')!,
-        userInfo: UserInfo(
-          profileId: prefs.getString('profileId'),
-          lang: prefs.getString('lang')!,
-          profileImg: null,
-          backgroundImg: null,
-          stateMessage: prefs.getString('stateMessage'),
-        ),
-        phoneNumbers: prefs.getStringList('phoneNumbers') ?? [],
-      );
+          id: prefs.getString('id')!,
+          name: prefs.getString('name')!,
+          userInfo: UserInfo(
+            profileId: prefs.getString('profileId'),
+            lang: prefs.getString('lang')!,
+            profileImg: null,
+            backgroundImg: null,
+            stateMessage: prefs.getString('stateMessage'),
+          ),
+          phoneNumbers: prefs.getStringList('phoneNumbers') ?? [],
+          auto: true);
 
       return user;
     } else {
@@ -146,9 +154,9 @@ bool isValidProfileId(String profileId) =>
     RegExp(r'^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,16}$').hasMatch(profileId);
 
 bool isValidNickname(String nickname) =>
-    RegExp(r'^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,16}$').hasMatch(nickname);
+    RegExp(r'^(?:[가-힣]{8,16}|[가-힣\d]{8,16}|[a-zA-Z]{8,16}|[a-zA-Z\d]{8,16})$').hasMatch(nickname);
 
 bool isValidPassword(String password) =>
     RegExp(r'^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,16}$').hasMatch(password);
 
-bool isValidEmail(String email) => RegExp(r'^.{0,7}$|^.{31,}$|^[^@]*@[^@]+$').hasMatch(email);
+bool isValidEmail(String email) => RegExp(r'^(?=.*@).{8,30}$').hasMatch(email);

@@ -49,7 +49,7 @@ class LoginWithEmailPage extends HookConsumerWidget {
               padding: EdgeInsets.symmetric(horizontal: 16.w),
               child: Column(
                 children: [
-                  _textField(context, emailController, 'email_enter'.tr()),
+                  _textField(context, emailController, 'enter_email'.tr()),
                   SizedBox(height: 18.h),
                   _textField(context, passwordController, 'enter_pw'.tr()),
                   SizedBox(height: 21.h),
