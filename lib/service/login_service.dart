@@ -209,7 +209,7 @@ class LoginService extends HttpClient {
     if (prefs.getString('uuid') != null) {
       uuid = prefs.getString('uuid')!;
     } else {
-      uuid = const Uuid().v1();
+      uuid = const Uuid().v4();
       prefs.setString('uuid', uuid);
     }
 

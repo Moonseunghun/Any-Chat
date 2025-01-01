@@ -33,6 +33,8 @@ class LoadingMessage {
   final String senderId;
   final MessageType messageType;
   final MessageStatus status;
+  final String? uuid;
+  final double? progress;
   final DateTime createdAt;
 
   LoadingMessage({
@@ -40,6 +42,8 @@ class LoadingMessage {
     required this.senderId,
     required this.messageType,
     required this.status,
+    this.uuid,
+    this.progress,
     required this.createdAt,
   });
 
@@ -56,6 +60,17 @@ class LoadingMessage {
       default:
         return '';
     }
+  }
+
+  LoadingMessage copyWith({double? progress, MessageStatus? status}) {
+    return LoadingMessage(
+        content: content,
+        senderId: senderId,
+        messageType: messageType,
+        status: status ?? this.status,
+        uuid: uuid,
+        progress: progress ?? this.progress,
+        createdAt: createdAt);
   }
 }
 
@@ -208,7 +223,13 @@ class Message extends Equatable {
           (json['content'] is String ? jsonDecode(json['content']) : json['content']);
 
       final File file = await CacheManager.getCachedFile(map['fileUrl']);
-      final File thumbnail = await VideoCompress.getFileThumbnail(file.path, quality: 50);
+      print('파일: $file');
+      late final File thumbnail;
+      try {
+        thumbnail = await VideoCompress.getFileThumbnail(file.path, quality: 50);
+      } catch (e) {
+        print('썸네일 생성 실패: $e');
+      }
       content = {
         'file': file,
         'path': map['fileUrl'],

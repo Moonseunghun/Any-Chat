@@ -152,9 +152,30 @@ class ChatService extends SecuredHttpClient {
       ValueNotifier<List<ChatUserInfo>> participants,
       String chatRoomId,
       ValueNotifier<List<Message>> messages,
+      ValueNotifier<List<LoadingMessage>> loadingMessages,
       ValueNotifier<String?> cursor) async {
     socket!.emit('C_JOIN_ROOM', {'chatRoomId': chatRoomId});
     socket!.on('S_JOIN_ROOM', (data) async {
+      socket!.on('S_FILE_OPTIMIZATION_PROCESSING', (data) {
+        loadingMessages.value = loadingMessages.value.map((e) {
+          if (e.uuid == data['uuid']) {
+            return e.copyWith(progress: data['progress'] / 1.5);
+          } else {
+            return e;
+          }
+        }).toList();
+      });
+
+      socket!.on('S_FILE_UPLOAD_PROGRESS', (data) {
+        loadingMessages.value = loadingMessages.value.map((e) {
+          if (e.uuid == data['uuid']) {
+            return e.copyWith(progress: data['progress'] / 3.3 + 67);
+          } else {
+            return e;
+          }
+        }).toList();
+      });
+
       final result = jsonDecode(data);
 
       final List<Message> tmp = [];
@@ -196,6 +217,8 @@ class ChatService extends SecuredHttpClient {
     socket?.off('S_MESSAGE_READ');
     socket?.off('S_KICKED');
     socket?.off('S_UPDATED_MESSAGES');
+    socket?.off('S_FILE_OPTIMIZATION_PROCESSING');
+    socket?.off('S_FILE_UPLOAD_PROGRESS');
   }
 
   void sendMessage(WidgetRef ref, String message) {
@@ -209,9 +232,12 @@ class ChatService extends SecuredHttpClient {
     }, errorHandler: (_) {});
   }
 
-  void sendFile(WidgetRef ref, File file) {
-    socket!.emit('C_SEND_FILE',
-        {'fileBuffer': file.readAsBytesSync(), 'fileName': file.path.split('/').last});
+  void sendFile(WidgetRef ref, File file, String uuid) {
+    socket!.emit('C_SEND_FILE', {
+      'fileBuffer': file.readAsBytesSync(),
+      'fileName': file.path.split('/').last,
+      'uuid': uuid
+    });
   }
 
   void onMessageReceived(
@@ -378,14 +404,6 @@ class ChatService extends SecuredHttpClient {
   }
 
   void catchError(WidgetRef ref) {
-    socket!.on('S_FILE_OPTIMIZATION_PROCESSING', (data) {
-      print('파일 최적화 중: $data');
-    });
-
-    socket!.on('S_FILE_UPLOAD_PROGRESS', (data) {
-      print('파일 업로드 중: $data');
-    });
-
     socket!.on('S_ERROR', (data) {
       print('에러: $data');
       if (data is Map && data['status'] == 401) {
