@@ -25,9 +25,9 @@ class LoginPage extends HookConsumerWidget {
         body: Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        SizedBox(width: double.infinity, height: 168.h),
+        const Expanded(flex: 168, child: SizedBox(width: double.infinity)),
         Image.asset('assets/images/logo.png', width: 230.w),
-        SizedBox(height: 81.h),
+        const Expanded(flex: 81, child: SizedBox()),
         InkWell(
             onTap: () {
               final LoginService loginService = LoginService();
@@ -72,7 +72,7 @@ class LoginPage extends HookConsumerWidget {
                                     fontWeight: FontWeight.w600)))),
                   ],
                 ))),
-        SizedBox(height: 18.h),
+        const Expanded(flex: 18, child: SizedBox()),
         InkWell(
             onTap: () {
               final LoginService loginService = LoginService();
@@ -116,7 +116,7 @@ class LoginPage extends HookConsumerWidget {
                                     fontWeight: FontWeight.w600)))),
                   ],
                 ))),
-        SizedBox(height: 18.h),
+        const Expanded(flex: 18, child: SizedBox()),
         InkWell(
             onTap: () {
               router.push(LoginWithEmailPage.routeName, extra: language);
@@ -144,6 +144,7 @@ class LoginPage extends HookConsumerWidget {
                                     fontWeight: FontWeight.bold)))),
                   ],
                 ))),
+        const Expanded(flex: 171, child: SizedBox()),
       ],
     ));
   }

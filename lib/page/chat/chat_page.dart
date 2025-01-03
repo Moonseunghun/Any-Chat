@@ -21,11 +21,12 @@ import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:get_thumbnail_video/index.dart';
+import 'package:get_thumbnail_video/video_thumbnail.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:open_filex/open_filex.dart';
 import 'package:uuid/uuid.dart';
-import 'package:video_compress/video_compress.dart';
 import 'package:video_player/video_player.dart';
 
 import '../../model/auth.dart';
@@ -307,7 +308,8 @@ class ChatPage extends HookConsumerWidget {
                                 controller: _scrollController,
                                 children: [
                                   SizedBox(height: 6.h),
-                                  ...loadingMessages.value.map((e) => _myChat(loadingMessage: e)),
+                                  ...loadingMessages.value
+                                      .map((e) => _myChat(ref: ref, loadingMessage: e)),
                                   ...messages.value.map((message) {
                                     final bool isMyMessage =
                                         message.senderId == ref.read(userProvider)!.id;
@@ -335,6 +337,7 @@ class ChatPage extends HookConsumerWidget {
                                             message.messageType == MessageType.file)
                                           isMyMessage
                                               ? _myChat(
+                                                  ref: ref,
                                                   message: message,
                                                   optional: optional || afterSenderId == null
                                                       ? true
@@ -504,6 +507,14 @@ class ChatPage extends HookConsumerWidget {
                                         } else if (selectedVideo.value != null) {
                                           final uuid = const Uuid().v4();
 
+                                          final thumbnailProvider = FutureProvider((ref) async {
+                                            return await VideoThumbnail.thumbnailData(
+                                              video: selectedVideo.value!.path,
+                                              imageFormat: ImageFormat.JPEG,
+                                              quality: 25,
+                                            );
+                                          });
+
                                           loadingMessages.value = [
                                             LoadingMessage(
                                                 senderId: ref.read(userProvider)!.id,
@@ -511,9 +522,7 @@ class ChatPage extends HookConsumerWidget {
                                                 messageType: MessageType.video,
                                                 content: {
                                                   'file': selectedVideo.value,
-                                                  'thumbnail': await VideoCompress.getFileThumbnail(
-                                                      selectedVideo.value!.path,
-                                                      quality: 50)
+                                                  'thumbnail': thumbnailProvider
                                                 },
                                                 uuid: uuid,
                                                 createdAt: DateTime.now()),
@@ -773,8 +782,15 @@ class ChatPage extends HookConsumerWidget {
                                         },
                                         child: Stack(
                                           children: [
-                                            Image.file(message.content['thumbnail'] as File,
-                                                fit: BoxFit.cover),
+                                            (ref.watch(message.content['thumbnail'])
+                                                    as AsyncValue<Uint8List>)
+                                                .when(
+                                                    data: (data) =>
+                                                        Image.memory(data, fit: BoxFit.cover),
+                                                    loading: () =>
+                                                        SizedBox(width: 243.w, height: 400.h),
+                                                    error: (error, stackTrace) =>
+                                                        SizedBox(width: 243.w, height: 400.h)),
                                             Positioned.fill(
                                                 child: Align(
                                                     alignment: Alignment.center,
@@ -862,8 +878,8 @@ class ChatPage extends HookConsumerWidget {
     );
   }
 
-  Widget _myChat(
-      {Message? message,
+  Widget _myChat({required WidgetRef ref,
+    Message? message,
       bool optional = false,
       bool change = false,
       LoadingMessage? loadingMessage}) {
@@ -921,114 +937,111 @@ class ChatPage extends HookConsumerWidget {
                         : BorderRadius.zero,
                   ),
                 ),
-                child: Stack(children: [
-                  message?.messageType == MessageType.text ||
-                          loadingMessage?.messageType == MessageType.text
-                      ? Text(message?.showMessage() ?? loadingMessage?.showMessage(),
-                          style: const TextStyle(
-                              fontWeight: FontWeight.w500, fontSize: 14, color: Color(0xFF3B3B3B)))
-                      : message?.messageType == MessageType.image ||
-                              loadingMessage?.messageType == MessageType.image
-                          ? GestureDetector(
-                              onTap: () {
-                                if (message != null) {
-                                  router.push(ImageClosePage.routeName,
-                                      extra: message.content['file'] as File);
-                                }
-                              },
-                              child: Stack(children: [
-                                Image.file(
-                                    (message?.content['file'] ?? loadingMessage?.content) as File,
-                                    fit: BoxFit.cover),
-                                if (loadingMessage != null)
-                                  Positioned.fill(
-                                      child: Align(
-                                          alignment: Alignment.center,
-                                          child: CircularProgressIndicator(
-                                            strokeWidth: 6,
-                                            value: (loadingMessage.progress ?? 0) / 100,
-                                            color: const Color(0xFF7D4DFF),
-                                          )))
-                              ]))
-                          : message?.messageType == MessageType.video ||
-                                  loadingMessage?.messageType == MessageType.video
-                              ? GestureDetector(
-                                  onTap: () {
-                                    if (message != null) {
-                                      router.push(VideoPlayerPage.routeName,
-                                          extra: message.content['file'] as File);
-                                    }
-                                  },
-                                  child: Stack(
-                                    children: [
-                                      Image.file(
-                                          (message?.content['thumbnail'] ??
-                                              loadingMessage?.content['thumbnail']) as File,
-                                          fit: BoxFit.cover),
-                                      loadingMessage == null
-                                          ? Positioned.fill(
-                                              child: Align(
-                                                  alignment: Alignment.center,
-                                                  child: Icon(Icons.play_circle_fill,
-                                                      color: Colors.white, size: 50.r)))
-                                          : Positioned.fill(
-                                              child: Align(
-                                                  alignment: Alignment.center,
-                                                  child: CircularProgressIndicator(
-                                                    strokeWidth: 6,
-                                                    value: (loadingMessage.progress ?? 0) / 100,
-                                                    color: const Color(0xFF7D4DFF),
-                                                  )))
-                                    ],
-                                  ))
-                              : Container(
-                                  height: 60,
-                                  padding: EdgeInsets.symmetric(vertical: 6, horizontal: 8.w),
-                                  decoration: BoxDecoration(
-                                      color: Colors.white, borderRadius: BorderRadius.circular(8)),
-                                  child: Row(
-                                    children: [
-                                      Expanded(
-                                          child: Text(
-                                              message?.content['fileName'] ??
-                                                  loadingMessage
-                                                      ?.showMessage()
-                                                      .path
-                                                      .split('/')
-                                                      .last,
-                                              maxLines: 2,
-                                              overflow: TextOverflow.ellipsis,
-                                              style: const TextStyle(
-                                                  fontWeight: FontWeight.w500,
-                                                  fontSize: 14,
-                                                  color: Color(0xFF3B3B3B)))),
-                                      SizedBox(width: 4.w),
-                                      message == null
-                                          ? SizedBox(
-                                              width: 22.r,
-                                              height: 22.r,
-                                              child: CircularProgressIndicator(
-                                                strokeWidth: 6,
-                                                value: (loadingMessage?.progress ?? 0) / 100,
-                                                color: const Color(0xFF7D4DFF),
-                                              ))
-                                          : GestureDetector(
-                                              onTap: () async {
-                                                await OpenFilex.open(message.content['file'].path);
-                                              },
-                                              child: Container(
-                                                  padding: const EdgeInsets.all(4),
-                                                  decoration: BoxDecoration(
-                                                      border: const Border.fromBorderSide(
-                                                          BorderSide(color: Colors.grey, width: 1)),
-                                                      borderRadius: BorderRadius.circular(4),
-                                                      color: Colors.white),
-                                                  child: Icon(Icons.file_copy,
-                                                      size: 22,
-                                                      color: Colors.blue.withOpacity(0.9))))
-                                    ],
-                                  ))
-                ])),
+                child: message?.messageType == MessageType.text ||
+                        loadingMessage?.messageType == MessageType.text
+                    ? Text(message?.showMessage() ?? loadingMessage?.showMessage(),
+                        style: const TextStyle(
+                            fontWeight: FontWeight.w500, fontSize: 14, color: Color(0xFF3B3B3B)))
+                    : message?.messageType == MessageType.image ||
+                            loadingMessage?.messageType == MessageType.image
+                        ? GestureDetector(
+                            onTap: () {
+                              if (message != null) {
+                                router.push(ImageClosePage.routeName,
+                                    extra: message.content['file'] as File);
+                              }
+                            },
+                            child: Stack(children: [
+                              Image.file(
+                                  (message?.content['file'] ?? loadingMessage?.content) as File,
+                                  fit: BoxFit.cover),
+                              if (loadingMessage != null)
+                                Positioned.fill(
+                                    child: Align(
+                                        alignment: Alignment.center,
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 6,
+                                          value: (loadingMessage.progress ?? 0) / 100,
+                                          color: const Color(0xFF7D4DFF),
+                                        )))
+                            ]))
+                        : message?.messageType == MessageType.video ||
+                                loadingMessage?.messageType == MessageType.video
+                            ? GestureDetector(
+                                onTap: () {
+                                  if (message != null) {
+                                    router.push(VideoPlayerPage.routeName,
+                                        extra: message.content['file'] as File);
+                                  }
+                                },
+                                child: Stack(
+                                  children: [
+                                    (ref.watch((message?.content['thumbnail'] ??
+                                                loadingMessage?.content['thumbnail']))
+                                            as AsyncValue<Uint8List>)
+                                        .when(
+                                            data: (data) => Image.memory(data, fit: BoxFit.cover),
+                                            loading: () => SizedBox(width: 243.w, height: 400.h),
+                                            error: (error, stackTrace) =>
+                                                SizedBox(width: 243.w, height: 400.h)),
+                                    loadingMessage == null
+                                        ? Positioned.fill(
+                                            child: Align(
+                                                alignment: Alignment.center,
+                                                child: Icon(Icons.play_circle_fill,
+                                                    color: Colors.white, size: 50.r)))
+                                        : Positioned.fill(
+                                            child: Align(
+                                                alignment: Alignment.center,
+                                                child: CircularProgressIndicator(
+                                                  strokeWidth: 6,
+                                                  value: (loadingMessage.progress ?? 0) / 100,
+                                                  color: const Color(0xFF7D4DFF),
+                                                )))
+                                  ],
+                                ))
+                            : Container(
+                                height: 60,
+                                padding: EdgeInsets.symmetric(vertical: 6, horizontal: 8.w),
+                                decoration: BoxDecoration(
+                                    color: Colors.white, borderRadius: BorderRadius.circular(8)),
+                                child: Row(
+                                  children: [
+                                    Expanded(
+                                        child: Text(
+                                            message?.content['fileName'] ??
+                                                loadingMessage?.showMessage().path.split('/').last,
+                                            maxLines: 2,
+                                            overflow: TextOverflow.ellipsis,
+                                            style: const TextStyle(
+                                                fontWeight: FontWeight.w500,
+                                                fontSize: 14,
+                                                color: Color(0xFF3B3B3B)))),
+                                    SizedBox(width: 4.w),
+                                    message == null
+                                        ? SizedBox(
+                                            width: 22.r,
+                                            height: 22.r,
+                                            child: CircularProgressIndicator(
+                                              strokeWidth: 6,
+                                              value: (loadingMessage?.progress ?? 0) / 100,
+                                              color: const Color(0xFF7D4DFF),
+                                            ))
+                                        : GestureDetector(
+                                            onTap: () async {
+                                              await OpenFilex.open(message.content['file'].path);
+                                            },
+                                            child: Container(
+                                                padding: const EdgeInsets.all(4),
+                                                decoration: BoxDecoration(
+                                                    border: const Border.fromBorderSide(
+                                                        BorderSide(color: Colors.grey, width: 1)),
+                                                    borderRadius: BorderRadius.circular(4),
+                                                    color: Colors.white),
+                                                child: Icon(Icons.file_copy,
+                                                    size: 22, color: Colors.blue.withOpacity(0.9))))
+                                  ],
+                                ))),
           ],
         ),
         if (change) const SizedBox(height: 14)

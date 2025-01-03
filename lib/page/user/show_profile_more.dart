@@ -106,7 +106,8 @@ showProfileMore(BuildContext context, WidgetRef ref, Friend? friend, ChatUserInf
                       }
                     })
                   ],
-                  if (!ref
+                  if (friend == null &&
+                      !ref
                           .read(friendsProvider)
                           .map((e) => e.friend.userId)
                           .contains(chatUser?.id) &&
@@ -118,6 +119,7 @@ showProfileMore(BuildContext context, WidgetRef ref, Friend? friend, ChatUserInf
                           .read(blockFriendsProvider)
                           .map((e) => e.friend.userId)
                           .contains(chatUser?.id)) ...[
+                    const Divider(color: Color(0xFFE0E2E4), height: 1, thickness: 1),
                     _menuItem('친구 추가', () {
                       if (chatUser?.profileId != null) {
                         FriendService().addFriend(ref, chatUser!.profileId!);

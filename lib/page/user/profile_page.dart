@@ -93,7 +93,7 @@ class ProfilePage extends HookConsumerWidget {
                                   .contains(this.friend!.id))
                             GestureDetector(
                                 onTap: () {
-                                  if (friend.isPinned) {
+                                  if (ref.read(pinnedFriendsProvider).contains(friend)) {
                                     FriendService().unpinFriend(ref, friend.id);
                                   } else {
                                     FriendService().pinFriend(ref, friend.id);
@@ -105,7 +105,7 @@ class ProfilePage extends HookConsumerWidget {
                                     child: SvgPicture.asset(
                                       'assets/images/star.svg',
                                       width: 24,
-                                      colorFilter: friend.isPinned
+                                      colorFilter: ref.read(pinnedFriendsProvider).contains(friend)
                                           ? const ColorFilter.mode(Colors.yellow, BlendMode.srcIn)
                                           : null,
                                     ))),

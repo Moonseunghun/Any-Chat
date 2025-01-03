@@ -6,7 +6,8 @@ import 'package:anychat/model/chat.dart';
 import 'package:anychat/service/user_service.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:video_compress/video_compress.dart';
+import 'package:get_thumbnail_video/index.dart';
+import 'package:get_thumbnail_video/video_thumbnail.dart';
 
 enum MessageStatus { loading, fail }
 
@@ -223,17 +224,19 @@ class Message extends Equatable {
           (json['content'] is String ? jsonDecode(json['content']) : json['content']);
 
       final File file = await CacheManager.getCachedFile(map['fileUrl']);
-      print('파일: $file');
-      late final File thumbnail;
-      try {
-        thumbnail = await VideoCompress.getFileThumbnail(file.path, quality: 50);
-      } catch (e) {
-        print('썸네일 생성 실패: $e');
-      }
+
+      final thumbnailProvider = FutureProvider((ref) async {
+        return await VideoThumbnail.thumbnailData(
+          video: file.path,
+          imageFormat: ImageFormat.JPEG,
+          quality: 25,
+        );
+      });
+
       content = {
         'file': file,
         'path': map['fileUrl'],
-        'thumbnail': thumbnail,
+        'thumbnail': thumbnailProvider,
         'fileName': map['fileName']
       };
     }

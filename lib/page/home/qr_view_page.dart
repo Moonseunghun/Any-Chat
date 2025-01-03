@@ -16,7 +16,7 @@ class QrViewPage extends HookConsumerWidget {
 
   final GlobalKey _qrKey = GlobalKey();
   final int index;
-  int scanCount = 0;
+  bool canScan = true;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -38,24 +38,25 @@ class QrViewPage extends HookConsumerWidget {
           key: _qrKey,
           onQRViewCreated: (controller) {
             controller.scannedDataStream.listen((scanData) {
-              if (scanData.code == null) return;
-              scanCount = scanCount + 1;
+              if (scanData.code == null || !canScan) return;
+              canScan = false;
               controller.pauseCamera();
-              if (scanCount > 2) return;
 
               if (index == 0) {
                 FriendService().addFriend(ref, scanData.code!).then((_) {
                   router.pop();
                 }).catchError((e) {
                   controller.resumeCamera();
-                }).whenComplete(() {
-                  scanCount = 0;
+                  canScan = true;
                 });
               } else if (index == 1) {
                 ChatService().makeRoom(ref, [scanData.code!]).then((chatRoomHeader) {
                   router.pop();
                   router.pop();
                   router.push(ChatPage.routeName, extra: chatRoomHeader);
+                }).catchError((e) {
+                  controller.resumeCamera();
+                  canScan = true;
                 });
               } else if (index == 2) {
                 ChatService().inviteUsers(ref, [scanData.code!]);
