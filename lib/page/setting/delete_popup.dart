@@ -10,6 +10,11 @@ import '../../state/user_state.dart';
 deletePopup(BuildContext context, WidgetRef ref) {
   final user = ref.watch(userProvider)!;
 
+  final String title =
+      'popup_del_acc_title'.tr(namedArgs: {'profile_id': user.userInfo.profileId!});
+
+  print(title.length);
+
   OverlayComponent.showOverlay(
       context: context,
       child: Stack(children: [
@@ -25,21 +30,17 @@ deletePopup(BuildContext context, WidgetRef ref) {
         Center(
             child: Container(
                 width: 350.w,
-                height: 249.h,
+                height: title.length <= 40 ? 260.h : 310.h,
                 decoration:
                     BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(14.r)),
                 padding: EdgeInsets.symmetric(horizontal: 18.w),
                 child: Column(
                   children: [
                     const Expanded(child: SizedBox(height: 30)),
-                    Text(
-                        'popup_del_acc_title'
-                            .tr(namedArgs: {'profile_id': user.userInfo.profileId!}),
+                    Text(title,
                         style: TextStyle(
-                            color: Colors.red,
-                            fontWeight: FontWeight.w500,
-                            fontSize: 16.r,
-                            overflow: TextOverflow.ellipsis)),
+                            color: Colors.red, fontWeight: FontWeight.w500, fontSize: 16.r),
+                        textAlign: TextAlign.center),
                     const Expanded(child: SizedBox(height: 12)),
                     Text('popup_del_acc_desc01'.tr(),
                         style: TextStyle(

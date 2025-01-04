@@ -149,13 +149,14 @@ class ChatService extends SecuredHttpClient {
     socket?.disconnect();
   }
 
-  Future<void> joinRoom(WidgetRef ref,
-      String chatRoomId,
-      String chatRoomName, {
-        ValueNotifier<ChatUserInfo?>? ownerValue,
-        ValueNotifier<List<ChatUserInfo>>? participantsValue,
-        ValueNotifier<List<Message>>? messagesValue,
-      }) async {
+  Future<void> joinRoom(
+    WidgetRef ref,
+    String chatRoomId,
+    String chatRoomName, {
+    ValueNotifier<ChatUserInfo?>? ownerValue,
+    ValueNotifier<List<ChatUserInfo>>? participantsValue,
+    ValueNotifier<List<Message>>? messagesValue,
+  }) async {
     if (participantsValue == null && messagesValue == null && ownerValue == null) {
       messageCursor = null;
     }
@@ -185,9 +186,7 @@ class ChatService extends SecuredHttpClient {
     await getParticipants(chatRoomId).then((chatUserInfos) async {
       participants = chatUserInfos;
       await getRoomInfo(chatRoomId).then((value) {
-        owner = participants
-            .where((e) => e.id == value)
-            .firstOrNull;
+        owner = participants.where((e) => e.id == value).firstOrNull;
       });
     });
 

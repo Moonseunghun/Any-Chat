@@ -83,10 +83,11 @@ class ConsentPage extends HookConsumerWidget {
                         check.value = value!;
                       }))),
           SizedBox(width: 2.w),
-          Text(content,
-              style:
-                  const TextStyle(fontSize: 16, color: Colors.black, fontWeight: FontWeight.w500)),
-          const Spacer(),
+          Expanded(
+              child: Text(content,
+                  style: const TextStyle(
+                      fontSize: 16, color: Colors.black, fontWeight: FontWeight.w500))),
+          SizedBox(width: 20.w),
           GestureDetector(
               onTap: () {
                 router.push(url);
