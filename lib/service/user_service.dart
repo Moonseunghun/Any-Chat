@@ -11,6 +11,7 @@ import 'package:anychat/model/user.dart';
 import 'package:anychat/page/login/language_select_page.dart';
 import 'package:anychat/page/router.dart';
 import 'package:anychat/service/database_service.dart';
+import 'package:anychat/state/chat_state.dart';
 import 'package:anychat/state/friend_state.dart';
 import 'package:anychat/state/user_state.dart';
 import 'package:anychat/state/util_state.dart';
@@ -90,6 +91,7 @@ class UserService extends SecuredHttpClient {
     await put(path: '$basePath/language', queryParams: {'lang': language.code}).run(ref, (_) {
       ref.read(userProvider.notifier).setLanguage(language);
       if (callbackPop) {
+        ref.read(chatRoomInfoProvider.notifier).updateLanguage();
         router.pop();
         errorToast(message: '언어 설정이 완료되었습니다');
       }

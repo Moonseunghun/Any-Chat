@@ -1,5 +1,6 @@
 import 'package:anychat/model/chat.dart';
 import 'package:anychat/service/database_service.dart';
+import 'package:anychat/service/translate_service.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class ChatRoomInfoNotifier extends StateNotifier<List<ChatRoomInfo>> {
@@ -65,6 +66,25 @@ class ChatRoomInfoNotifier extends StateNotifier<List<ChatRoomInfo>> {
 
   void search(String keyword) {
     state = save.where((e) => e.name.contains(keyword)).toList();
+  }
+
+  Future<void> updateLanguage() async {
+    final List<ChatRoomInfo> chatRoomInfos = [];
+
+    for (final chatRoomInfo in save) {
+      if (chatRoomInfo.language != null && chatRoomInfo.lastMessage != '') {
+        await translateService
+            .translateLastMessage(chatRoomInfo.lastMessage, chatRoomInfo.language!)
+            .then((value) {
+          chatRoomInfos.add(chatRoomInfo.copyWith(targetLastMessage: value));
+        });
+      } else {
+        chatRoomInfos.add(chatRoomInfo);
+      }
+    }
+
+    save = chatRoomInfos..sort((a, b) => b.lastMessageUpdatedAt.compareTo(a.lastMessageUpdatedAt));
+    state = chatRoomInfos..sort((a, b) => b.lastMessageUpdatedAt.compareTo(a.lastMessageUpdatedAt));
   }
 }
 

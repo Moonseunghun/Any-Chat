@@ -9,6 +9,7 @@ import 'package:anychat/service/chat_service.dart';
 import 'package:anychat/service/database_service.dart';
 import 'package:anychat/service/friend_service.dart';
 import 'package:anychat/service/launcher_service.dart';
+import 'package:anychat/service/translate_service.dart';
 import 'package:anychat/state/user_state.dart';
 import 'package:anychat/state/util_state.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
@@ -90,6 +91,7 @@ class MyApp extends HookConsumerWidget {
     final appLifecycleState = useAppLifecycleState();
 
     useEffect(() {
+      translateService = TranslateService(ref);
       late final StreamSubscription<List<ConnectivityResult>> subscription;
 
       WidgetsBinding.instance.addPostFrameCallback((_) {

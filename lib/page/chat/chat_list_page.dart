@@ -94,8 +94,8 @@ class ChatListPage extends HookConsumerWidget {
                     width: 44,
                     height: 44,
                     child: ClipOval(
-                        child: chatRoomInfo.profileImg != null
-                            ? Image.file(chatRoomInfo.profileImg!,
+                        child: chatRoomInfo.profileImages.firstOrNull != null
+                            ? Image.file(chatRoomInfo.profileImages.first!,
                                 width: 140, height: 140, fit: BoxFit.fill)
                             : Image.asset('assets/images/default_profile.png', fit: BoxFit.cover))),
                 SizedBox(width: 10.w),
@@ -114,7 +114,7 @@ class ChatListPage extends HookConsumerWidget {
                                 ? '이미지'
                                 : chatRoomInfo.messageType == MessageType.video
                                     ? '비디오'
-                                    : chatRoomInfo.lastMessage,
+                                    : chatRoomInfo.targetLastMessage,
                         style: const TextStyle(fontSize: 10, color: Color(0xFF3B3B3B)),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis),

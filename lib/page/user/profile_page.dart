@@ -254,7 +254,7 @@ class ProfilePage extends HookConsumerWidget {
                                   Text(
                                     friend == null
                                         ? user.userInfo.stateMessage ?? '여기에 상태메세지를 입력해주세요'
-                                        : friend.friend.stateMessage ?? '여기에 상태메세지를 입력해주세요',
+                                        : friend.friend.stateMessage ?? '',
                                     style: const TextStyle(
                                         fontSize: 12,
                                         fontWeight: FontWeight.w500,

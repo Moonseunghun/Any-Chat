@@ -74,7 +74,7 @@ class ChatService extends SecuredHttpClient {
 
       for (final Message message in messages.value) {
         if (message.messageType == MessageType.text) {
-          tmp2.add(await TranslateService().translate(ref, message));
+          tmp2.add(await translateService.translate(message));
         } else {
           tmp2.add(message);
         }
@@ -192,7 +192,7 @@ class ChatService extends SecuredHttpClient {
 
       for (final Message message in messages.value) {
         if (message.messageType == MessageType.text) {
-          tmp2.add(await TranslateService().translate(ref, message));
+          tmp2.add(await translateService.translate(message));
         } else {
           tmp2.add(message);
         }
@@ -278,7 +278,7 @@ class ChatService extends SecuredHttpClient {
 
       late final Message translatedMessage;
       if (message.messageType == MessageType.text) {
-        translatedMessage = await TranslateService().translate(ref, message);
+        translatedMessage = await translateService.translate(message);
       } else {
         translatedMessage = message;
       }
