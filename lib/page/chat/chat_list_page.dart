@@ -200,7 +200,7 @@ class ChatListPage extends HookConsumerWidget {
                             : chatRoomInfo.messageType == MessageType.image
                                 ? '이미지'
                                 : chatRoomInfo.messageType == MessageType.video
-                                    ? '비디오'
+                                    ? 'video'.tr()
                                     : chatRoomInfo.targetLastMessage,
                         style: const TextStyle(fontSize: 10, color: Color(0xFF3B3B3B)),
                         maxLines: 2,

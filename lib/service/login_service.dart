@@ -42,7 +42,7 @@ class LoginService extends HttpClient {
 
       result = true;
     } catch (error) {
-      errorToast(message: "구글 계정 로그인에 실패했습니다");
+      errorToast(message: "fail_login_google".tr());
       result = false;
     } finally {
       ref.read(loadingProvider.notifier).off();
@@ -74,7 +74,7 @@ class LoginService extends HttpClient {
 
       result = true;
     } catch (error) {
-      errorToast(message: "애플 계정 로그인에 실패했습니다");
+      errorToast(message: "fail_login_apple".tr());
       result = false;
     } finally {
       ref.read(loadingProvider.notifier).off();
@@ -150,9 +150,11 @@ class LoginService extends HttpClient {
   }
 
   Future<void> login(WidgetRef ref) async {
+    final LoginType loginType = LoginType.getByProviderId(prefs.getString('login_type')!);
+
     final params = {
       'idToken': prefs.getString('id_token'),
-      'providerTypeId': LoginType.getByProviderId(prefs.getString('login_type')!).value,
+      'providerTypeId': loginType.value,
       'fcmToken': 'tmp',
       'deviceId': await _getDeviceId(),
       'deviceUUID': _getUUID()
@@ -166,7 +168,11 @@ class LoginService extends HttpClient {
       (data) {
         auth = Auth(accessToken: data['accessToken'], refreshToken: data['refreshToken']);
       },
-      errorMessage: '로그인에 실패했습니다',
+      errorMessage: loginType == LoginType.apple
+          ? 'fail_login_apple'.tr()
+          : loginType == LoginType.google
+              ? 'fail_login_google'.tr()
+              : 'fail_login_anychat'.tr(),
     );
   }
 

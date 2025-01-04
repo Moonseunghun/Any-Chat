@@ -8,6 +8,7 @@ import 'package:anychat/service/friend_service.dart';
 import 'package:anychat/service/user_service.dart';
 import 'package:anychat/state/friend_state.dart';
 import 'package:anychat/state/user_state.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -279,7 +280,7 @@ class ChatProfilePage extends HookConsumerWidget {
                           thickness: 1),
                       SizedBox(height: 10.h),
                       SizedBox(
-                          height: 74 + 32.h,
+                          height: 74 + 92.h,
                           child: isEditMode.value
                               ? null
                               : Row(
@@ -300,14 +301,17 @@ class ChatProfilePage extends HookConsumerWidget {
                                                   child: SvgPicture.asset(
                                                       'assets/images/pen_circle.svg',
                                                       width: 60))),
-                                          const Spacer(),
-                                          const Text(
-                                            '프로필편집',
-                                            style: TextStyle(
-                                                fontWeight: FontWeight.w500,
-                                                fontSize: 14,
-                                                color: Color(0xFFF5F5F5)),
-                                          )
+                                          SizedBox(height: 4.h),
+                                          SizedBox(
+                                              width: 60 + 24.w,
+                                              child: Text(
+                                                'profile_edit'.tr(),
+                                                style: const TextStyle(
+                                                    fontWeight: FontWeight.w500,
+                                                    fontSize: 14,
+                                                    color: Color(0xFFF5F5F5)),
+                                                textAlign: TextAlign.center,
+                                              ))
                                         ],
                                       ),
                                     if (chatUser.id != user.id) ...[
@@ -323,14 +327,17 @@ class ChatProfilePage extends HookConsumerWidget {
                                                       horizontal: 10.w, vertical: 10.h),
                                                   child: SvgPicture.asset('assets/images/chat.svg',
                                                       width: 60))),
-                                          const Spacer(),
-                                          const Text(
-                                            '채팅하기',
-                                            style: TextStyle(
-                                                fontWeight: FontWeight.w500,
-                                                fontSize: 14,
-                                                color: Color(0xFFF5F5F5)),
-                                          ),
+                                          SizedBox(height: 4.h),
+                                          SizedBox(
+                                              width: 60 + 24.w,
+                                              child: Text(
+                                                'profile_chat'.tr(),
+                                                style: const TextStyle(
+                                                    fontWeight: FontWeight.w500,
+                                                    fontSize: 14,
+                                                    color: Color(0xFFF5F5F5)),
+                                                textAlign: TextAlign.center,
+                                              )),
                                           SizedBox(height: 9.h)
                                         ],
                                       ),
@@ -345,14 +352,17 @@ class ChatProfilePage extends HookConsumerWidget {
                                                   child: SvgPicture.asset(
                                                       'assets/images/voice_call.svg',
                                                       width: 60))),
-                                          const Spacer(),
-                                          const Text(
-                                            '음성채팅',
-                                            style: TextStyle(
-                                                fontWeight: FontWeight.w500,
-                                                fontSize: 14,
-                                                color: Color(0xFFF5F5F5)),
-                                          ),
+                                          SizedBox(height: 4.h),
+                                          SizedBox(
+                                              width: 60 + 24.w,
+                                              child: Text(
+                                                'profile_voicechat'.tr(),
+                                                style: const TextStyle(
+                                                    fontWeight: FontWeight.w500,
+                                                    fontSize: 14,
+                                                    color: Color(0xFFF5F5F5)),
+                                                textAlign: TextAlign.center,
+                                              )),
                                           SizedBox(height: 9.h)
                                         ],
                                       ),
@@ -367,22 +377,24 @@ class ChatProfilePage extends HookConsumerWidget {
                                                   child: SvgPicture.asset(
                                                       'assets/images/face_call.svg',
                                                       width: 60))),
-                                          const Spacer(),
-                                          const Text(
-                                            '영상채팅',
-                                            style: TextStyle(
-                                                fontWeight: FontWeight.w500,
-                                                fontSize: 14,
-                                                color: Color(0xFFF5F5F5)),
-                                          ),
+                                          SizedBox(height: 4.h),
+                                          SizedBox(
+                                              width: 60 + 24.w,
+                                              child: Text(
+                                                'profile_videochat'.tr(),
+                                                style: const TextStyle(
+                                                    fontWeight: FontWeight.w500,
+                                                    fontSize: 14,
+                                                    color: Color(0xFFF5F5F5)),
+                                                textAlign: TextAlign.center,
+                                              )),
                                           SizedBox(height: 9.h)
                                         ],
                                       )
                                     ],
                                     SizedBox(width: 20.w)
                                   ],
-                                )),
-                      SizedBox(height: 60.h)
+                                ))
                     ],
                   )),
                   if (nameClicked.value || messageClicked.value) ...[

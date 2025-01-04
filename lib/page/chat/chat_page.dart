@@ -866,7 +866,7 @@ class ChatPage extends HookConsumerWidget {
                                     child: Text(
                                         showOriginMessages.value.contains(message.seqId)
                                             ? '번역보기'
-                                            : '원문보기',
+                                            : 'view_origintext'.tr(),
                                         style: TextStyle(
                                             fontSize: 11, color: Colors.black.withOpacity(0.7))))),
                           if ((message.totalParticipants ?? 0) - message.readCount! > 0)

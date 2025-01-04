@@ -14,6 +14,7 @@ import 'package:anychat/state/chat_state.dart';
 import 'package:anychat/state/user_state.dart';
 import 'package:anychat/state/util_state.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path/path.dart' as p;
@@ -396,7 +397,7 @@ class ChatService extends SecuredHttpClient {
       DatabaseService.delete('Message', where: 'chatRoomId = ?', whereArgs: [chatRoomId]);
       DatabaseService.delete('ChatUserInfo', where: 'chatRoomId = ?', whereArgs: [chatRoomId]);
       ref.read(chatRoomInfoProvider.notifier).remove(chatRoomId);
-    }, errorMessage: '채팅방을 나가는데 실패했습니다.');
+    }, errorMessage: 'exit_err01'.tr());
   }
 
   void inviteUsers(WidgetRef ref, List<String> ids) {
