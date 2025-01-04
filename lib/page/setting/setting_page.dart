@@ -57,7 +57,7 @@ class SettingPage extends HookConsumerWidget {
             _buildListWidget(
                 title: 'set_appversion'.tr(namedArgs: {'app_version': HttpConfig.appVersion}),
                 onTap: () {}),
-            _buildListWidget(title: 'set_license'.tr(), onTap: () {}),
+            // _buildListWidget(title: 'set_license'.tr(), onTap: () {}),
             _buildListWidget(
                 title: 'set_logout'.tr(),
                 onTap: () {

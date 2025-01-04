@@ -274,13 +274,13 @@ class ChatPage extends HookConsumerWidget {
                               },
                               icon: const Icon(Icons.close, color: Color(0xFF3B3B3B), size: 24)),
                           actions: [
-                            GestureDetector(
-                                onTap: () {},
-                                child: Container(
-                                    color: Colors.transparent,
-                                    padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 4.h),
-                                    child:
-                                        SvgPicture.asset('assets/images/search.svg', width: 24))),
+                            // GestureDetector(
+                            //     onTap: () {},
+                            //     child: Container(
+                            //         color: Colors.transparent,
+                            //         padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 4.h),
+                            //         child:
+                            //             SvgPicture.asset('assets/images/search.svg', width: 24))),
                             GestureDetector(
                                 onTap: () {
                                   FocusScope.of(context).unfocus();
@@ -479,11 +479,11 @@ class ChatPage extends HookConsumerWidget {
                                                   color: Colors.black),
                                             ))),
                                     SizedBox(width: 2.w),
-                                    Container(
-                                        color: Colors.transparent,
-                                        padding: EdgeInsets.symmetric(horizontal: 5.w, vertical: 7),
-                                        child: SvgPicture.asset('assets/images/emoticon.svg',
-                                            height: 24))
+                                    // Container(
+                                    //     color: Colors.transparent,
+                                    //     padding: EdgeInsets.symmetric(horizontal: 5.w, vertical: 7),
+                                    //     child: SvgPicture.asset('assets/images/emoticon.svg',
+                                    //         height: 24))
                                   ],
                                   if (selectedImage.value != null || selectedVideo.value != null)
                                     const Spacer(),
@@ -660,29 +660,30 @@ class ChatPage extends HookConsumerWidget {
                                                           ))))
                                                     ],
                                                   )),
-                                                  Expanded(
+                                                  const Expanded(
                                                       child: Row(
                                                     mainAxisAlignment:
                                                         MainAxisAlignment.spaceEvenly,
                                                     crossAxisAlignment: CrossAxisAlignment.center,
                                                     children: [
-                                                      ...[3, 4, 5].map((index) => GestureDetector(
-                                                          onTap: () {},
-                                                          child: IntrinsicHeight(
-                                                              child: Column(
-                                                            mainAxisSize: MainAxisSize.min,
-                                                            children: [
-                                                              SvgPicture.asset(
-                                                                  'assets/images/${plusMenu.keys.elementAt(index)}.svg',
-                                                                  height: 60),
-                                                              const SizedBox(height: 10),
-                                                              Text(plusMenu.values.elementAt(index),
-                                                                  style: const TextStyle(
-                                                                      fontSize: 14,
-                                                                      fontWeight: FontWeight.w500,
-                                                                      color: Color(0xFF3B3B3B))),
-                                                            ],
-                                                          ))))
+                                                      // ...[3, 4, 5].map((index) => GestureDetector(
+                                                      //     onTap: () {},
+                                                      //     child: IntrinsicHeight(
+                                                      //         child: Column(
+                                                      //       mainAxisSize: MainAxisSize.min,
+                                                      //       children: [
+                                                      //         SvgPicture.asset(
+                                                      //             'assets/images/${plusMenu.keys.elementAt(index)}.svg',
+                                                      //             height: 60),
+                                                      //         const SizedBox(height: 10),
+                                                      //         Text(plusMenu.values.elementAt(index),
+                                                      //             style: const TextStyle(
+                                                      //                 fontSize: 14,
+                                                      //                 fontWeight: FontWeight.w500,
+                                                      //                 color: Color(0xFF3B3B3B))),
+                                                      //       ],
+                                                      //     )))
+                                                      // )
                                                     ],
                                                   )),
                                                   SizedBox(height: 50.h)
