@@ -12,7 +12,6 @@ import '../../service/chat_service.dart';
 import '../../service/friend_service.dart';
 import '../home/qr_view_page.dart';
 import '../main_layout.dart';
-import 'chat_page.dart';
 
 class InviteFriendPage extends HookConsumerWidget {
   static const String routeName = '/chat/invite';
@@ -56,13 +55,8 @@ class InviteFriendPage extends HookConsumerWidget {
                         GestureDetector(
                             onTap: () {
                               if (arguments == null) {
-                                ChatService()
-                                    .makeRoom(ref,
-                                        selectedFriends.value.map((e) => e.friend.userId).toList())
-                                    .then((chatRoomHeader) {
-                                  router.pop();
-                                  router.push(ChatPage.routeName, extra: chatRoomHeader);
-                                });
+                                ChatService().makeRoom(ref,
+                                    selectedFriends.value.map((e) => e.friend.userId).toList());
                               } else {
                                 ChatService().inviteUsers(ref,
                                     selectedFriends.value.map((e) => e.friend.userId).toList());

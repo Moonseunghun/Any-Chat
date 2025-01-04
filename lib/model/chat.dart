@@ -13,10 +13,16 @@ import '../state/user_state.dart';
 class ChatRoomHeader {
   final String chatRoomId;
   final String chatRoomName;
+  final List<Message> messages;
+  final List<ChatUserInfo> chatUserInfos;
+  final ChatUserInfo? owner;
 
   ChatRoomHeader({
     required this.chatRoomId,
     required this.chatRoomName,
+    required this.messages,
+    required this.chatUserInfos,
+    this.owner,
   });
 }
 

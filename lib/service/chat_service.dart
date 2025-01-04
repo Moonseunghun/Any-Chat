@@ -6,11 +6,14 @@ import 'package:anychat/common/http_client.dart';
 import 'package:anychat/common/toast.dart';
 import 'package:anychat/main.dart';
 import 'package:anychat/model/chat.dart';
+import 'package:anychat/page/main_layout.dart';
 import 'package:anychat/service/database_service.dart';
 import 'package:anychat/service/translate_service.dart';
 import 'package:anychat/service/user_service.dart';
 import 'package:anychat/state/chat_state.dart';
 import 'package:anychat/state/user_state.dart';
+import 'package:anychat/state/util_state.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path/path.dart' as p;
@@ -45,21 +48,21 @@ class ChatService extends SecuredHttpClient {
     }, errorHandler: (_) {});
   }
 
-  Future<ChatRoomHeader> makeRoom(WidgetRef ref, List<String> friends) async {
+  Future<void> makeRoom(WidgetRef ref, List<String> friends) async {
     return await post(
         path: basePath,
         queryParams: {'targetUserIds': friends},
         converter: (result) => result['data']).run(ref, (result) {
-      return ChatRoomHeader(
-          chatRoomId: result['chatRoomId'] as String, chatRoomName: result['name']);
+      router.go(MainLayout.routeName);
+      joinRoom(ref, result['chatRoomId'], result['name']);
     }, errorMessage: '채팅방을 생성하는데 실패했습니다.');
   }
 
   Future<String?> getMessages(WidgetRef ref, ValueNotifier<List<ChatUserInfo>> participants,
-      ValueNotifier<List<Message>> messages, String chatRoomId, String? cursor) async {
+      ValueNotifier<List<Message>> messages, String chatRoomId) async {
     return await get(
         path: '$basePath/$chatRoomId/messages',
-        queryParams: {'limit': 40, 'cursor': cursor},
+        queryParams: {'limit': 40, 'cursor': messageCursor},
         converter: (result) => result['data']).run(null, (result) async {
       final List<Message> tmp = [];
       final List<Message> tmp2 = [];
@@ -91,8 +94,7 @@ class ChatService extends SecuredHttpClient {
     }, errorHandler: (_) {});
   }
 
-  Future<void> getParticipants(
-      String chatRoomId, ValueNotifier<List<ChatUserInfo>> participants) async {
+  Future<List<ChatUserInfo>> getParticipants(String chatRoomId) async {
     return await get(
         path: '$basePath/$chatRoomId/participants',
         converter: (result) => result['data']).run(null, (data) async {
@@ -109,7 +111,7 @@ class ChatService extends SecuredHttpClient {
               .map((e) => ChatUserInfo.toMap(chatRoomId, e['user']))
               .toList());
 
-      participants.value = chatUserInfos;
+      return chatUserInfos;
     }, errorHandler: (_) {});
   }
 
@@ -130,7 +132,7 @@ class ChatService extends SecuredHttpClient {
       socket!.on('S_CONNECTION', (data) {
         socketConnected = true;
         onChatRoomInfo(ref);
-        onInviteUsers();
+        onInviteUsers(ref);
         callback?.call();
       });
 
@@ -147,35 +149,50 @@ class ChatService extends SecuredHttpClient {
     socket?.disconnect();
   }
 
-  Future<void> joinRoom(
-      WidgetRef ref,
-      ValueNotifier<List<ChatUserInfo>> participants,
+  Future<void> joinRoom(WidgetRef ref,
       String chatRoomId,
-      ValueNotifier<List<Message>> messages,
-      ValueNotifier<List<LoadingMessage>> loadingMessages,
-      ValueNotifier<String?> cursor) async {
+      String chatRoomName, {
+        ValueNotifier<ChatUserInfo?>? ownerValue,
+        ValueNotifier<List<ChatUserInfo>>? participantsValue,
+        ValueNotifier<List<Message>>? messagesValue,
+      }) async {
+    if (participantsValue == null && messagesValue == null && ownerValue == null) {
+      messageCursor = null;
+    }
+
+    final internet = await Connectivity().checkConnectivity();
+
+    if (!internet.contains(ConnectivityResult.mobile) &&
+        !internet.contains(ConnectivityResult.wifi)) {
+      if (participantsValue == null && messagesValue == null && ownerValue == null) {
+        router.push(ChatPage.routeName,
+            extra: ChatRoomHeader(
+                chatRoomId: chatRoomId,
+                chatRoomName: chatRoomName,
+                messages: [],
+                chatUserInfos: [],
+                owner: null));
+      }
+      return;
+    }
+
+    late final List<ChatUserInfo> participants;
+    late final ChatUserInfo? owner;
+    List<Message> messages = [];
+
+    ref.read(loadingProvider.notifier).on();
+
+    await getParticipants(chatRoomId).then((chatUserInfos) async {
+      participants = chatUserInfos;
+      await getRoomInfo(chatRoomId).then((value) {
+        owner = participants
+            .where((e) => e.id == value)
+            .firstOrNull;
+      });
+    });
+
     socket!.emit('C_JOIN_ROOM', {'chatRoomId': chatRoomId});
     socket!.on('S_JOIN_ROOM', (data) async {
-      socket!.on('S_FILE_OPTIMIZATION_PROCESSING', (data) {
-        loadingMessages.value = loadingMessages.value.map((e) {
-          if (e.uuid == data['uuid']) {
-            return e.copyWith(progress: data['progress'] / 1.5);
-          } else {
-            return e;
-          }
-        }).toList();
-      });
-
-      socket!.on('S_FILE_UPLOAD_PROGRESS', (data) {
-        loadingMessages.value = loadingMessages.value.map((e) {
-          if (e.uuid == data['uuid']) {
-            return e.copyWith(progress: data['progress'] / 3.3 + 67);
-          } else {
-            return e;
-          }
-        }).toList();
-      });
-
       final result = jsonDecode(data);
 
       final List<Message> tmp = [];
@@ -183,27 +200,65 @@ class ChatService extends SecuredHttpClient {
 
       for (final Map<String, dynamic> message
           in List<Map<String, dynamic>>.from(result['messages'])) {
-        tmp.add(await Message.fromJson(ref, participants.value, message));
+        tmp.add(await Message.fromJson(ref, participants, message));
       }
 
-      messages.value = tmp..sort((a, b) => b.seqId.compareTo(a.seqId));
+      messages = tmp..sort((a, b) => b.seqId.compareTo(a.seqId));
 
-      cursor.value = result['nextCursor'];
+      messageCursor = result['nextCursor'];
 
-      for (final Message message in messages.value) {
+      for (final Message message in messages) {
         if (message.messageType == MessageType.text) {
           tmp2.add(await translateService.translate(message));
         } else {
           tmp2.add(message);
         }
       }
-      messages.value = tmp2;
+      messages = tmp2;
 
       DatabaseService.batchInsert('Message', tmp2.map((e) => Message.toMap(e)).toList());
 
-      if (messages.value.isNotEmpty) {
-        readMessage(ref, messages.value.first.seqId);
+      if (messages.isNotEmpty) {
+        readMessage(ref, messages.first.seqId);
       }
+
+      ref.read(loadingProvider.notifier).off();
+
+      if (participantsValue == null && messagesValue == null && ownerValue == null) {
+        router.push(ChatPage.routeName,
+            extra: ChatRoomHeader(
+                chatRoomId: chatRoomId,
+                chatRoomName: chatRoomName,
+                messages: messages,
+                chatUserInfos: participants,
+                owner: owner));
+      } else {
+        participantsValue?.value = participants;
+        messagesValue?.value = messages;
+        ownerValue?.value = owner;
+      }
+    });
+  }
+
+  void onFileProgress(WidgetRef ref, ValueNotifier<List<LoadingMessage>> loadingMessages) {
+    socket!.on('S_FILE_OPTIMIZATION_PROCESSING', (data) {
+      loadingMessages.value = loadingMessages.value.map((e) {
+        if (e.uuid == data['uuid']) {
+          return e.copyWith(progress: data['progress'] / 1.5);
+        } else {
+          return e;
+        }
+      }).toList();
+    });
+
+    socket!.on('S_FILE_UPLOAD_PROGRESS', (data) {
+      loadingMessages.value = loadingMessages.value.map((e) {
+        if (e.uuid == data['uuid']) {
+          return e.copyWith(progress: data['progress'] / 3.3 + 67);
+        } else {
+          return e;
+        }
+      }).toList();
     });
   }
 
@@ -248,7 +303,9 @@ class ChatService extends SecuredHttpClient {
       ValueNotifier<List<LoadingMessage>> loadingMessages) {
     socket!.on('S_SEND_MESSAGE', (result) async {
       if (result['messageType'] == MessageType.invite.value) {
-        await getParticipants(chatRoomId, participants);
+        await getParticipants(chatRoomId).then((chatUserInfos) {
+          participants.value = chatUserInfos;
+        });
       } else if (result['messageType'] == MessageType.kick.value) {
         participants.value = participants.value
             .where((e) => e.id != (result['content'] as Map<String, dynamic>)['kickedOutId'])
@@ -347,14 +404,14 @@ class ChatService extends SecuredHttpClient {
     socket!.emit('C_INVITE_USER', {'inviteeIds': ids});
   }
 
-  void onInviteUsers() {
+  void onInviteUsers(WidgetRef ref) {
     socket!.on('S_CREATE_GROUP_CHAT_ROOM', (data) {
-      router.pop();
+      router.go(MainLayout.routeName);
+      ref.read(loadingProvider.notifier).on();
       socket!.on('S_LEAVE_ROOM', (_) {
         socket!.off('S_LEAVE_ROOM');
-        router.push(ChatPage.routeName,
-            extra:
-                ChatRoomHeader(chatRoomId: data['chatRoomId'], chatRoomName: data['chatRoomName']));
+
+        joinRoom(ref, data['chatRoomId'], data['chatRoomName']);
       });
     });
   }
@@ -406,6 +463,7 @@ class ChatService extends SecuredHttpClient {
   void catchError(WidgetRef ref) {
     socket!.on('S_ERROR', (data) {
       print('에러: $data');
+      ref.read(loadingProvider.notifier).off();
       if (data is Map && data['status'] == 401) {
         UserService.refreshAccessToken().then((token) {
           connectSocket(ref, accessToken: token);

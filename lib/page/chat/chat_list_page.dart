@@ -1,9 +1,9 @@
 import 'package:anychat/common/datetime_extension.dart';
 import 'package:anychat/model/chat.dart';
 import 'package:anychat/model/message.dart';
-import 'package:anychat/page/chat/chat_page.dart';
 import 'package:anychat/page/chat/show_sort_menu.dart';
 import 'package:anychat/page/router.dart';
+import 'package:anychat/service/chat_service.dart';
 import 'package:anychat/state/chat_state.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
@@ -81,8 +81,7 @@ class ChatListPage extends HookConsumerWidget {
     return InkWell(
         onTap: () {
           newChat.value = false;
-          router.push(ChatPage.routeName,
-              extra: ChatRoomHeader(chatRoomId: chatRoomInfo.id, chatRoomName: chatRoomInfo.name));
+          ChatService().joinRoom(ref, chatRoomInfo.id, chatRoomInfo.name);
         },
         child: Container(
             padding: EdgeInsets.symmetric(vertical: 12.h),
@@ -110,7 +109,7 @@ class ChatListPage extends HookConsumerWidget {
                                               ? Image.file(chatRoomInfo.profileImages[0]!,
                                                   width: 30, height: 30, fit: BoxFit.fill)
                                               : Image.asset('assets/images/default_profile.png',
-                                                  fit: BoxFit.cover))),
+                                                  fit: BoxFit.cover, width: 30, height: 30))),
                                   Align(
                                       alignment: Alignment.bottomRight,
                                       child: ClipOval(
@@ -118,7 +117,7 @@ class ChatListPage extends HookConsumerWidget {
                                               ? Image.file(chatRoomInfo.profileImages[1]!,
                                                   width: 30, height: 30, fit: BoxFit.fill)
                                               : Image.asset('assets/images/default_profile.png',
-                                                  fit: BoxFit.cover)))
+                                                  fit: BoxFit.cover, width: 30, height: 30)))
                                 ],
                               )
                             : chatRoomInfo.profileImages.length == 3
@@ -131,7 +130,7 @@ class ChatListPage extends HookConsumerWidget {
                                                   ? Image.file(chatRoomInfo.profileImages[0]!,
                                                       width: 27, height: 27, fit: BoxFit.fill)
                                                   : Image.asset('assets/images/default_profile.png',
-                                                      fit: BoxFit.cover))),
+                                                      fit: BoxFit.cover, width: 27, height: 27))),
                                       Align(
                                           alignment: Alignment.bottomLeft,
                                           child: ClipOval(
@@ -139,7 +138,7 @@ class ChatListPage extends HookConsumerWidget {
                                                   ? Image.file(chatRoomInfo.profileImages[1]!,
                                                       width: 27, height: 27, fit: BoxFit.fill)
                                                   : Image.asset('assets/images/default_profile.png',
-                                                      fit: BoxFit.cover))),
+                                                      fit: BoxFit.cover, width: 27, height: 27))),
                                       Align(
                                           alignment: Alignment.bottomRight,
                                           child: ClipOval(
@@ -147,7 +146,7 @@ class ChatListPage extends HookConsumerWidget {
                                                   ? Image.file(chatRoomInfo.profileImages[2]!,
                                                       width: 27, height: 27, fit: BoxFit.fill)
                                                   : Image.asset('assets/images/default_profile.png',
-                                                      fit: BoxFit.cover)))
+                                                      fit: BoxFit.cover, width: 27, height: 27)))
                                     ],
                                   )
                                 : Stack(
@@ -159,7 +158,7 @@ class ChatListPage extends HookConsumerWidget {
                                                   ? Image.file(chatRoomInfo.profileImages[0]!,
                                                       width: 24, height: 24, fit: BoxFit.fill)
                                                   : Image.asset('assets/images/default_profile.png',
-                                                      fit: BoxFit.cover))),
+                                                      fit: BoxFit.cover, width: 24, height: 24))),
                                       Align(
                                           alignment: Alignment.bottomLeft,
                                           child: ClipOval(
@@ -167,7 +166,7 @@ class ChatListPage extends HookConsumerWidget {
                                                   ? Image.file(chatRoomInfo.profileImages[1]!,
                                                       width: 24, height: 24, fit: BoxFit.fill)
                                                   : Image.asset('assets/images/default_profile.png',
-                                                      fit: BoxFit.cover))),
+                                                      fit: BoxFit.cover, width: 24, height: 24))),
                                       Align(
                                           alignment: Alignment.bottomRight,
                                           child: ClipOval(
@@ -175,7 +174,7 @@ class ChatListPage extends HookConsumerWidget {
                                                   ? Image.file(chatRoomInfo.profileImages[2]!,
                                                       width: 24, height: 24, fit: BoxFit.fill)
                                                   : Image.asset('assets/images/default_profile.png',
-                                                      fit: BoxFit.cover))),
+                                                      fit: BoxFit.cover, width: 24, height: 24))),
                                       Align(
                                           alignment: Alignment.bottomRight,
                                           child: ClipOval(
@@ -183,7 +182,7 @@ class ChatListPage extends HookConsumerWidget {
                                                   ? Image.file(chatRoomInfo.profileImages[3]!,
                                                       width: 24, height: 24, fit: BoxFit.fill)
                                                   : Image.asset('assets/images/default_profile.png',
-                                                      fit: BoxFit.cover)))
+                                                      fit: BoxFit.cover, width: 24, height: 24)))
                                     ],
                                   )),
                 SizedBox(width: 10.w),

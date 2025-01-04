@@ -37,6 +37,7 @@ import '../video_player_page.dart';
 import 'invite_friend_page.dart';
 
 bool _internetConnected = true;
+String? messageCursor;
 
 class ChatPage extends HookConsumerWidget {
   static const String routeName = '/chat';
@@ -63,19 +64,18 @@ class ChatPage extends HookConsumerWidget {
     final init = useState<bool>(false);
 
     double keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
-    final owner = useState<ChatUserInfo?>(null);
+    final owner = useState<ChatUserInfo?>(chatRoomHeader.owner);
     final isShow = useState<bool>(false);
     final showPlusMenu = useState<bool>(false);
     final plusMenuHeight = useState<double>(300.h);
     final focusNode = useFocusNode();
     final messageController = useTextEditingController();
 
-    final messages = useState<List<Message>>([]);
+    final messages = useState<List<Message>>(chatRoomHeader.messages);
     final showOriginMessages = useState<List<int>>([]);
     final loadingMessages = useState<List<LoadingMessage>>([]);
-    final cursor = useState<String?>(null);
     final scrollAtBottom = useState<bool>(true);
-    final participants = useState<List<ChatUserInfo>>([]);
+    final participants = useState<List<ChatUserInfo>>(chatRoomHeader.chatUserInfos);
     final selectedImage = useState<File?>(null);
     final selectedVideo = useState<File?>(null);
     final chewieController = useState<ChewieController?>(null);
@@ -100,22 +100,30 @@ class ChatPage extends HookConsumerWidget {
               if (!socketConnected) {
                 UserService.refreshAccessToken().then((_) {
                   ChatService().connectSocket(ref, callback: () {
-                    ChatService().joinRoom(ref, participants, chatRoomHeader.chatRoomId, messages,
-                        loadingMessages, cursor);
+                    ChatService().joinRoom(
+                        ref, chatRoomHeader.chatRoomId, chatRoomHeader.chatRoomName,
+                        participantsValue: participants,
+                        messagesValue: messages,
+                        ownerValue: owner);
                     ChatService().onMessageRead(ref, messages);
                     ChatService().onMessageReceived(
                         ref, chatRoomHeader.chatRoomId, messages, participants, loadingMessages);
                     ChatService().onKickUser(ref);
                     ChatService().onUpdatedMessages(ref, messages);
+                    ChatService().onFileProgress(ref, loadingMessages);
                   });
                 });
+              } else {
+                ChatService().outRoom(ref);
+                ChatService().joinRoom(ref, chatRoomHeader.chatRoomId, chatRoomHeader.chatRoomName,
+                    participantsValue: participants, messagesValue: messages, ownerValue: owner);
+                ChatService().onMessageRead(ref, messages);
+                ChatService().onMessageReceived(
+                    ref, chatRoomHeader.chatRoomId, messages, participants, loadingMessages);
+                ChatService().onKickUser(ref);
+                ChatService().onUpdatedMessages(ref, messages);
+                ChatService().onFileProgress(ref, loadingMessages);
               }
-
-              ChatService().getParticipants(chatRoomHeader.chatRoomId, participants).then((_) {
-                ChatService().getRoomInfo(chatRoomHeader.chatRoomId).then((value) {
-                  owner.value = participants.value.where((e) => e.id == value).firstOrNull;
-                });
-              });
 
               _internetConnected = true;
             }
@@ -124,29 +132,35 @@ class ChatPage extends HookConsumerWidget {
           }
         });
 
-        DatabaseService.search('Message',
+        Connectivity().checkConnectivity().then((result) {
+          if (!result.contains(ConnectivityResult.mobile) &&
+              !result.contains(ConnectivityResult.wifi)) {
+            DatabaseService.search('Message',
+                    where: 'chatRoomId = ?',
+                    whereArgs: [chatRoomHeader.chatRoomId],
+                    orderBy: 'seqId DESC')
+                .then((value) async {
+              final List<Message> tmp = [];
+
+              for (final message in value) {
+                tmp.add(await Message.fromJson(ref, participants.value, message));
+              }
+
+              messages.value = tmp;
+            });
+
+            DatabaseService.search('ChatUserInfo',
                 where: 'chatRoomId = ?',
-                whereArgs: [chatRoomHeader.chatRoomId],
-                orderBy: 'seqId DESC')
-            .then((value) async {
-          final List<Message> tmp = [];
+                whereArgs: [chatRoomHeader.chatRoomId]).then((value) async {
+              final List<ChatUserInfo> chatUserInfos = [];
 
-          for (final message in value) {
-            tmp.add(await Message.fromJson(ref, participants.value, message));
+              for (final participant in value) {
+                chatUserInfos.add(await ChatUserInfo.fromJson(participant));
+              }
+
+              participants.value = chatUserInfos;
+            });
           }
-
-          messages.value = tmp;
-        });
-
-        DatabaseService.search('ChatUserInfo',
-            where: 'chatRoomId = ?', whereArgs: [chatRoomHeader.chatRoomId]).then((value) async {
-          final List<ChatUserInfo> chatUserInfos = [];
-
-          for (final participant in value) {
-            chatUserInfos.add(await ChatUserInfo.fromJson(participant));
-          }
-
-          participants.value = chatUserInfos;
         });
 
         _scrollController.addListener(() {
@@ -170,37 +184,36 @@ class ChatPage extends HookConsumerWidget {
         if (appLifecycleState == AppLifecycleState.resumed) {
           if (_internetConnected && auth != null) {
             if (socketConnected && !init.value) {
-              ChatService().getParticipants(chatRoomHeader.chatRoomId, participants).then((_) {
-                ChatService().getRoomInfo(chatRoomHeader.chatRoomId).then((value) {
-                  owner.value = participants.value.where((e) => e.id == value).firstOrNull;
-                });
-              });
-
-              ChatService().joinRoom(
-                  ref, participants, chatRoomHeader.chatRoomId, messages, loadingMessages, cursor);
               ChatService().onMessageRead(ref, messages);
               ChatService().onMessageReceived(
                   ref, chatRoomHeader.chatRoomId, messages, participants, loadingMessages);
               ChatService().onKickUser(ref);
               ChatService().onUpdatedMessages(ref, messages);
+              ChatService().onFileProgress(ref, loadingMessages);
             } else if (!socketConnected) {
               UserService.refreshAccessToken().then((_) {
-                ChatService().getParticipants(chatRoomHeader.chatRoomId, participants).then((_) {
-                  ChatService().getRoomInfo(chatRoomHeader.chatRoomId).then((value) {
-                    owner.value = participants.value.where((e) => e.id == value).firstOrNull;
-                  });
-                });
-
                 ChatService().connectSocket(ref, callback: () {
-                  ChatService().joinRoom(ref, participants, chatRoomHeader.chatRoomId, messages,
-                      loadingMessages, cursor);
+                  ChatService().joinRoom(
+                      ref, chatRoomHeader.chatRoomId, chatRoomHeader.chatRoomName,
+                      participantsValue: participants, messagesValue: messages, ownerValue: owner);
                   ChatService().onMessageRead(ref, messages);
                   ChatService().onMessageReceived(
                       ref, chatRoomHeader.chatRoomId, messages, participants, loadingMessages);
                   ChatService().onKickUser(ref);
                   ChatService().onUpdatedMessages(ref, messages);
+                  ChatService().onFileProgress(ref, loadingMessages);
                 });
               });
+            } else {
+              ChatService().outRoom(ref);
+              ChatService().joinRoom(ref, chatRoomHeader.chatRoomId, chatRoomHeader.chatRoomName,
+                  participantsValue: participants, messagesValue: messages, ownerValue: owner);
+              ChatService().onMessageRead(ref, messages);
+              ChatService().onMessageReceived(
+                  ref, chatRoomHeader.chatRoomId, messages, participants, loadingMessages);
+              ChatService().onKickUser(ref);
+              ChatService().onUpdatedMessages(ref, messages);
+              ChatService().onFileProgress(ref, loadingMessages);
             }
           }
 
@@ -291,10 +304,10 @@ class ChatPage extends HookConsumerWidget {
                             if (notification is ScrollEndNotification &&
                                 notification.metrics.extentAfter == 0) {
                               ChatService()
-                                  .getMessages(ref, participants, messages,
-                                      chatRoomHeader.chatRoomId, cursor.value)
+                                  .getMessages(
+                                      ref, participants, messages, chatRoomHeader.chatRoomId)
                                   .then((value) {
-                                cursor.value = value;
+                                messageCursor = value;
                               });
                             }
 
@@ -878,8 +891,9 @@ class ChatPage extends HookConsumerWidget {
     );
   }
 
-  Widget _myChat({required WidgetRef ref,
-    Message? message,
+  Widget _myChat(
+      {required WidgetRef ref,
+      Message? message,
       bool optional = false,
       bool change = false,
       LoadingMessage? loadingMessage}) {

@@ -6,7 +6,6 @@ import 'package:qr_code_scanner/qr_code_scanner.dart';
 
 import '../../service/chat_service.dart';
 import '../../service/friend_service.dart';
-import '../chat/chat_page.dart';
 import '../router.dart';
 
 class QrViewPage extends HookConsumerWidget {
@@ -50,11 +49,7 @@ class QrViewPage extends HookConsumerWidget {
                   canScan = true;
                 });
               } else if (index == 1) {
-                ChatService().makeRoom(ref, [scanData.code!]).then((chatRoomHeader) {
-                  router.pop();
-                  router.pop();
-                  router.push(ChatPage.routeName, extra: chatRoomHeader);
-                }).catchError((e) {
+                ChatService().makeRoom(ref, [scanData.code!]).catchError((e) {
                   controller.resumeCamera();
                   canScan = true;
                 });

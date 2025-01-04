@@ -1,5 +1,4 @@
 import 'package:anychat/common/toast.dart';
-import 'package:anychat/page/main_layout.dart';
 import 'package:anychat/page/router.dart';
 import 'package:anychat/page/user/show_image_picker.dart';
 import 'package:anychat/page/user/show_profile_more.dart';
@@ -15,7 +14,6 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import '../../model/friend.dart';
-import '../chat/chat_page.dart';
 
 class ProfilePage extends HookConsumerWidget {
   static const String routeName = '/profile';
@@ -314,13 +312,7 @@ class ProfilePage extends HookConsumerWidget {
                                         children: [
                                           GestureDetector(
                                               onTap: () {
-                                                ChatService()
-                                                    .makeRoom(ref, [friend.friend.userId]).then(
-                                                        (chatRoomHeader) {
-                                                  router.go(MainLayout.routeName);
-                                                  router.push(ChatPage.routeName,
-                                                      extra: chatRoomHeader);
-                                                });
+                                                ChatService().makeRoom(ref, [friend.friend.userId]);
                                               },
                                               child: Container(
                                                   color: Colors.transparent,
