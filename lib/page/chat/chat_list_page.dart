@@ -93,11 +93,99 @@ class ChatListPage extends HookConsumerWidget {
                 SizedBox(
                     width: 44,
                     height: 44,
-                    child: ClipOval(
-                        child: chatRoomInfo.profileImages.firstOrNull != null
-                            ? Image.file(chatRoomInfo.profileImages.first!,
-                                width: 140, height: 140, fit: BoxFit.fill)
-                            : Image.asset('assets/images/default_profile.png', fit: BoxFit.cover))),
+                    child: chatRoomInfo.profileImages.length == 1
+                        ? ClipOval(
+                            child: chatRoomInfo.profileImages.firstOrNull != null
+                                ? Image.file(chatRoomInfo.profileImages.first!,
+                                    width: 44, height: 44, fit: BoxFit.fill)
+                                : Image.asset('assets/images/default_profile.png',
+                                    fit: BoxFit.cover))
+                        : chatRoomInfo.profileImages.length == 2
+                            ? Stack(
+                                children: [
+                                  Align(
+                                      alignment: Alignment.topLeft,
+                                      child: ClipOval(
+                                          child: chatRoomInfo.profileImages[0] != null
+                                              ? Image.file(chatRoomInfo.profileImages[0]!,
+                                                  width: 30, height: 30, fit: BoxFit.fill)
+                                              : Image.asset('assets/images/default_profile.png',
+                                                  fit: BoxFit.cover))),
+                                  Align(
+                                      alignment: Alignment.bottomRight,
+                                      child: ClipOval(
+                                          child: chatRoomInfo.profileImages[1] != null
+                                              ? Image.file(chatRoomInfo.profileImages[1]!,
+                                                  width: 30, height: 30, fit: BoxFit.fill)
+                                              : Image.asset('assets/images/default_profile.png',
+                                                  fit: BoxFit.cover)))
+                                ],
+                              )
+                            : chatRoomInfo.profileImages.length == 3
+                                ? Stack(
+                                    children: [
+                                      Align(
+                                          alignment: Alignment.topCenter,
+                                          child: ClipOval(
+                                              child: chatRoomInfo.profileImages[0] != null
+                                                  ? Image.file(chatRoomInfo.profileImages[0]!,
+                                                      width: 27, height: 27, fit: BoxFit.fill)
+                                                  : Image.asset('assets/images/default_profile.png',
+                                                      fit: BoxFit.cover))),
+                                      Align(
+                                          alignment: Alignment.bottomLeft,
+                                          child: ClipOval(
+                                              child: chatRoomInfo.profileImages[1] != null
+                                                  ? Image.file(chatRoomInfo.profileImages[1]!,
+                                                      width: 27, height: 27, fit: BoxFit.fill)
+                                                  : Image.asset('assets/images/default_profile.png',
+                                                      fit: BoxFit.cover))),
+                                      Align(
+                                          alignment: Alignment.bottomRight,
+                                          child: ClipOval(
+                                              child: chatRoomInfo.profileImages[2] != null
+                                                  ? Image.file(chatRoomInfo.profileImages[2]!,
+                                                      width: 27, height: 27, fit: BoxFit.fill)
+                                                  : Image.asset('assets/images/default_profile.png',
+                                                      fit: BoxFit.cover)))
+                                    ],
+                                  )
+                                : Stack(
+                                    children: [
+                                      Align(
+                                          alignment: Alignment.topCenter,
+                                          child: ClipOval(
+                                              child: chatRoomInfo.profileImages[0] != null
+                                                  ? Image.file(chatRoomInfo.profileImages[0]!,
+                                                      width: 24, height: 24, fit: BoxFit.fill)
+                                                  : Image.asset('assets/images/default_profile.png',
+                                                      fit: BoxFit.cover))),
+                                      Align(
+                                          alignment: Alignment.bottomLeft,
+                                          child: ClipOval(
+                                              child: chatRoomInfo.profileImages[1] != null
+                                                  ? Image.file(chatRoomInfo.profileImages[1]!,
+                                                      width: 24, height: 24, fit: BoxFit.fill)
+                                                  : Image.asset('assets/images/default_profile.png',
+                                                      fit: BoxFit.cover))),
+                                      Align(
+                                          alignment: Alignment.bottomRight,
+                                          child: ClipOval(
+                                              child: chatRoomInfo.profileImages[2] != null
+                                                  ? Image.file(chatRoomInfo.profileImages[2]!,
+                                                      width: 24, height: 24, fit: BoxFit.fill)
+                                                  : Image.asset('assets/images/default_profile.png',
+                                                      fit: BoxFit.cover))),
+                                      Align(
+                                          alignment: Alignment.bottomRight,
+                                          child: ClipOval(
+                                              child: chatRoomInfo.profileImages[3] != null
+                                                  ? Image.file(chatRoomInfo.profileImages[3]!,
+                                                      width: 24, height: 24, fit: BoxFit.fill)
+                                                  : Image.asset('assets/images/default_profile.png',
+                                                      fit: BoxFit.cover)))
+                                    ],
+                                  )),
                 SizedBox(width: 10.w),
                 Expanded(
                     child: Column(
