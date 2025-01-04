@@ -341,56 +341,56 @@ class ChatProfilePage extends HookConsumerWidget {
                                           SizedBox(height: 9.h)
                                         ],
                                       ),
-                                      Column(
-                                        children: [
-                                          GestureDetector(
-                                              onTap: () {},
-                                              child: Container(
-                                                  color: Colors.transparent,
-                                                  padding: EdgeInsets.symmetric(
-                                                      horizontal: 10.w, vertical: 10.h),
-                                                  child: SvgPicture.asset(
-                                                      'assets/images/voice_call.svg',
-                                                      width: 60))),
-                                          SizedBox(height: 4.h),
-                                          SizedBox(
-                                              width: 60 + 24.w,
-                                              child: Text(
-                                                'profile_voicechat'.tr(),
-                                                style: const TextStyle(
-                                                    fontWeight: FontWeight.w500,
-                                                    fontSize: 14,
-                                                    color: Color(0xFFF5F5F5)),
-                                                textAlign: TextAlign.center,
-                                              )),
-                                          SizedBox(height: 9.h)
-                                        ],
-                                      ),
-                                      Column(
-                                        children: [
-                                          GestureDetector(
-                                              onTap: () {},
-                                              child: Container(
-                                                  color: Colors.transparent,
-                                                  padding: EdgeInsets.symmetric(
-                                                      horizontal: 10.w, vertical: 10.h),
-                                                  child: SvgPicture.asset(
-                                                      'assets/images/face_call.svg',
-                                                      width: 60))),
-                                          SizedBox(height: 4.h),
-                                          SizedBox(
-                                              width: 60 + 24.w,
-                                              child: Text(
-                                                'profile_videochat'.tr(),
-                                                style: const TextStyle(
-                                                    fontWeight: FontWeight.w500,
-                                                    fontSize: 14,
-                                                    color: Color(0xFFF5F5F5)),
-                                                textAlign: TextAlign.center,
-                                              )),
-                                          SizedBox(height: 9.h)
-                                        ],
-                                      )
+                                      // Column(
+                                      //   children: [
+                                      //     GestureDetector(
+                                      //         onTap: () {},
+                                      //         child: Container(
+                                      //             color: Colors.transparent,
+                                      //             padding: EdgeInsets.symmetric(
+                                      //                 horizontal: 10.w, vertical: 10.h),
+                                      //             child: SvgPicture.asset(
+                                      //                 'assets/images/voice_call.svg',
+                                      //                 width: 60))),
+                                      //     SizedBox(height: 4.h),
+                                      //     SizedBox(
+                                      //         width: 60 + 24.w,
+                                      //         child: Text(
+                                      //           'profile_voicechat'.tr(),
+                                      //           style: const TextStyle(
+                                      //               fontWeight: FontWeight.w500,
+                                      //               fontSize: 14,
+                                      //               color: Color(0xFFF5F5F5)),
+                                      //           textAlign: TextAlign.center,
+                                      //         )),
+                                      //     SizedBox(height: 9.h)
+                                      //   ],
+                                      // ),
+                                      // Column(
+                                      //   children: [
+                                      //     GestureDetector(
+                                      //         onTap: () {},
+                                      //         child: Container(
+                                      //             color: Colors.transparent,
+                                      //             padding: EdgeInsets.symmetric(
+                                      //                 horizontal: 10.w, vertical: 10.h),
+                                      //             child: SvgPicture.asset(
+                                      //                 'assets/images/face_call.svg',
+                                      //                 width: 60))),
+                                      //     SizedBox(height: 4.h),
+                                      //     SizedBox(
+                                      //         width: 60 + 24.w,
+                                      //         child: Text(
+                                      //           'profile_videochat'.tr(),
+                                      //           style: const TextStyle(
+                                      //               fontWeight: FontWeight.w500,
+                                      //               fontSize: 14,
+                                      //               color: Color(0xFFF5F5F5)),
+                                      //           textAlign: TextAlign.center,
+                                      //         )),
+                                      //     SizedBox(height: 9.h)
+                                      //   ],
+                                      // )
                                     ],
                                     SizedBox(width: 20.w)
                                   ],
