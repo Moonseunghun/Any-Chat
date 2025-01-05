@@ -55,10 +55,10 @@ class InviteFriendPage extends HookConsumerWidget {
                         GestureDetector(
                             onTap: () {
                               if (arguments == null) {
-                                ChatService().makeRoom(ref,
+                                chatService.makeRoom(
                                     selectedFriends.value.map((e) => e.friend.userId).toList());
                               } else {
-                                ChatService().inviteUsers(ref,
+                                chatService.inviteUsers(
                                     selectedFriends.value.map((e) => e.friend.userId).toList());
                                 router.pop();
                               }

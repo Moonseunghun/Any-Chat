@@ -30,7 +30,6 @@ import 'firebase_options.dart';
 
 late final SharedPreferences prefs;
 Socket? socket;
-bool socketConnected = false;
 bool internetConnected = true;
 
 Future<void> main() async {
@@ -92,6 +91,7 @@ class MyApp extends HookConsumerWidget {
 
     useEffect(() {
       translateService = TranslateService(ref);
+      chatService = ChatService(ref);
       late final StreamSubscription<List<ConnectivityResult>> subscription;
 
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -111,14 +111,14 @@ class MyApp extends HookConsumerWidget {
               result.contains(ConnectivityResult.wifi)) {
             if (!internetConnected) {
               if (auth != null) {
-                ChatService().connectSocket(ref);
+                chatService.connectSocket();
 
                 FriendService().getFriends(ref, isInit: true).then((value) {
                   friendsCursor = value;
                 });
 
                 FriendService().getPinned(ref);
-                ChatService().getRooms(ref);
+                chatService.getRooms();
               }
 
               internetConnected = true;
@@ -137,20 +137,23 @@ class MyApp extends HookConsumerWidget {
 
     useEffect(() {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (auth != null && appLifecycleState == AppLifecycleState.resumed && internetConnected) {
-          ChatService().connectSocket(ref);
+        if (auth != null &&
+            appLifecycleState == AppLifecycleState.resumed &&
+            internetConnected &&
+            ref.read(userProvider)?.auto == false) {
+          chatService.connectSocket();
 
           FriendService().getFriends(ref, isInit: true).then((value) {
             friendsCursor = value;
           });
           FriendService().getPinned(ref);
-          ChatService().getRooms(ref);
+          chatService.getRooms();
         }
       });
 
       return () {
-        if (auth == null && socketConnected) {
-          ChatService().disposeSocket();
+        if (auth == null && socket?.connected == true) {
+          chatService.disposeSocket();
         }
       };
     }, [ref.watch(userProvider)?.id, ref.watch(userProvider)?.auto, appLifecycleState]);

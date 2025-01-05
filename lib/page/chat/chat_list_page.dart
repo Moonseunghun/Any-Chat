@@ -81,7 +81,7 @@ class ChatListPage extends HookConsumerWidget {
     return InkWell(
         onTap: () {
           newChat.value = false;
-          ChatService().joinRoom(ref, chatRoomInfo.id, chatRoomInfo.name);
+          chatService.joinRoom(chatRoomInfo.id, chatRoomInfo.name);
         },
         child: Container(
             padding: EdgeInsets.symmetric(vertical: 12.h),

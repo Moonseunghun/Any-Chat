@@ -49,12 +49,12 @@ class QrViewPage extends HookConsumerWidget {
                   canScan = true;
                 });
               } else if (index == 1) {
-                ChatService().makeRoom(ref, [scanData.code!]).catchError((e) {
+                chatService.makeRoom([scanData.code!]).catchError((e) {
                   controller.resumeCamera();
                   canScan = true;
                 });
               } else if (index == 2) {
-                ChatService().inviteUsers(ref, [scanData.code!]);
+                chatService.inviteUsers([scanData.code!]);
                 router.pop();
                 router.pop();
               }

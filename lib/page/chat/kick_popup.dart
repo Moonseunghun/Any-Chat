@@ -37,7 +37,7 @@ kickPopup(BuildContext context, WidgetRef ref, ChatUserInfo kickedUser) {
                     const Spacer(),
                     GestureDetector(
                         onTap: () {
-                          ChatService().kickUser(ref, kickedUser.id);
+                          chatService.kickUser(kickedUser.id);
                           OverlayComponent.hideOverlay();
                         },
                         child: Container(

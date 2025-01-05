@@ -317,7 +317,7 @@ class ProfilePage extends HookConsumerWidget {
                                         children: [
                                           GestureDetector(
                                               onTap: () {
-                                                ChatService().makeRoom(ref, [friend.friend.userId]);
+                                                chatService.makeRoom([friend.friend.userId]);
                                               },
                                               child: Container(
                                                   color: Colors.transparent,

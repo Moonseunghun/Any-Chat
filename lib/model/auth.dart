@@ -28,7 +28,7 @@ class Auth {
 
   static clear() async {
     auth = null;
-    ChatService().disposeSocket();
+    chatService.disposeSocket();
     await prefs.remove('access_token');
     await prefs.remove('refresh_token');
     await prefs.remove('totalCount');

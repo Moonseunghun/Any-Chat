@@ -51,8 +51,11 @@ extension FutureExtension<T> on Future<T> {
       return onValue(result);
     }).catchError((e, s) {
       ref?.read(loadingProvider.notifier).off();
-      print(e);
-      return (e as Error).handleError(message: errorMessage, errorHandler: errorHandler);
+      if (e is Error) {
+        return e.handleError(message: errorMessage, errorHandler: errorHandler);
+      } else {
+        throw e;
+      }
     });
   }
 }
