@@ -13,16 +13,17 @@ class DatabaseService {
     final Directory documentsDirectory = await getApplicationDocumentsDirectory();
     final String path = join(documentsDirectory.path, 'anychat.db');
 
-    _database = await openDatabase(path, version: 2, onCreate: (db, version) async {
+    _database = await openDatabase(path, version: 1, onCreate: (db, version) async {
       await db.execute('''
       CREATE TABLE ChatRoomInfo (
         id TEXT PRIMARY KEY,
         name TEXT NOT NULL,
         lastMessage TEXT,
-        profileImg TEXT,
+        profileImages TEXT,
         messageType INTEGER,
         lastMessageUpdatedAt TEXT,
-        unreadCount INTEGER
+        unreadCount INTEGER,
+        lang TEXT
       )
     ''');
 
@@ -64,31 +65,6 @@ class DatabaseService {
       PRIMARY KEY (chatRoomId, userId)
       )
       ''');
-    }, onUpgrade: (db, oldVersion, newVersion) async {
-      if (oldVersion < 2) {
-        await db.execute('''
-        CREATE TABLE ChatRoomInfo_new (
-        id TEXT PRIMARY KEY,
-        name TEXT NOT NULL,
-        lastMessage TEXT,
-        profileImages TEXT,
-        messageType INTEGER,
-        lastMessageUpdatedAt TEXT,
-        unreadCount INTEGER,
-        lang TEXT
-        )
-        ''');
-
-        await db.execute('''
-        INSERT INTO ChatRoomInfo_new (id, name, lastMessage, profileImages, messageType, lastMessageUpdatedAt, unreadCount)
-        SELECT id, name, lastMessage, profileImg, messageType, lastMessageUpdatedAt, unreadCount
-        FROM ChatRoomInfo
-        ''');
-
-        await db.execute('DROP TABLE ChatRoomInfo');
-
-        await db.execute('ALTER TABLE ChatRoomInfo_new RENAME TO ChatRoomInfo');
-      }
     });
   }
 
