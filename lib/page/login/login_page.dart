@@ -30,15 +30,13 @@ class LoginPage extends HookConsumerWidget {
         const Expanded(flex: 81, child: SizedBox()),
         InkWell(
             onTap: () {
-              final LoginService loginService = LoginService();
-
-              loginService.signInWithGoogle(ref).then((value) {
+              loginService.signInWithGoogle().then((value) {
                 if (value) {
-                  loginService.registerCheck(ref).then((result) {
+                  loginService.registerCheck().then((result) {
                     if (result) {
-                      loginService.login(ref).then((_) async {
-                        await UserService().getMe(ref).then((_) async {
-                          await UserService().setLanguage(ref, language, callbackPop: false);
+                      loginService.login().then((_) async {
+                        await userService.getMe().then((_) async {
+                          await userService.setLanguage(language, callbackPop: false);
                           router.go(MainLayout.routeName);
                         });
                       });
@@ -75,15 +73,13 @@ class LoginPage extends HookConsumerWidget {
         const Expanded(flex: 18, child: SizedBox()),
         InkWell(
             onTap: () {
-              final LoginService loginService = LoginService();
-
-              loginService.signInWithApple(ref).then((value) {
+              loginService.signInWithApple().then((value) {
                 if (value) {
-                  loginService.registerCheck(ref).then((result) {
+                  loginService.registerCheck().then((result) {
                     if (result) {
-                      loginService.login(ref).then((_) async {
-                        await UserService().getMe(ref).then((_) async {
-                          await UserService().setLanguage(ref, language, callbackPop: false);
+                      loginService.login().then((_) async {
+                        await userService.getMe().then((_) async {
+                          await userService.setLanguage(language, callbackPop: false);
                           router.go(MainLayout.routeName);
                         });
                       });

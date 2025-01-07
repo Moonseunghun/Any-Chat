@@ -89,11 +89,11 @@ class SetNicknamePage extends HookConsumerWidget {
                 return;
               }
 
-              LoginService()
-                  .registerWithEmail(ref, language, idController.value.text.trim(),
+              loginService
+                  .registerWithEmail(language, idController.value.text.trim(),
                       nicknameController.value.text.trim())
                   .then((_) async {
-                await UserService().getMe(ref).then((_) => router.go(MainLayout.routeName));
+                await userService.getMe().then((_) => router.go(MainLayout.routeName));
               });
             },
             child: Container(

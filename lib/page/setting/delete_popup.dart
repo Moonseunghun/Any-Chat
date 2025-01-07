@@ -61,7 +61,7 @@ deletePopup(BuildContext context, WidgetRef ref) {
                         GestureDetector(
                             onTap: () {
                               OverlayComponent.hideOverlay();
-                              UserService().deleteAccount(ref, context);
+                              userService.deleteAccount(context);
                             },
                             child: Container(
                                 width: 114.w,

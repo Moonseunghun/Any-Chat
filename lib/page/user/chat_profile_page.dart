@@ -133,7 +133,7 @@ class ChatProfilePage extends HookConsumerWidget {
                                       ref: ref,
                                       context: context,
                                       onSelected: (file) {
-                                        UserService().updateProfile(ref, backgroundImage: file);
+                                        userService.updateProfile(backgroundImage: file);
                                       });
                                 },
                                 child: Container(
@@ -150,7 +150,7 @@ class ChatProfilePage extends HookConsumerWidget {
                                   ref: ref,
                                   context: context,
                                   onSelected: (file) {
-                                    UserService().updateProfile(ref, profileImage: file);
+                                    userService.updateProfile(profileImage: file);
                                   });
                             }
                           },
@@ -443,9 +443,7 @@ class ChatProfilePage extends HookConsumerWidget {
                                       } else if (value.trim().length > 12) {
                                         errorToast(message: '닉네임은 12자 이내로 입력해주세요');
                                       } else {
-                                        UserService()
-                                            .updateProfile(ref, name: value.trim())
-                                            .then((_) {
+                                        userService.updateProfile(name: value.trim()).then((_) {
                                           nameClicked.value = false;
                                         });
                                       }
@@ -456,8 +454,8 @@ class ChatProfilePage extends HookConsumerWidget {
                                       } else if (value.trim().length > 60) {
                                         errorToast(message: '상태메세지는 60자 이내로 입력해주세요');
                                       } else {
-                                        UserService()
-                                            .updateProfile(ref, stateMessage: value.trim())
+                                        userService
+                                            .updateProfile(stateMessage: value.trim())
                                             .then((_) {
                                           messageClicked.value = false;
                                         });

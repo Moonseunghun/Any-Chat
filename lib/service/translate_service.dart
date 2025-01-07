@@ -7,7 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../model/message.dart';
 
-late final TranslateService translateService;
+late TranslateService translateService;
 
 class TranslateService {
   final WidgetRef ref;

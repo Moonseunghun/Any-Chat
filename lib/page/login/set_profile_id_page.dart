@@ -64,8 +64,8 @@ class SetProfileIdPage extends HookConsumerWidget {
                     return;
                   }
 
-                  LoginService().register(ref, language, idController.text.trim()).then((_) async {
-                    await UserService().getMe(ref).then((_) => router.go(MainLayout.routeName));
+                  loginService.register(language, idController.text.trim()).then((_) async {
+                    await userService.getMe().then((_) => router.go(MainLayout.routeName));
                   });
                 },
                 child: Container(

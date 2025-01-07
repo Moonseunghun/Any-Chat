@@ -19,10 +19,16 @@ import '../main.dart';
 import '../model/auth.dart';
 import '../state/util_state.dart';
 
+late LoginService loginService;
+
 class LoginService extends HttpClient {
   final String basePath = '/account/api/auth';
 
-  Future<bool> signInWithGoogle(WidgetRef ref) async {
+  final WidgetRef ref;
+
+  LoginService(this.ref);
+
+  Future<bool> signInWithGoogle() async {
     late final bool result;
     ref.read(loadingProvider.notifier).on();
     try {
@@ -48,7 +54,7 @@ class LoginService extends HttpClient {
     return result;
   }
 
-  Future<bool> signInWithApple(WidgetRef ref) async {
+  Future<bool> signInWithApple() async {
     late final bool result;
     ref.read(loadingProvider.notifier).on();
     try {
@@ -74,7 +80,7 @@ class LoginService extends HttpClient {
     return result;
   }
 
-  Future<bool> registerCheck(WidgetRef ref) async {
+  Future<bool> registerCheck() async {
     final params = {
       'token': prefs.getString('id_token'),
       'providerTypeId': LoginType.getByProviderId(prefs.getString('login_type')!).value
@@ -90,7 +96,7 @@ class LoginService extends HttpClient {
     );
   }
 
-  Future<void> register(WidgetRef ref, Language language, String profileId) async {
+  Future<void> register(Language language, String profileId) async {
     final params = {
       'token': prefs.getString('id_token'),
       'providerTypeId': LoginType.getByProviderId(prefs.getString('login_type')!).value,
@@ -115,8 +121,7 @@ class LoginService extends HttpClient {
     });
   }
 
-  Future<void> registerWithEmail(
-      WidgetRef ref, Language language, String profileId, String nickname) async {
+  Future<void> registerWithEmail(Language language, String profileId, String nickname) async {
     final params = {
       'email': email,
       'password': password,
@@ -142,7 +147,7 @@ class LoginService extends HttpClient {
     });
   }
 
-  Future<void> login(WidgetRef ref) async {
+  Future<void> login() async {
     final LoginType loginType = LoginType.getByProviderId(prefs.getString('login_type')!);
 
     final params = {
@@ -169,7 +174,7 @@ class LoginService extends HttpClient {
     );
   }
 
-  Future<void> loginWithEmail(WidgetRef ref, String email, String password) async {
+  Future<void> loginWithEmail(String email, String password) async {
     final params = {'fcmToken': 'tmp', 'deviceId': await _getDeviceId(), 'deviceUUID': _getUUID()};
 
     final String credentials = "$email:$password";

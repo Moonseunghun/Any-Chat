@@ -25,10 +25,16 @@ import '../model/auth.dart';
 import '../model/friend.dart';
 import '../page/login/register_page.dart';
 
+late UserService userService;
+
 class UserService extends SecuredHttpClient {
   final String basePath = '/account/api/users';
 
-  Future<void> getMe(WidgetRef ref) async {
+  final WidgetRef ref;
+
+  UserService(this.ref);
+
+  Future<void> getMe() async {
     await get(path: '$basePath/get-me', converter: (result) => result['data']).run(
       ref,
       (data) async {
@@ -38,7 +44,7 @@ class UserService extends SecuredHttpClient {
     );
   }
 
-  Future<void> setProfileId(WidgetRef ref, String profileId) async {
+  Future<void> setProfileId(String profileId) async {
     await put(
         path: '$basePath/profile-id',
         queryParams: {'profileId': profileId},
@@ -55,7 +61,7 @@ class UserService extends SecuredHttpClient {
     });
   }
 
-  Future<void> updateProfile(WidgetRef ref,
+  Future<void> updateProfile(
       {String? name, String? stateMessage, File? profileImage, File? backgroundImage}) async {
     await put(
       path: '$basePath/profile',
@@ -87,7 +93,7 @@ class UserService extends SecuredHttpClient {
     }, errorMessage: '프로필 수정에 실패했습니다');
   }
 
-  Future<void> setLanguage(WidgetRef ref, Language language, {bool callbackPop = true}) async {
+  Future<void> setLanguage(Language language, {bool callbackPop = true}) async {
     await put(path: '$basePath/language', queryParams: {'lang': language.code}).run(ref, (_) {
       ref.read(userProvider.notifier).setLanguage(language);
       if (callbackPop) {
@@ -98,7 +104,7 @@ class UserService extends SecuredHttpClient {
     }, errorMessage: '언어 설정에 실패했습니다');
   }
 
-  Future<String> getUserName(WidgetRef ref, String userId) async {
+  Future<String> getUserName(String userId) async {
     final Friend? friend =
         ref.read(friendsProvider).where((e) => e.friend.userId == userId).firstOrNull;
 
@@ -114,7 +120,7 @@ class UserService extends SecuredHttpClient {
     });
   }
 
-  Future<ChatUserInfo> getChatUserInfo(WidgetRef ref, String userId) async {
+  Future<ChatUserInfo> getChatUserInfo(String userId) async {
     return await get(
         path: '$basePath/user-id',
         queryParams: {'userId': userId},
@@ -123,7 +129,7 @@ class UserService extends SecuredHttpClient {
     });
   }
 
-  Future<void> logOut(WidgetRef ref) async {
+  Future<void> logOut() async {
     email = null;
     password = null;
     await Auth.clear();
@@ -137,7 +143,7 @@ class UserService extends SecuredHttpClient {
     CacheManager.clear();
   }
 
-  Future<void> deleteAccount(WidgetRef ref, BuildContext context) async {
+  Future<void> deleteAccount(BuildContext context) async {
     await delete(path: '/account/api/auth/cancel-account').run(ref, (_) {
       context.setLocale((Language.values
                   .where(
@@ -146,7 +152,7 @@ class UserService extends SecuredHttpClient {
               Language.us)
           .locale);
 
-      logOut(ref);
+      logOut();
       errorToast(message: '계정이 삭제되었습니다');
     }, errorMessage: '계정 삭제에 실패했습니다');
   }

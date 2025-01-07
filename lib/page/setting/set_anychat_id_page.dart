@@ -45,7 +45,7 @@ class SetAnychatIdPage extends HookConsumerWidget {
                         return;
                       }
 
-                      UserService().setProfileId(ref, idController.text.trim());
+                      userService.setProfileId(idController.text.trim());
                     },
                     child: Container(
                         color: Colors.transparent,

@@ -33,7 +33,7 @@ class MainLayout extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     useEffect(() {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        UserService().getMe(ref);
+        userService.getMe();
 
         DatabaseService.search('Friends', where: 'isPinned = ?', whereArgs: [0])
             .then((value) async {

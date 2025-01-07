@@ -116,7 +116,7 @@ class LanguageSelectPage extends HookConsumerWidget {
                         if (ref.read(userProvider) == null) {
                           router.go(LoginPage.routeName, extra: selectedLanguage.value);
                         } else {
-                          UserService().setLanguage(ref, selectedLanguage.value!);
+                          userService.setLanguage(selectedLanguage.value!);
                         }
                       },
                       child: Container(

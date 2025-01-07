@@ -709,7 +709,7 @@ class ChatPage extends HookConsumerWidget {
                       router.push(ChatProfilePage.routeName, extra: participant);
                     } else {
                       final ChatUserInfo chatUserInfo =
-                          await UserService().getChatUserInfo(ref, participant.id);
+                          await userService.getChatUserInfo(participant.id);
 
                       router.push(ChatProfilePage.routeName, extra: chatUserInfo);
                     }
@@ -1172,8 +1172,7 @@ class ChatPage extends HookConsumerWidget {
       GestureDetector(
           onTap: () async {
             if (participant != null) {
-              final ChatUserInfo chatUserInfo =
-                  await UserService().getChatUserInfo(ref, participant.id);
+              final ChatUserInfo chatUserInfo = await userService.getChatUserInfo(participant.id);
 
               router.push(ChatProfilePage.routeName, extra: chatUserInfo);
             } else {

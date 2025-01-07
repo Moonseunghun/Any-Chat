@@ -150,12 +150,12 @@ class Message extends Equatable {
           if (invitee != null) {
             inviteeNames.add(invitee.name);
           } else {
-            inviteeNames.add(await UserService().getUserName(ref, id));
+            inviteeNames.add(await userService.getUserName(id));
           }
         }
 
         if (inviter == null) {
-          inviterName = await UserService().getUserName(ref, map['inviterId']);
+          inviterName = await userService.getUserName(map['inviterId']);
         } else {
           inviterName = inviter.name;
         }
@@ -179,13 +179,13 @@ class Message extends Equatable {
             participants.where((e) => map['kickedOutId'] == e.id).firstOrNull;
 
         if (kicker == null) {
-          kickerName = await UserService().getUserName(ref, map['kickedById']);
+          kickerName = await userService.getUserName(map['kickedById']);
         } else {
           kickerName = kicker.name;
         }
 
         if (kicked == null) {
-          kickedName = await UserService().getUserName(ref, map['kickedOutId']);
+          kickedName = await userService.getUserName(map['kickedOutId']);
         } else {
           kickedName = kicked.name;
         }
@@ -205,7 +205,7 @@ class Message extends Equatable {
         exitUserName = map['exitUserName'];
       } else {
         if (exitUser == null) {
-          exitUserName = await UserService().getUserName(ref, map['exitUserId']);
+          exitUserName = await userService.getUserName(map['exitUserId']);
         } else {
           exitUserName = exitUser.name;
         }

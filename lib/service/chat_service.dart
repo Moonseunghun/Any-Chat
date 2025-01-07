@@ -26,7 +26,7 @@ import '../model/message.dart';
 import '../page/chat/chat_page.dart';
 import '../page/router.dart';
 
-late final ChatService chatService;
+late ChatService chatService;
 Function? _callback;
 
 class ChatService extends SecuredHttpClient {

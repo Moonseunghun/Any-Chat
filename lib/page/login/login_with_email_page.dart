@@ -61,12 +61,12 @@ class LoginWithEmailPage extends HookConsumerWidget {
                           return;
                         }
 
-                        LoginService()
+                        loginService
                             .loginWithEmail(
-                                ref, emailController.value.text, passwordController.value.text)
+                                emailController.value.text, passwordController.value.text)
                             .then((_) async {
-                          await UserService().getMe(ref).then((_) async {
-                            await UserService().setLanguage(ref, language, callbackPop: false);
+                          await userService.getMe().then((_) async {
+                            await userService.setLanguage(language, callbackPop: false);
                             router.go(MainLayout.routeName);
                           });
                         });
