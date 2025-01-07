@@ -195,7 +195,7 @@ class ChatListPage extends HookConsumerWidget {
                             fontSize: 14, fontWeight: FontWeight.w500, color: Color(0xFF3B3B3B))),
                     SizedBox(height: 5.h),
                     Text(
-                        chatRoomInfo.messageType == MessageType.file
+                        chatRoomInfo.messageType == MessageType.pdf
                             ? '파일'
                             : chatRoomInfo.messageType == MessageType.image
                                 ? '이미지'

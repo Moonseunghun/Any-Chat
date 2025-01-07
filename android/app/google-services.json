@@ -82,6 +82,22 @@
           }
         },
         {
+          "client_id": "763579885192-blh7bjfm7l10j91qgtcm2dar73t8h6ha.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.anychat.flutter",
+            "certificate_hash": "ae6264501ffafe92d32e68a390c33c9bdc3d1310"
+          }
+        },
+        {
+          "client_id": "763579885192-f2h2e7efu59tasmk1qgu7doofa1isifh.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.anychat.flutter",
+            "certificate_hash": "a24051d2c917992bb8239c035c5aa6abdc553b29"
+          }
+        },
+        {
           "client_id": "763579885192-epakl69dn21vroig9bplttg03rdbnmul.apps.googleusercontent.com",
           "client_type": 3
         }

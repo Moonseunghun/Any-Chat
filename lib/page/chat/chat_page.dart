@@ -332,7 +332,9 @@ class ChatPage extends HookConsumerWidget {
                                         if (message.messageType == MessageType.text ||
                                             message.messageType == MessageType.image ||
                                             message.messageType == MessageType.video ||
-                                            message.messageType == MessageType.file)
+                                            message.messageType == MessageType.pdf ||
+                                            message.messageType == MessageType.file ||
+                                            message.messageType == MessageType.archive)
                                           isMyMessage
                                               ? _myChat(
                                                   ref: ref,
@@ -350,7 +352,7 @@ class ChatPage extends HookConsumerWidget {
                                                   showOriginMessages: showOriginMessages,
                                                   optional: optional || afterSenderId == null
                                                       ? true
-                                                      : afterSenderId == ref.read(userProvider)!.id,
+                                                      : message.senderId != afterSenderId,
                                                   first: beforeMessage?.senderId == null
                                                       ? true
                                                       : beforeMessage?.messageType ==
@@ -359,8 +361,8 @@ class ChatPage extends HookConsumerWidget {
                                                               MessageType.kick ||
                                                           beforeMessage?.messageType ==
                                                               MessageType.leave ||
-                                                          beforeMessage?.senderId ==
-                                                              ref.read(userProvider)!.id,
+                                                          beforeMessage?.senderId !=
+                                                              message.senderId,
                                                   change: afterSenderId == null
                                                       ? true
                                                       : afterSenderId == ref.read(userProvider)!.id,
@@ -751,7 +753,9 @@ class ChatPage extends HookConsumerWidget {
                               message.messageType == MessageType.text ? Colors.white : Colors.black,
                           shape: RoundedRectangleBorder(
                             borderRadius: message.messageType == MessageType.text ||
-                                    message.messageType == MessageType.file
+                                    message.messageType == MessageType.pdf ||
+                                    message.messageType == MessageType.file ||
+                                    message.messageType == MessageType.archive
                                 ? BorderRadius.circular(16)
                                 : BorderRadius.zero,
                           ),
@@ -930,8 +934,12 @@ class ChatPage extends HookConsumerWidget {
                   shape: RoundedRectangleBorder(
                     borderRadius: message?.messageType == MessageType.text ||
                             loadingMessage?.messageType == MessageType.text ||
+                            message?.messageType == MessageType.pdf ||
+                            loadingMessage?.messageType == MessageType.pdf ||
                             message?.messageType == MessageType.file ||
-                            loadingMessage?.messageType == MessageType.file
+                            loadingMessage?.messageType == MessageType.file ||
+                            message?.messageType == MessageType.archive ||
+                            loadingMessage?.messageType == MessageType.archive
                         ? BorderRadius.circular(16)
                         : BorderRadius.zero,
                   ),

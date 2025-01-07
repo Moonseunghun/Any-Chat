@@ -11,8 +11,6 @@ import 'package:dio/dio.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:google_sign_in/google_sign_in.dart';
-import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import 'package:uuid/uuid.dart';
 
 import '../common/config.dart';
@@ -28,17 +26,16 @@ class LoginService extends HttpClient {
     late final bool result;
     ref.read(loadingProvider.notifier).on();
     try {
-      final GoogleSignInAccount? googleUser = await GoogleSignIn(
-              serverClientId:
-                  '763579885192-epakl69dn21vroig9bplttg03rdbnmul.apps.googleusercontent.com')
-          .signIn();
+      final provider = GoogleAuthProvider();
 
-      final GoogleSignInAuthentication? googleAuth = await googleUser?.authentication;
+      final userCredential = await FirebaseAuth.instance.signInWithProvider(provider);
 
-      if (googleUser == null || googleAuth == null) return false;
+      final idToken = await userCredential.user?.getIdToken();
+
+      if (idToken == null) return false;
 
       await prefs.setString('login_type', 'google.com');
-      await prefs.setString('id_token', googleAuth.idToken!);
+      await prefs.setString('id_token', idToken);
 
       result = true;
     } catch (error) {
@@ -55,25 +52,19 @@ class LoginService extends HttpClient {
     late final bool result;
     ref.read(loadingProvider.notifier).on();
     try {
-      final AuthorizationCredentialAppleID appleCredential =
-          await SignInWithApple.getAppleIDCredential(
-        scopes: [
-          AppleIDAuthorizationScopes.email,
-          AppleIDAuthorizationScopes.fullName,
-        ],
-      );
+      final provider = AppleAuthProvider();
 
-      final OAuthCredential credential = OAuthProvider('apple.com').credential(
-        idToken: appleCredential.identityToken,
-        accessToken: appleCredential.authorizationCode,
-      );
+      final userCredential = await FirebaseAuth.instance.signInWithProvider(provider);
 
-      if (credential.idToken == null) return false;
+      final idToken = await userCredential.user?.getIdToken();
+
+      if (idToken == null) return false;
       await prefs.setString('login_type', 'apple.com');
-      await prefs.setString('id_token', credential.idToken!);
+      await prefs.setString('id_token', idToken);
 
       result = true;
     } catch (error) {
+      print(error);
       errorToast(message: "fail_login_apple".tr());
       result = false;
     } finally {
@@ -85,12 +76,14 @@ class LoginService extends HttpClient {
 
   Future<bool> registerCheck(WidgetRef ref) async {
     final params = {
-      'idToken': prefs.getString('id_token'),
+      'token': prefs.getString('id_token'),
       'providerTypeId': LoginType.getByProviderId(prefs.getString('login_type')!).value
     };
 
     return await post(
-        path: '$basePath/check', queryParams: params, converter: (result) => result['data']).run(
+        path: '$basePath/check-firebase',
+        queryParams: params,
+        converter: (result) => result['data']).run(
       ref,
       (result) => result['isRegistered'],
       errorMessage: '회원가입 여부를 확인하는데 실패했습니다',
@@ -99,7 +92,7 @@ class LoginService extends HttpClient {
 
   Future<void> register(WidgetRef ref, Language language, String profileId) async {
     final params = {
-      'idToken': prefs.getString('id_token'),
+      'token': prefs.getString('id_token'),
       'providerTypeId': LoginType.getByProviderId(prefs.getString('login_type')!).value,
       'profileId': profileId,
       'lang': language.code,
@@ -109,7 +102,7 @@ class LoginService extends HttpClient {
     };
 
     await post(
-        path: '$basePath/register/social',
+        path: '$basePath/register/firebase',
         queryParams: params,
         converter: (result) => result['data']).run(ref, (data) {
       auth = Auth(accessToken: data['accessToken'], refreshToken: data['refreshToken']);
@@ -153,7 +146,7 @@ class LoginService extends HttpClient {
     final LoginType loginType = LoginType.getByProviderId(prefs.getString('login_type')!);
 
     final params = {
-      'idToken': prefs.getString('id_token'),
+      'token': prefs.getString('id_token'),
       'providerTypeId': loginType.value,
       'fcmToken': 'tmp',
       'deviceId': await _getDeviceId(),
@@ -161,7 +154,7 @@ class LoginService extends HttpClient {
     };
 
     await post(
-        path: '$basePath/login/social',
+        path: '$basePath/login/firebase',
         queryParams: params,
         converter: (result) => result['data']).run(
       ref,

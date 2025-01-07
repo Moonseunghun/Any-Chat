@@ -15,7 +15,9 @@ enum MessageType {
   text(1000),
   image(1002),
   video(1003),
-  file(1006),
+  file(1005),
+  pdf(1006),
+  archive(1007),
   invite(2000),
   leave(2001),
   kick(2002);
@@ -56,7 +58,7 @@ class LoadingMessage {
         return content as File;
       case MessageType.video:
         return content as File;
-      case MessageType.file:
+      case MessageType.pdf:
         return content as File;
       default:
         return '';
@@ -111,7 +113,7 @@ class Message extends Equatable {
         return content as Map<String, dynamic>;
       case MessageType.video:
         return content as Map<String, dynamic>;
-      case MessageType.file:
+      case MessageType.pdf || MessageType.file || MessageType.archive:
         return content as Map<String, dynamic>;
       case MessageType.invite:
         return '${(content as Map<String, dynamic>)['inviterName']}님께서 ${(content as Map<String, dynamic>)['inviteeNames'].join(', ')}님을 초대했습니다.';
@@ -210,7 +212,10 @@ class Message extends Equatable {
       }
 
       content = {'exitUserName': exitUserName};
-    } else if (messageType == MessageType.image || messageType == MessageType.file) {
+    } else if (messageType == MessageType.image ||
+        messageType == MessageType.pdf ||
+        messageType == MessageType.file ||
+        messageType == MessageType.archive) {
       final Map<String, dynamic> map =
           (json['content'] is String ? jsonDecode(json['content']) : json['content']);
 
@@ -261,8 +266,10 @@ class Message extends Equatable {
     late final dynamic content;
 
     if (message.messageType == MessageType.image ||
+        message.messageType == MessageType.pdf ||
+        message.messageType == MessageType.video ||
         message.messageType == MessageType.file ||
-        message.messageType == MessageType.video) {
+        message.messageType == MessageType.archive) {
       content = jsonEncode({
         'fileUrl': (message.content as Map<String, dynamic>)['path'],
         'fileName': (message.content as Map<String, dynamic>)['fileName']
