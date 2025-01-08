@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:anychat/common/cache_manager.dart';
 import 'package:anychat/model/chat.dart';
 import 'package:anychat/service/user_service.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:get_thumbnail_video/index.dart';
@@ -116,11 +117,18 @@ class Message extends Equatable {
       case MessageType.pdf || MessageType.file || MessageType.archive:
         return content as Map<String, dynamic>;
       case MessageType.invite:
-        return '${(content as Map<String, dynamic>)['inviterName']}님께서 ${(content as Map<String, dynamic>)['inviteeNames'].join(', ')}님을 초대했습니다.';
+        return 'invite_user'.tr(namedArgs: {
+          'Invite01': (content as Map<String, dynamic>)['inviterName'],
+          'Invite02': (content as Map<String, dynamic>)['inviteeNames'].join(', ')
+        });
       case MessageType.leave:
-        return '${(content as Map<String, dynamic>)['exitUserName']}님께서 퇴장하였습니다.';
+        return 'left_user'
+            .tr(namedArgs: {'user': (content as Map<String, dynamic>)['exitUserName']});
       case MessageType.kick:
-        return '${(content as Map<String, dynamic>)['kickerName']}님께서 ${(content as Map<String, dynamic>)['kickedName']}님을 강퇴했습니다.';
+        return 'kick_user'.tr(namedArgs: {
+          'Invite01': (content as Map<String, dynamic>)['kickerName'],
+          'Invite02': (content as Map<String, dynamic>)['kickedName']
+        });
     }
   }
 

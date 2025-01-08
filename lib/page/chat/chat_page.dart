@@ -1084,12 +1084,12 @@ class ChatPage extends HookConsumerWidget {
                         height: 50,
                         padding: EdgeInsets.only(left: 20.w),
                         alignment: Alignment.centerLeft,
-                        child: const DefaultTextStyle(
-                            style: TextStyle(
+                        child: DefaultTextStyle(
+                            style: const TextStyle(
                                 fontSize: 16,
                                 color: Color(0xFF3B3B3B),
                                 fontWeight: FontWeight.bold),
-                            child: Text('대화상대'))),
+                            child: Text('chat_partner'.tr()))),
                     SizedBox(height: 6.h),
                     Expanded(
                         child: SingleChildScrollView(
@@ -1116,12 +1116,12 @@ class ChatPage extends HookConsumerWidget {
                                       child: const Icon(Icons.add, color: Color(0xFF7C4DFF)),
                                     ),
                                     SizedBox(width: 11.w),
-                                    const DefaultTextStyle(
-                                        style: TextStyle(
+                                    DefaultTextStyle(
+                                        style: const TextStyle(
                                             fontSize: 16,
                                             color: Color(0xFF7C4DFF),
                                             fontWeight: FontWeight.w500),
-                                        child: Text('대화상대추가'))
+                                        child: Text('add_user'.tr()))
                                   ],
                                 ))),
                         SizedBox(height: 4.h),

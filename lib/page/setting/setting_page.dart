@@ -92,9 +92,12 @@ class SettingPage extends HookConsumerWidget {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(title,
-                          style: const TextStyle(
-                              fontSize: 16, fontWeight: FontWeight.w500, color: Color(0xFF3B3B3B))),
+                      Expanded(
+                          child: Text(title,
+                              style: const TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w500,
+                                  color: Color(0xFF3B3B3B)))),
                       if (optionText != null)
                         Text(optionText,
                             style: const TextStyle(fontSize: 16, color: Color(0xFF3B3B3B))),

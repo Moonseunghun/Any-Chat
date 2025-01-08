@@ -62,7 +62,7 @@ class ChatService extends SecuredHttpClient {
         converter: (result) => result['data']).run(ref, (result) {
       router.go(MainLayout.routeName);
       joinRoom(result['chatRoomId'], result['name']);
-    }, errorMessage: '채팅방을 생성하는데 실패했습니다.');
+    }, errorMessage: 'chat_create_err'.tr());
   }
 
   Future<String?> getMessages(ValueNotifier<List<ChatUserInfo>> participants,

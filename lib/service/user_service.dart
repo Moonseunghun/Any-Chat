@@ -99,7 +99,7 @@ class UserService extends SecuredHttpClient {
       if (callbackPop) {
         ref.read(chatRoomInfoProvider.notifier).updateLanguage();
         router.pop();
-        errorToast(message: '언어 설정이 완료되었습니다');
+        errorToast(message: 'chage_lang_suc'.tr());
       }
     }, errorMessage: '언어 설정에 실패했습니다');
   }
@@ -153,7 +153,7 @@ class UserService extends SecuredHttpClient {
           .locale);
 
       logOut();
-      errorToast(message: '계정이 삭제되었습니다');
+      errorToast(message: 'del_account_suc'.tr());
     }, errorMessage: '계정 삭제에 실패했습니다');
   }
 

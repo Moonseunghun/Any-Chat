@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -30,8 +31,9 @@ class QrViewPage extends HookConsumerWidget {
                   router.pop();
                 },
                 icon: const Icon(Icons.close, color: Color(0xFF3B3B3B), size: 24)),
-            title: const Text('QR 코드 스캔',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black)),
+            title: Text('friend_qr'.tr(),
+                style: const TextStyle(
+                    fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black)),
             centerTitle: true),
         body: QRView(
           key: _qrKey,

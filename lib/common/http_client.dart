@@ -4,8 +4,9 @@ import '../model/auth.dart';
 import './error.dart';
 import 'config.dart';
 
+final Dio dio = Dio();
+
 class HttpClient {
-  final Dio dio = Dio();
   final String baseUrl = HttpConfig.url;
 
   HttpClient();

@@ -92,7 +92,7 @@ class InviteFriendPage extends HookConsumerWidget {
                     Positioned(
                         child: Align(
                       alignment: Alignment.center,
-                      child: Text(arguments == null ? 'choice_partner'.tr() : '대화상대초대',
+                      child: Text(arguments == null ? 'choice_partner'.tr() : 'choice_partner'.tr(),
                           style: const TextStyle(
                               fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black)),
                     )),

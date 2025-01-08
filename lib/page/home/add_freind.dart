@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:anychat/common/overlay.dart';
 import 'package:anychat/page/home/qr_view_page.dart';
 import 'package:anychat/state/user_state.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -87,7 +88,7 @@ addFriendPopup(BuildContext context, WidgetRef ref) {
                                           fontSize: 12.r,
                                           color: const Color(0xFF3B3B3B),
                                           fontWeight: FontWeight.w500),
-                                      child: const Text('QR 코드'))
+                                      child: Text('friend_qr'.tr()))
                                 ],
                               ))),
                       SizedBox(width: 25.w),

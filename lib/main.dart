@@ -15,6 +15,7 @@ import 'package:anychat/service/user_service.dart';
 import 'package:anychat/state/user_state.dart';
 import 'package:anychat/state/util_state.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:dio/dio.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -27,6 +28,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:socket_io_client/socket_io_client.dart';
 import 'package:toastification/toastification.dart';
 
+import 'common/http_client.dart';
 import 'common/multi_lang_asset_loader.dart';
 import 'firebase_options.dart';
 
@@ -52,6 +54,16 @@ Future<void> main() async {
   await DatabaseService.getDatabase();
 
   await LauncherService().launcher();
+
+  // dio.interceptors.add(
+  //   LogInterceptor(
+  //     request: false,
+  //     requestHeader: false,
+  //     requestBody: true,
+  //     responseHeader: false,
+  //     responseBody: true,
+  //   ),
+  // );
 
   runApp(EasyLocalization(
       supportedLocales: const [

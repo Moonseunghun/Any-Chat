@@ -255,7 +255,7 @@ class ChatProfilePage extends HookConsumerWidget {
                                   const Spacer(),
                                   Text(
                                     chatUser.id == user.id
-                                        ? user.userInfo.stateMessage ?? '여기에 상태메세지를 입력해주세요'
+                                        ? user.userInfo.stateMessage ?? 'status_msg'.tr()
                                         : chatUser.stateMessage ?? '',
                                     style: const TextStyle(
                                         fontSize: 12,
