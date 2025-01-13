@@ -45,9 +45,9 @@ class ChatPage extends HookConsumerWidget {
   ChatPage(this.chatRoomHeader, {super.key});
 
   final Map<String, String> plusMenu = {
-    'album': '앨범',
+    'album': 'album'.tr(),
     'camera_circled': 'cam_title'.tr(),
-    'file': '파일',
+    'file': 'file'.tr(),
     'contact': 'contact_title'.tr(),
     'voice_call_circled': '음성통화',
     'face_call_circled': '영상통화'
@@ -84,6 +84,11 @@ class ChatPage extends HookConsumerWidget {
       if (keyboardHeight > plusMenuHeight.value) {
         plusMenuHeight.value = keyboardHeight;
       }
+
+      if (keyboardHeight == 0 && !showPlusMenu.value && focusNode.hasFocus) {
+        FocusScope.of(context).unfocus();
+      }
+
       return () {};
     }, [keyboardHeight]);
 
@@ -455,7 +460,7 @@ class ChatPage extends HookConsumerWidget {
                                                   border: InputBorder.none,
                                                   contentPadding: EdgeInsets.symmetric(
                                                       horizontal: 16.w, vertical: 10),
-                                                  hintText: '메세지를 입력해주세요',
+                                                  hintText: 'enter_msg'.tr(),
                                                   hintStyle: const TextStyle(
                                                       fontSize: 14,
                                                       fontWeight: FontWeight.w500,
@@ -1281,7 +1286,7 @@ class ChatPage extends HookConsumerWidget {
       TextEditingController textController) async {
     await ImagePicker().pickMedia(imageQuality: 10).then((value) {
       if (value != null) {
-        if (['mov', 'mp4', 'temp'].contains(value.path.split('.').last)) {
+        if (['mov', 'mp4', 'temp', 'avi'].contains(value.path.split('.').last)) {
           selectedVideo.value = File(value.path);
           videoPlayerController.value = VideoPlayerController.file(selectedVideo.value!);
           chewieController.value = ChewieController(
@@ -1305,10 +1310,8 @@ class ChatPage extends HookConsumerWidget {
       ValueNotifier<VideoPlayerController?> videoPlayerController,
       TextEditingController textController) async {
     final XFile? xFile = await router.push(CameraPage.routeName);
-    print('xFile: ${xFile?.path}');
-
     if (xFile != null) {
-      if (['mov', 'mp4', 'temp'].contains(xFile.path.split('.').last)) {
+      if (['mov', 'mp4', 'temp', 'avi'].contains(xFile.path.split('.').last)) {
         selectedVideo.value = File(xFile.path);
         videoPlayerController.value = VideoPlayerController.file(selectedVideo.value!);
         chewieController.value = ChewieController(

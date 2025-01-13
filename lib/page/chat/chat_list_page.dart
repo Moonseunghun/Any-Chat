@@ -196,9 +196,9 @@ class ChatListPage extends HookConsumerWidget {
                     SizedBox(height: 5.h),
                     Text(
                         chatRoomInfo.messageType == MessageType.pdf
-                            ? '파일'
+                            ? 'file'.tr()
                             : chatRoomInfo.messageType == MessageType.image
-                                ? '이미지'
+                                ? 'album'.tr()
                                 : chatRoomInfo.messageType == MessageType.video
                                     ? 'video'.tr()
                                     : chatRoomInfo.targetLastMessage,

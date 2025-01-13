@@ -123,7 +123,7 @@ class Message extends Equatable {
         });
       case MessageType.leave:
         return 'left_user'
-            .tr(namedArgs: {'user': (content as Map<String, dynamic>)['exitUserName']});
+            .tr(namedArgs: {'nick01': (content as Map<String, dynamic>)['exitUserName']});
       case MessageType.kick:
         return 'kick_user'.tr(namedArgs: {
           'Invite01': (content as Map<String, dynamic>)['kickerName'],
