@@ -31,7 +31,7 @@ class VideoPlayerPage extends HookWidget {
               videoPlayerController: videoController,
               autoPlay: true,
               looping: false,
-              allowFullScreen: false,
+              allowFullScreen: true,
               aspectRatio: videoController.value.aspectRatio,
               allowPlaybackSpeedChanging: false,
             );
@@ -45,7 +45,7 @@ class VideoPlayerPage extends HookWidget {
             videoPlayerController: videoController,
             autoPlay: true,
             looping: false,
-            allowFullScreen: false,
+            allowFullScreen: true,
             aspectRatio: videoController.value.aspectRatio,
             allowPlaybackSpeedChanging: false,
           );
